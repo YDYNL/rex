@@ -12,6 +12,10 @@ directories:
 files:
   - out/**
   - "!**/*.map"
+  # pdfjs-dist 的可选原生依赖 @napi-rs/canvas（仅 Node 服务端渲染场景使用）
+  # 本应用 pdfjs 跑在渲染进程（浏览器 Canvas），此模块永不加载；
+  # 且其在 mac universal 合并时触发 "same in both x64 and arm64" 错误，故剔除
+  - "!**/node_modules/@napi-rs/**"
 
 # icon.ico 放到安装目录 resources 根，主进程用 process.resourcesPath 读取
 extraResources:
