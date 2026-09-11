@@ -1,0 +1,83 @@
+# electron-builder 打包配置：一次构建产出「NSIS 安装版 + 便携版 zip」双产物
+# - 安装版支持 electron-updater 自动升级；便携版解压即用、可整目录拷贝到其他电脑
+appId: com.rex.app
+productName: ReX
+copyright: Copyright © 2026 ReX
+
+directories:
+  output: dist
+  buildResources: resources
+
+# 主进程入口在 out/main/index.js（electron-vite 构建产物）
+files:
+  - out/**
+  - "!**/*.map"
+
+# icon.ico 放到安装目录 resources 根，主进程用 process.resourcesPath 读取
+extraResources:
+  - from: resources/icon.ico
+    to: icon.ico
+  # AI 引擎目录（增强包安装后填充 ollama 运行时；标准包不存在时仅有 .gitkeep 占位）
+  - from: resources/ai-engine
+    to: ai-engine
+    filter:
+      - "**/*"
+      - "!.gitkeep"
+
+asar: true
+
+win:
+  icon: resources/icon.ico
+  # zip 产物名（v26 无 zip 配置块，经 win.artifactName 命名；nsis.artifactName 优先级更高不受影响）
+  artifactName: ReX-Portable-${version}.${ext}
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: zip
+      arch:
+        - x64
+
+# NSIS 安装版：允许改安装目录，生成桌面/开始菜单快捷方式
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: ReX
+  artifactName: ReX-Setup-${version}.${ext}
+
+# 自动升级元数据（latest.yml 供 electron-updater 检查版本）
+publish:
+  - provider: generic
+    # 本地模拟更新服务器（方案C验证用）；正式发布改为 https://your-server/rex/
+    url: file:///C:/rex-update-server
+
+# ---------- macOS ----------
+# DMG 安装包 + zip（zip 是 electron-updater 在 mac 上的升级下载载体）
+# 注意：DMG 只能在 Mac 上构建（Windows 上仅能构建 mac zip）；mac 自动升级要求应用
+# 具备 Apple 代码签名（CSC_LINK/CSC_KEY_PASSWORD 环境变量提供证书，无需改此文件）
+mac:
+  icon: resources/icon.icns
+  category: public.app-category.productivity
+  artifactName: ReX-${version}-mac.${ext}
+  # universal：Intel + Apple Silicon 芯片通吃，一个 dmg 全覆盖
+  target:
+    - target: dmg
+      arch:
+        - universal
+    - target: zip
+      arch:
+        - universal
+
+dmg:
+  title: ReX ${version}
+  # 拖拽安装：左侧应用、右侧 Applications 快捷方式
+  contents:
+    - x: 130
+      'y': 220
+    - x: 410
+      'y': 220
+      type: link
+      path: /Applications

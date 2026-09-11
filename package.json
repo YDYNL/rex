@@ -1,0 +1,49 @@
+{
+  "name": "rex",
+  "version": "1.0.0",
+  "description": "ReX · 本地文档智能伴读工具",
+  "main": "./out/main/index.js",
+  "author": "rex",
+  "private": true,
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "dist": "electron-vite build && electron-builder --win --publish never",
+    "dist:mac": "electron-vite build && electron-builder --mac --publish never",
+    "release": "node scripts/release.mjs",
+    "engine:pack": "node scripts/make-engine-pack.mjs",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web"
+  },
+  "dependencies": {
+    "docx-preview": "^0.4.0",
+    "electron-updater": "^6.8.9",
+    "epubjs": "^0.3.93",
+    "highlight.js": "^11.10.0",
+    "jszip": "^3.10.1",
+    "pdfjs-dist": "^4.7.76",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "rehype-highlight": "^7.0.0",
+    "remark-gfm": "^4.0.0",
+    "sql.js": "^1.14.2",
+    "three": "^0.185.1",
+    "xlsx": "^0.18.5",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@types/sql.js": "^1.4.9",
+    "@types/three": "^0.185.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^33.0.0",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^2.3.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.3"
+  }
+}

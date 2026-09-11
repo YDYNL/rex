@@ -1,0 +1,73 @@
+# GitHub Actions 云构建：Windows + macOS 安装包
+# - 手动触发：仓库 Actions 页面 → Build Installers → Run workflow
+# - 自动触发：推送 tag（如 v1.0.1）时自动构建全平台
+# - 产物：构建完成后在 run 页面 Artifacts 区下载（zip 包内含安装包）
+# - mac 产物为 universal（Intel + Apple Silicon 通吃），无需签名即可构建
+#   （未签名应用首次打开需右键 → 打开；将来配 Apple 证书走 CSC_LINK 环境变量即可）
+# - 免费额度说明：私有仓库 2000 分钟/月，macOS 任务按 10 倍计（一次约 100 分钟）；
+#   公开仓库完全免费不限量
+name: Build Installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Windows 安装包
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建（NSIS 安装版 + 便携版）
+        run: npm run dist
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: rex-windows-${{ github.run_number }}
+          path: |
+            dist/ReX-Setup-*.exe
+            dist/ReX-Portable-*.zip
+            dist/latest.yml
+          if-no-files-found: error
+
+  build-mac:
+    name: macOS 安装包（universal）
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建（DMG 安装包 + 升级 zip）
+        run: npm run dist:mac
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: rex-mac-${{ github.run_number }}
+          path: |
+            dist/ReX-*-mac.dmg
+            dist/ReX-*-mac.zip
+            dist/latest-mac.yml
+          if-no-files-found: error
