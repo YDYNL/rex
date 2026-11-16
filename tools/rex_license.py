@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-another_license.py — Another 授权签发工具（主控侧，含私钥，切勿分发）
+rex_license.py — ReX 授权签发工具（主控侧，含私钥，切勿分发）
 =====================================================================
 用法（用内置 runtime 的 python 执行）：
 
@@ -80,7 +80,7 @@ def cmd_verify(args):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Another 授权签发/校验")
+    ap = argparse.ArgumentParser(description="ReX 授权签发/校验")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("machine-id", help="打印本机指纹")

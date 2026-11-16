@@ -1,5 +1,5 @@
 /**
- * main.js — Another 桌面端主进程（v0.2）
+ * main.js — ReX 桌面端主进程（v0.2）
  * =================================================
  * 架构：
  *   Electron 窗口  →  http://127.0.0.1:<UI_PORT>/            （Node 内嵌静态服务，托管 web/）
@@ -28,22 +28,31 @@ const { spawn, execFileSync } = require('child_process');
 
 // ---------------------------------------------------------------- 基础配置
 const DESKTOP_DIR = __dirname;
-// 应用名统一为 Another；用户数据目录同名。
-// 老版本曾用旧名目录存放工作区：若新目录里没有 workspace 而旧目录里有，则把 workspace / llm_config 迁过来（不整体改名，避免动到 Electron 缓存）
-app.setName('Another');
+// 应用名统一为 ReX；用户数据目录同名。
+// 历史目录（按新→旧优先级）：Another（本产品改名前的名字）、科研学术本体工作台（更早的名字）
+// 迁移策略：仅当新目录里没有 workspace 而某个历史目录里有，把 workspace / llm_config 迁过来
+// （不整体 rename 旧目录，避免动到 Electron 缓存目录，也避免新目录被提前创建导致迁移永不触发）
+app.setName('ReX');
 const APP_DATA_DIR = app.getPath('appData');
-const LEGACY_DATA_DIR = path.join(APP_DATA_DIR, '科研学术本体工作台');
-const NEW_DATA_DIR = path.join(APP_DATA_DIR, 'Another');
+const LEGACY_DATA_DIRS = [
+  path.join(APP_DATA_DIR, 'Another'),
+  path.join(APP_DATA_DIR, '科研学术本体工作台'),
+];
+const NEW_DATA_DIR = path.join(APP_DATA_DIR, 'ReX');
 try {
-  const legacyWs = path.join(LEGACY_DATA_DIR, 'workspace');
   const newWs = path.join(NEW_DATA_DIR, 'workspace');
-  if (fs.existsSync(legacyWs) && !fs.existsSync(newWs)) {
-    fs.mkdirSync(NEW_DATA_DIR, { recursive: true });
-    fs.renameSync(legacyWs, newWs);
-    const legacyCfg = path.join(LEGACY_DATA_DIR, 'llm_config.json');
-    const newCfg = path.join(NEW_DATA_DIR, 'llm_config.json');
-    if (fs.existsSync(legacyCfg) && !fs.existsSync(newCfg)) fs.renameSync(legacyCfg, newCfg);
-    console.log('[workbench] 已从旧目录迁移工作区：' + legacyWs + ' → ' + newWs);
+  if (!fs.existsSync(newWs)) {
+    for (const legacyDir of LEGACY_DATA_DIRS) {
+      const legacyWs = path.join(legacyDir, 'workspace');
+      if (!fs.existsSync(legacyWs)) continue;
+      fs.mkdirSync(NEW_DATA_DIR, { recursive: true });
+      fs.renameSync(legacyWs, newWs);
+      const legacyCfg = path.join(legacyDir, 'llm_config.json');
+      const newCfg = path.join(NEW_DATA_DIR, 'llm_config.json');
+      if (fs.existsSync(legacyCfg) && !fs.existsSync(newCfg)) fs.renameSync(legacyCfg, newCfg);
+      console.log('[workbench] 已从旧目录迁移工作区：' + legacyWs + ' → ' + newWs);
+      break;
+    }
   }
 } catch (e) {
   console.warn('[workbench] 旧目录工作区迁移失败（将使用新目录）：' + e.message);
@@ -513,7 +522,7 @@ function probeZones() {
 // ---------------------------------------------------------------- 启动封面
 /** 后端拉起期间显示的过渡页：窗口秒开，数据就绪后再进入工作台 */
 const BOOT_HTML = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
-<title>Another</title><style>
+<title>ReX</title><style>
 html,body{height:100%;margin:0;background:#0f1219;color:#dbe4f3;
 font:400 14px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
 display:flex;align-items:center;justify-content:center}
@@ -528,7 +537,7 @@ animation:run 1.15s ease-in-out infinite}
 @keyframes run{0%{transform:translateX(-100%)}100%{transform:translateX(320%)}}
 .hint{margin-top:16px;font-size:12px;color:#5f7391}
 </style></head><body><div class="box"><div class="logo"></div>
-<h1>Another</h1><p>正在启动本地服务…</p>
+<h1>ReX</h1><p>正在启动本地服务…</p>
 <div class="bar"><i></i></div>
 <div class="hint">首次启动会释放数据文件，请稍候</div></div></body></html>`;
 
@@ -560,7 +569,7 @@ function createWindow(initialUrl) {
     height: 940,
     minWidth: 1080,
     minHeight: 680,
-    title: 'Another',
+    title: 'ReX',
     backgroundColor: '#f6f7fb',
     show: false,
     webPreferences: {
@@ -608,7 +617,7 @@ function buildMenu() {
     ...(isMac ? [{
       label: app.name,
       submenu: [
-        { role: 'about', label: '关于 Another' },
+        { role: 'about', label: '关于 ReX' },
         { type: 'separator' },
         { label: '打开工作目录', click: () => shell.openPath(WORK_ROOT) },
         { type: 'separator' },
@@ -710,7 +719,7 @@ async function showLicenseInfo() {
        path.join(app.getPath('userData'), 'license.json')].join('\n');
   const res = await dialog.showMessageBox(mainWindow, {
     type: r.ok ? 'info' : 'warning',
-    title: '授权信息', message: r.ok ? 'Another 已激活' : 'Another 未激活',
+    title: '授权信息', message: r.ok ? 'ReX 已激活' : 'ReX 未激活',
     detail, buttons: ['复制机器指纹', '好'], defaultId: 0, cancelId: 1,
   });
   if (res.response === 0) { try { require('electron').clipboard.writeText(machineId()); } catch (_) {} }
@@ -721,7 +730,7 @@ async function showLicenseInfo() {
 const crypto = require('crypto');
 const https = require('https');
 const os = require('os');
-const PRODUCT_NAME = 'Another';
+const PRODUCT_NAME = 'ReX';
 const LICENSE_PUB_HEX = '2c3193891a20b6323bbe0a7453b844cdb5be28fdb0813e6ed32f65b04084b490';
 const ED25519_SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 
@@ -762,15 +771,20 @@ function canonicalJson(o) {
 }
 function licensePaths() {
   const ps = [];
-  if (process.env.ANOTHER_LICENSE_PATH) ps.push(process.env.ANOTHER_LICENSE_PATH);
+  if (process.env.REX_LICENSE_PATH) ps.push(process.env.REX_LICENSE_PATH);
   ps.push(path.join(app.getPath('userData'), 'license.json'));
+  // 兼容改名前的历史授权目录（Another）：老授权文件无需搬迁也能被读取
+  for (const legacyDir of LEGACY_DATA_DIRS) {
+    const legacyLicense = path.join(legacyDir, 'license.json');
+    if (fs.existsSync(legacyLicense)) ps.push(legacyLicense);
+  }
   if (IS_PACKAGED) ps.push(path.join(process.resourcesPath, 'license.json'));
   return ps;
 }
 
 /** 校验授权：签名 → 机器绑定 → 有效期。返回 { ok, reason, info } */
 function verifyLicense() {
-  if (!IS_PACKAGED || process.env.ANOTHER_SKIP_LICENSE === '1') return { ok: true, info: { mode: 'dev' } };
+  if (!IS_PACKAGED || process.env.REX_SKIP_LICENSE === '1') return { ok: true, info: { mode: 'dev' } };
   const p = licensePaths().find(x => x && fs.existsSync(x));
   if (!p) return { ok: false, reason: '未找到授权文件 license.json' };
   let data;
@@ -782,7 +796,9 @@ function verifyLicense() {
   const sig = data.sig;
   delete data.sig;
   if (!sig) return { ok: false, reason: '授权文件缺少签名' };
-  if (data.product !== PRODUCT_NAME) return { ok: false, reason: '授权文件产品名不匹配' };
+  // 兼容改名前的历史授权（product 字段为旧品牌名），其余校验项不变
+  const LEGACY_PRODUCT_NAMES = ['Another'];
+  if (data.product !== PRODUCT_NAME && !LEGACY_PRODUCT_NAMES.includes(data.product)) return { ok: false, reason: '授权文件产品名不匹配' };
   try {
     const pub = crypto.createPublicKey({
       key: Buffer.concat([ED25519_SPKI_PREFIX, Buffer.from(LICENSE_PUB_HEX, 'hex')]),
@@ -809,8 +825,8 @@ async function requireLicenseOrQuit() {
   if (r.ok) return true;
   const mid = machineId();
   log('授权校验未通过：' + r.reason);
-  // 自动化验收用：ANOTHER_LICENSE_TEST=1 时不弹窗，直接打印并退出（码 3）
-  if (process.env.ANOTHER_LICENSE_TEST === '1') {
+  // 自动化验收用：REX_LICENSE_TEST=1 时不弹窗，直接打印并退出（码 3）
+  if (process.env.REX_LICENSE_TEST === '1') {
     console.log('[license] machine_id=' + mid);
     console.log('[license] license_paths=' + licensePaths().join(','));
     app.exit(3);
@@ -818,7 +834,7 @@ async function requireLicenseOrQuit() {
   }
   await dialog.showMessageBox({
     type: 'error',
-    title: 'Another 未获授权',
+    title: 'ReX 未获授权',
     message: '本机尚未通过授权校验，程序无法启动。',
     detail: `原因：${r.reason}\n\n本机指纹（发给授权方换取 license.json）：\n${mid}\n\n授权文件放置位置：\n${path.join(app.getPath('userData'), 'license.json')}`,
     buttons: ['复制指纹并退出', '退出'],
@@ -830,9 +846,9 @@ async function requireLicenseOrQuit() {
 
 // ---------------------------------------------------------------- 远程更新（静态清单 + 全量 pkg）
 const DEFAULT_FEED = (() => {
-  try { return (require('./package.json').another || {}).updateFeed || ''; } catch (_) { return ''; }
+  try { return (require('./package.json').rex || {}).updateFeed || ''; } catch (_) { return ''; }
 })();
-const UPDATE_FEED = process.env.ANOTHER_UPDATE_URL || DEFAULT_FEED;
+const UPDATE_FEED = process.env.REX_UPDATE_URL || DEFAULT_FEED;
 
 function httpGetText(url, timeout = 8000) {
   return new Promise((resolve, reject) => {
@@ -896,7 +912,7 @@ async function checkForUpdates(interactive = true) {
     if (interactive) {
       await dialog.showMessageBox(mainWindow, {
         type: 'info', title: '检查更新', message: '尚未配置更新源',
-        detail: '在 package.json 的 another.updateFeed（或环境变量 ANOTHER_UPDATE_URL）里填入 update.json 的公网地址即可启用远程更新。',
+        detail: '在 package.json 的 rex.updateFeed（或环境变量 REX_UPDATE_URL）里填入 update.json 的公网地址即可启用远程更新。',
         buttons: ['好'],
       });
     }
@@ -918,15 +934,15 @@ async function checkForUpdates(interactive = true) {
   const ask = await dialog.showMessageBox(mainWindow, {
     type: 'question', title: '发现新版本',
     message: `发现新版本 v${info.version}（当前 v${cur}）`,
-    detail: `安装包约 ${info.size_mb ? info.size_mb + ' MB' : '未知大小'}，${IS_WIN ? '下载完成后关闭 Another、解压该压缩包并运行其中的 install.bat 覆盖安装即可。' : '下载完成后需输入管理员密码安装。'}${notes}`,
+    detail: `安装包约 ${info.size_mb ? info.size_mb + ' MB' : '未知大小'}，${IS_WIN ? '下载完成后关闭 ReX、解压该压缩包并运行其中的 install.bat 覆盖安装即可。' : '下载完成后需输入管理员密码安装。'}${notes}`,
     buttons: ['下载并安装', '稍后'], defaultId: 0, cancelId: 1,
   });
   if (ask.response !== 0) return;
 
   const ext = IS_WIN ? 'zip' : 'pkg';
   const dest = IS_WIN
-    ? path.join(app.getPath('downloads'), `Another-${info.version}-win-x64.${ext}`)
-    : path.join(app.getPath('temp'), `Another-${info.version}.${ext}`);
+    ? path.join(app.getPath('downloads'), `ReX-${info.version}-win-x64.${ext}`)
+    : path.join(app.getPath('temp'), `ReX-${info.version}.${ext}`);
   let progWin = null;
   try {
     progWin = new BrowserWindow({
@@ -937,7 +953,7 @@ async function checkForUpdates(interactive = true) {
       const pct = total ? Math.floor(got * 100 / total) : 0;
       const mb = (got / 1048576).toFixed(0), tb = total ? (total / 1048576).toFixed(0) : '?';
       const html = `<body style="font:13px -apple-system;padding:18px;margin:0">
-        <div style="margin-bottom:10px">正在下载 Another v${info.version} …</div>
+        <div style="margin-bottom:10px">正在下载 ReX v${info.version} …</div>
         <div style="background:#eee;border-radius:6px;height:10px;overflow:hidden">
           <div style="width:${pct}%;height:100%;background:#3b82f6"></div></div>
         <div style="margin-top:8px;color:#666">${mb} / ${tb} MB（${pct}%）</div></body>`;
@@ -953,10 +969,10 @@ async function checkForUpdates(interactive = true) {
     try { progWin.destroy(); } catch (_) {}
     const go = await dialog.showMessageBox(mainWindow, {
       type: 'info', title: '下载完成',
-      message: `Another v${info.version} 已下载并通过校验`,
+      message: `ReX v${info.version} 已下载并通过校验`,
       detail: IS_WIN
-        ? '更新包已保存到「下载」文件夹。请先退出 Another，解压该压缩包，运行其中的 install.bat 覆盖安装（文献库与授权文件会保留）。'
-        : '点击「立即安装」将打开系统安装器，安装过程需要输入管理员密码，安装完成后请手动重新打开 Another。',
+        ? '更新包已保存到「下载」文件夹。请先退出 ReX，解压该压缩包，运行其中的 install.bat 覆盖安装（文献库与授权文件会保留）。'
+        : '点击「立即安装」将打开系统安装器，安装过程需要输入管理员密码，安装完成后请手动重新打开 ReX。',
       buttons: IS_WIN ? ['打开所在文件夹', '稍后'] : ['立即安装', '稍后'], defaultId: 0, cancelId: 1,
     });
     if (go.response === 0) {
@@ -976,7 +992,7 @@ async function checkForUpdates(interactive = true) {
 // ---------------------------------------------------------------- 生命周期
 app.whenReady().then(async () => {
   if (!(await requireLicenseOrQuit())) return;
-  process.env.ANOTHER_LICENSE_OK = '1';
+  process.env.REX_LICENSE_OK = '1';
   // Dock 图标统一为科技熊（打包态由 icon.icns 提供，开发态兜底设置，确保任何运行方式外观一致）
   try {
     if (process.platform === 'darwin' && app.dock) {

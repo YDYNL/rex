@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-license_guard.py — Another 离线授权校验（后端侧）
+license_guard.py — ReX 离线授权校验（后端侧）
 =================================================
 授权文件 = license.json，由主控私钥（Ed25519）签发，内容绑定机器指纹与有效期。
 本模块用内置公钥验签，任何篡改（改机器码 / 改有效期 / 改产品名）都会导致验签失败。
 
 授权文件查找顺序：
-  1. 环境变量 ANOTHER_LICENSE_PATH 指定的路径
-  2. ~/Library/Application Support/Another/license.json（macOS）
+  1. 环境变量 REX_LICENSE_PATH 指定的路径
+  2. ~/Library/Application Support/ReX/license.json（macOS）
   3. 应用资源目录下的 license.json（随包分发时可放这里）
 
 绕过开关（仅开发/自动化测试用，打包版主进程永不设置）：
-  ANOTHER_LICENSE_OK=1      —— 主进程已验签通过，后端直接放行
-  ANOTHER_SKIP_LICENSE=1    —— 开发态跳过校验
+  REX_LICENSE_OK=1      —— 主进程已验签通过，后端直接放行
+  REX_SKIP_LICENSE=1    —— 开发态跳过校验
 """
 
 from __future__ import annotations
@@ -27,7 +27,9 @@ import subprocess
 import sys
 from datetime import date, datetime
 
-PRODUCT = "Another"
+PRODUCT = "ReX"
+# 改名前的历史产品名（旧授权文件 product 字段写的是 Another），仅用于兼容读取
+LEGACY_PRODUCT_NAMES = ("Another",)
 PUB_KEY_HEX = "2c3193891a20b6323bbe0a7453b844cdb5be28fdb0813e6ed32f65b04084b490"
 
 
@@ -84,15 +86,19 @@ def machine_id() -> str:
 # ---------------------------------------------------------------- 授权文件
 def candidate_paths() -> list:
     paths = []
-    env = os.getenv("ANOTHER_LICENSE_PATH")
+    env = os.getenv("REX_LICENSE_PATH")
     if env:
         paths.append(env)
     home = os.path.expanduser("~")
+    paths.append(os.path.join(home, "Library", "Application Support", "ReX", "license.json"))
+    appdata = os.getenv("APPDATA")  # Windows：%APPDATA%\ReX\license.json（= Electron userData）
+    if appdata:
+        paths.append(os.path.join(appdata, "ReX", "license.json"))
+    paths.append(os.path.join(home, "Application Support", "ReX", "license.json"))  # 非 mac 兜底
+    # 兼容改名前的历史授权目录（Another）：老授权文件不搬迁也能被读取
     paths.append(os.path.join(home, "Library", "Application Support", "Another", "license.json"))
-    appdata = os.getenv("APPDATA")  # Windows：%APPDATA%\Another\license.json（= Electron userData）
     if appdata:
         paths.append(os.path.join(appdata, "Another", "license.json"))
-    paths.append(os.path.join(home, "Application Support", "Another", "license.json"))  # 非 mac 兜底
     here = os.path.dirname(os.path.abspath(__file__))
     paths.append(os.path.join(here, "license.json"))
     return paths
@@ -122,7 +128,8 @@ def verify_license(path: str | None = None, verbose: bool = False) -> tuple:
     sig_b64 = data.pop("sig", "")
     if not sig_b64:
         return False, "授权文件缺少签名", {}
-    if data.get("product") != PRODUCT:
+    # 兼容改名前的历史授权（product 字段为旧品牌名 Another），其余校验项不变
+    if data.get("product") != PRODUCT and data.get("product") not in LEGACY_PRODUCT_NAMES:
         return False, "授权文件产品名不匹配", {}
 
     # 验签
@@ -155,16 +162,16 @@ def verify_license(path: str | None = None, verbose: bool = False) -> tuple:
 
 def require_license(role: str = "backend") -> dict:
     """校验不通过则直接退出进程；通过则返回授权信息。"""
-    if os.getenv("ANOTHER_LICENSE_OK") == "1" or os.getenv("ANOTHER_SKIP_LICENSE") == "1":
+    if os.getenv("REX_LICENSE_OK") == "1" or os.getenv("REX_SKIP_LICENSE") == "1":
         return {"mode": "trusted", "role": role}
     ok, reason, info = verify_license(verbose=True)
     if not ok:
         print("\n" + "=" * 62)
-        print(f"Another · 授权校验未通过（{role}）")
+        print(f"ReX · 授权校验未通过（{role}）")
         print(f"原因：{reason}")
         print(f"本机指纹：{machine_id()}")
         print("请把本机指纹发给授权方换取 license.json，放到：")
-        print("  ~/Library/Application Support/Another/license.json")
+        print("  ~/Library/Application Support/ReX/license.json")
         print("=" * 62 + "\n", flush=True)
         sys.exit(3)
     return info

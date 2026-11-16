@@ -11,7 +11,7 @@ AIGC:
 
 
 
-# 科研学术本体工作台 · 桌面端（Electron）
+# ReX · 科研学术本体工作台桌面端（Electron）
 
 v0.2.0：在 v0.1 外壳基础上补齐三件事——**可打包分发（.dmg）**、**原生 PDF 拖拽入库**、**前端入口切到六大区并接真实 API**。
 原有 `web/` 与 `tools/serve_workbench.py` 源码未改动，桌面层只做编排。
@@ -30,7 +30,7 @@ Electron 主进程 (main.js)
 后端未就绪时发出 `/api` 请求拿到 502 占位数据（v0.2.0 修复）。
 
 打包版首次运行会把 `Resources/seed/` 复制到
-`~/Library/Application Support/科研学术本体工作台/workspace/`，
+`~/Library/Application Support/ReX/workspace/`，
 此后所有读写都发生在该目录，应用包本身只读。
 
 ## 使用
@@ -42,7 +42,7 @@ export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
 npm start
 ```
 
-打包版：安装 `dist/科研学术本体工作台-0.2.0-arm64.dmg`，或先解压 `dist/mac-arm64/` 里的 `.app` 试用。
+打包版：安装 `dist/ReX-0.2.0-arm64.pkg`，或先解压 `dist/mac-arm64/` 里的 `.app` 试用。
 
 ### 原生 PDF 入库
 

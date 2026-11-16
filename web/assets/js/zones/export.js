@@ -6,7 +6,7 @@
     title: "数据导出",
     triggerExport: function(type){
       var url = "/api/data/export" + (type ? "?type=" + encodeURIComponent(type) : "");
-      var fname = "Another_数据导出_" + (type || "全部") + ".xlsx";
+      var fname = "ReX_数据导出_" + (type || "全部") + ".xlsx";
       fetch(url).then(function(r){
         if (!r.ok) return r.json().catch(function(){ return null; }).then(function(j){
           var e = new Error("HTTP " + r.status + (j && j.reason ? "：" + j.reason : ""));

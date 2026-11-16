@@ -3789,8 +3789,8 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
             {"name": "关系关联", "headers": ["source_id", "source_label", "source_type", "relation", "target_id", "target_label", "target_type"], "rows": rows2},
             {"name": "规则清单", "headers": ["rule_id", "type", "name", "target", "severity", "description"], "rows": rows3},
         ])
-        fname = "Another_数据导出_%s_%s.xlsx" % (qtype or "全部", time.strftime("%Y%m%d_%H%M%S"))
-        fname_ascii = "Another_export_%s_%s.xlsx" % (qtype or "all", time.strftime("%Y%m%d_%H%M%S"))
+        fname = "ReX_数据导出_%s_%s.xlsx" % (qtype or "全部", time.strftime("%Y%m%d_%H%M%S"))
+        fname_ascii = "ReX_export_%s_%s.xlsx" % (qtype or "all", time.strftime("%Y%m%d_%H%M%S"))
         self.send_response(200)
         self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         self._cors()
@@ -4260,7 +4260,7 @@ def main():
 
 
 if __name__ == "__main__":
-    # 授权闸门：无有效 license.json 时后端拒绝启动（开发/测试可用 ANOTHER_SKIP_LICENSE=1）
+    # 授权闸门：无有效 license.json 时后端拒绝启动（开发/测试可用 REX_SKIP_LICENSE=1）
     try:
         import license_guard
         license_guard.require_license("backend")

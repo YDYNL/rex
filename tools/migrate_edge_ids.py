@@ -33,7 +33,7 @@ from datetime import datetime
 
 DEFAULT_GRAPH = os.path.join(
     os.path.expanduser("~"),
-    "Library/Application Support", "Another", "workspace",
+    "Library/Application Support", "ReX", "workspace",
     "scholar_literature_graph_v2_4.json")
 
 

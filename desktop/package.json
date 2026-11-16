@@ -1,8 +1,8 @@
 {
-  "name": "scholar-ontology-workbench",
-  "productName": "Another",
+  "name": "rex",
+  "productName": "ReX",
   "version": "0.2.0",
-  "description": "科研学术 Ontology 工作台桌面端：Electron 外壳 + web/ 六大区前端 + Python 后端（tools/serve_workbench.py）；品牌名 Another，副文案「我们都有另一个自己」",
+  "description": "科研学术 Ontology 工作台桌面端：Electron 外壳 + web/ 六大区前端 + Python 后端（tools/serve_workbench.py）；品牌名 ReX，副文案「我们都有另一个自己」",
   "main": "main.js",
   "private": true,
   "author": "lolilosorb",
@@ -19,8 +19,8 @@
     "electron-builder": "^26.15.3"
   },
   "build": {
-    "appId": "com.lolilosorb.scholar-ontology-workbench",
-    "productName": "Another",
+    "appId": "com.lolilosorb.rex",
+    "productName": "ReX",
     "copyright": "Copyright © 2026",
     "directories": {
       "output": "dist",
@@ -91,7 +91,7 @@
       "darkModeSupport": true,
       "identity": null,
       "extendInfo": {
-        "NSHumanReadableCopyright": "Another"
+        "NSHumanReadableCopyright": "ReX"
       },
       "extraResources": [
         {
@@ -142,14 +142,14 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Another",
+      "shortcutName": "ReX",
       "runAfterFinish": true,
       "deleteAppDataOnUninstall": false,
-      "artifactName": "Another-${version}-win-${arch}-setup.${ext}"
+      "artifactName": "ReX-${version}-win-${arch}-setup.${ext}"
     },
-    "artifactName": "Another-${version}-${arch}.${ext}"
+    "artifactName": "ReX-${version}-${arch}.${ext}"
   },
-  "another": {
+  "rex": {
     "updateFeed": "",
     "feedNote": "填 update.json 的公网地址即可启用「检查更新」"
   }

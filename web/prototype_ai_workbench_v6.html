@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/png" href="assets/another-icon.png">
-<title>Another</title>
+<link rel="icon" type="image/png" href="assets/rex-icon.png">
+<title>ReX</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#f7f6fc;--panel:#fff;--ink:#26243a;--muted:#71708a;--line:#eceaf5;--accent:#8b7cf6;--accent-soft:#f3f1fe;--accent-line:#ddd6fe;--accent-ink:#6f5ce0;--accent2:#12b886;--warn:#f59f00;--danger:#e03131;--radius:10px;--shadow:0 1px 8px rgba(40,40,70,.06)}
 body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column}
-/* ===== Another 品牌化：统一图标按钮（关闭 / 返回） ===== */
+/* ===== ReX 品牌化：统一图标按钮（关闭 / 返回） ===== */
 .ui-ico-btn{width:28px;height:28px;flex:0 0 28px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;padding:0;font-family:inherit;line-height:1;transition:background .15s,color .15s,border-color .15s}
 .ui-ico-btn:hover{background:var(--accent-soft);color:var(--accent-ink)}
 .ui-ico-btn:active{background:var(--accent-line)}
@@ -723,8 +723,8 @@ mark{background:#fff3bf;color:inherit;border-radius:3px}
 
 <div id="topbar">
   <div class="brand">
-    <img class="logo-img" src="assets/another-icon.png" alt="Another">
-    <div class="brand-txt"><b>Another</b><span>我们都有另一个自己</span></div>
+    <img class="logo-img" src="assets/rex-icon.png" alt="ReX">
+    <div class="brand-txt"><b>ReX</b><span>科研 · 本体 · 洞察</span></div>
   </div>
   <div class="tabs">
     <button class="tab active" data-tab="lib">检索</button>
@@ -4242,7 +4242,7 @@ document.querySelectorAll(".tab").forEach(function(b){
     switchTab(b.getAttribute("data-tab"));
   });
 });
-/* ===== Another 品牌化：统一返回导航 ===== */
+/* ===== ReX 品牌化：统一返回导航 ===== */
 function uiBackToLib(){
   var b = document.querySelector('.tab[data-tab="lib"]');
   if (b){
@@ -7669,7 +7669,7 @@ async function p2LoadHealth(){
       if (!res.ok) throw new Error("HTTP " + res.status);
       var cd = res.headers.get("Content-Disposition") || "";
       var m = cd.match(/filename\*=UTF-8''([^;]+)/) || cd.match(/filename="([^"]+)"/);
-      var fname = m ? decodeURIComponent(m[1]) : ("Another_数据导出_" + new Date().toISOString().slice(0, 19).replace(/[-:T]/g, "") + ".xlsx");
+      var fname = m ? decodeURIComponent(m[1]) : ("ReX_数据导出_" + new Date().toISOString().slice(0, 19).replace(/[-:T]/g, "") + ".xlsx");
       return res.blob().then(function(blob){ return {blob: blob, fname: fname}; });
     }).then(function(o){
       var url = URL.createObjectURL(o.blob);
