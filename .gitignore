@@ -32,3 +32,8 @@ temp_graph_backup_*.json
 .idea/
 .vscode/
 *.swp
+
+# 第三方文献缓存与国标原件（版权原因不公开上传，保留本地）
+.ingest_inbox/
+llm_cache.jsonl
+GBT+48000.3-2026.pdf
