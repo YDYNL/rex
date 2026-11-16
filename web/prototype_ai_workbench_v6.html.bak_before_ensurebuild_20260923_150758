@@ -1,0 +1,3664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>科研文献工作台 · v6（v5 交互 + 真实 API）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f6f7fb;--panel:#fff;--ink:#1f2430;--muted:#6b7280;--line:#e6e9f2;--accent:#4c6ef5;--accent2:#12b886;--warn:#f59f00;--danger:#e03131;--radius:12px;--shadow:0 2px 14px rgba(30,41,80,.07)}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column}
+#topbar{height:56px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;gap:18px;position:relative;z-index:50}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;white-space:nowrap}
+.brand .logo{width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tabs{display:flex;gap:4px;flex:1;justify-content:center}
+.tab{padding:8px 20px;border-radius:9px;font-size:14px;color:var(--muted);cursor:pointer;border:none;background:transparent}
+.tab:hover{background:#eef1fb;color:var(--ink)}
+.tab.active{background:var(--accent);color:#fff;font-weight:600}
+.top-right{display:flex;align-items:center;gap:10px}
+#btnUpload{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer}
+#btnUpload:hover{filter:brightness(1.08)}
+#btnAI{background:#fff;color:var(--accent);border:1px solid #c5d0f5;border-radius:9px;padding:9px 14px;font-size:13px;cursor:pointer}
+#btnAI.on{background:#eef2ff;border-color:var(--accent)}
+#statusbar{height:28px;background:#eef1fb;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 20px;font-size:12px;color:var(--muted)}
+#statusbar .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block;margin-right:5px}
+#statusbar.live .dot{background:var(--accent2)}
+#statusbar.fake .dot{background:var(--danger)}
+#statusbar b{color:var(--ink)}
+#statusbar .right{margin-left:auto;display:flex;gap:14px}
+#main{flex:1;display:flex;overflow:hidden}
+#content{flex:1;overflow:auto;padding:20px 24px}
+#aiPanel{width:320px;background:var(--panel);border-left:1px solid var(--line);display:none;flex-direction:column;overflow:hidden}
+#aiPanel.on{display:flex}
+/* 工具栏 */
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+#search{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px;outline:none}
+#search:focus{border-color:var(--accent)}
+.switch-btn{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 14px;font-size:13px;color:var(--muted);cursor:pointer}
+.switch-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+select.mini{border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;background:#fff;color:var(--ink);outline:none}
+.viewhint{font-size:12px;color:var(--muted)}
+/* 布局 */
+/* 布局（v7：单列栅格 + 顶部统一控件区） */
+#view-lib{display:flex;flex-direction:column;height:100%}
+#view-lib.hidden{display:none}
+.lib{display:flex;flex-direction:column;flex:1;min-height:0}
+/* ==== v7 顶部统一控件区（维度行 / 取值行 / 已选行，两视角同址） ==== */
+#ctrlBar{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px 14px;margin-bottom:14px}
+.ctrl-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.ctrl-row:last-child{margin-bottom:0}
+.ctrl-lb{font-size:12.5px;color:var(--muted);font-weight:600;min-width:32px;line-height:26px;flex:none}
+.ctrl-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
+.ctrl-note{font-size:11.5px;color:var(--muted);line-height:26px}
+.ctrl-acts{margin-left:auto;display:flex;gap:10px;align-items:center;font-size:12.5px}
+.ctrl-acts .sel-n{color:var(--muted)}
+.mini-link{border:none;background:transparent;color:var(--accent);cursor:pointer;font-size:12.5px;padding:0;font-family:inherit}
+.mini-link:hover{text-decoration:underline}
+.ctrl-empty{font-size:12px;color:#adb5bd;line-height:26px}
+.val-wrap{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0;flex:1}
+.val-wrap.open{max-height:148px;overflow-y:auto}
+.val-wrap:not(.open) .vx{display:none}
+#view-lib.narrow .val-wrap{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+.fchip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:4px 11px;font-size:12px;color:var(--ink);cursor:pointer;font-family:inherit;white-space:nowrap}
+.fchip:hover{border-color:var(--accent)}
+.fchip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.more-btn{border:1px solid var(--line);background:#f1f3f5;border-radius:20px;padding:4px 11px;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;white-space:nowrap}
+.more-btn:hover{border-color:var(--accent);color:var(--accent)}
+.sel-tag{display:inline-flex;align-items:center;gap:6px;background:#eef2ff;border:1px solid #dbe2ff;color:var(--accent);border-radius:20px;padding:3px 6px 3px 11px;font-size:12px}
+.tag-x{border:none;background:transparent;color:var(--accent);cursor:pointer;font-size:13px;line-height:1;padding:0 3px;font-family:inherit}
+.dimbtn{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 14px;font-size:12.5px;cursor:pointer;color:var(--ink);font-family:inherit}
+.dimbtn:hover{border-color:var(--accent)}
+.dimbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* 列表 */
+.paperlist{display:flex;flex-direction:column;gap:10px;max-width:1080px}
+.pcard{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;cursor:pointer;border:2px solid transparent}
+.pcard:hover{border-color:#c5d0f5}
+.pcard.sel{border-color:var(--accent);background:#fafbff}
+.pcard .t{font-size:14.5px;font-weight:600;margin-bottom:5px}
+.pcard .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+.pcard .kw{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.kwtag{background:#eef2ff;color:var(--accent);border-radius:20px;padding:2px 9px;font-size:11px}
+.pcard .sum{font-size:12.5px;color:#495057;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pcard .ai{font-size:11px;color:var(--accent2);margin-top:5px}
+/* 图谱 */
+.graphbox{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative;height:100%;min-height:460px}
+#graphWrap{width:100%;height:100%;cursor:grab;overflow:hidden;position:relative;background:radial-gradient(ellipse at center,#ffffff,#f3f5fb)}
+#gHost{position:absolute;inset:0;overflow:hidden}
+#graphWrap:active{cursor:grabbing}
+#graphSvg{width:100%;height:100%;display:block}
+.g-node{cursor:pointer}
+.g-node.dim circle{stroke:#fff;stroke-width:2}
+.g-node.paper circle{stroke:#fff;stroke-width:1.5}
+.g-node text{font-size:11px;fill:#495057;pointer-events:none}
+.g-node.dim text{font-size:12.5px;font-weight:600;fill:#1f2430}
+.g-edge{stroke:#c9d2ea;stroke-width:1.2;opacity:.55}
+.legend{position:absolute;right:14px;bottom:14px;z-index:6;background:rgba(255,255,255,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(230,233,242,.8);border-radius:10px;padding:8px 12px;font-size:11.5px;color:var(--muted);box-shadow:0 2px 10px rgba(30,41,80,.08);max-width:260px;line-height:1.6;transition:background .15s ease,box-shadow .15s ease}
+.legend:hover,.legend:focus-within{background:rgba(255,255,255,.95);box-shadow:0 4px 16px rgba(30,41,80,.12)}
+.legend b{color:var(--ink)}
+.lg-head{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);font-weight:600}
+.legend-toggle{margin-left:auto;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:12px;line-height:1;padding:0 2px;font-family:inherit}
+.legend-toggle:hover{color:var(--accent)}
+.lg-body{display:flex;flex-wrap:wrap;gap:2px 10px;margin-top:5px}
+.lg-item{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--ink);white-space:nowrap}
+.lg-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.lg-shape{color:#adb5bd;font-size:10.5px}
+.legend.collapsed{padding:4px 10px}
+.legend.collapsed .lg-body{display:none}
+.legend.collapsed .legend-toggle{transform:rotate(180deg)}
+/* ==== v7 图谱交互增强 ==== */
+#paperArea{flex:1;min-height:0;overflow:auto;transition:padding-right .25s ease}
+#paperArea.rel-open{padding-right:352px}
+#paperArea.rel-open:has(#graphWrap){padding-right:0}
+.ghud{position:absolute;top:10px;right:12px;display:flex;gap:6px;z-index:5}
+.ghud button{border:1px solid #dfe3f0;background:rgba(255,255,255,.95);color:#3b4256;border-radius:8px;
+  padding:5px 8px;font-size:14px;cursor:pointer;box-shadow:0 1px 5px rgba(30,41,80,.08);font-family:inherit;line-height:1}
+.ghud button:hover{background:#f1f3fb;border-color:#c7cff0;color:#2b3d8f}
+.ghud button:disabled{opacity:.55;cursor:default}
+.ghud button:disabled:hover{background:rgba(255,255,255,.95);border-color:#dfe3f0;color:#3b4256}
+.ghud button.busy{color:#2b3d8f}
+.ghud button.busy span{display:inline-block;animation:ghudspin .9s linear infinite}
+@keyframes ghudspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.g-node text{pointer-events:none}
+.g-node .g-label{font-size:9.5px;fill:#343a40;stroke:#fff;stroke-width:2.6;paint-order:stroke;stroke-linejoin:round}
+.g-node .g-label.hub{font-size:10.5px;fill:#1f2430;font-weight:600}
+.g-node.dim .g-label{font-size:12.5px;font-weight:600;fill:#1f2430;stroke:#fff;stroke-width:3}
+.g-node.sel polygon,.g-node.sel rect,.g-node.sel circle{stroke:#212529;stroke-width:2.2}
+.g-edge{transition:stroke-opacity .15s,stroke-width .15s}
+.rel-adj{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 10px}
+.rel-adj span{cursor:pointer;font-size:11.5px;background:#f1f3f9;border:1px solid #e3e7f3;border-radius:6px;
+  padding:2px 7px;color:#3b4256;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rel-adj span:hover{background:#e7ecff;border-color:#b9c6f5;color:#2b3d8f}
+.rel-adj span .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.rel-adj span.on{background:#e7ecff;border-color:#93a5f0}
+.rel-kind{font-size:11.5px;color:var(--muted);margin:8px 0 4px;font-weight:600}
+.rel-kind em{font-style:normal;color:#adb5bd;font-weight:400}
+.kv{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:5px 0;border-bottom:1px dashed #eef0f7}
+.kv i{font-style:normal;color:var(--muted);flex:0 0 auto}
+.kv b{font-weight:500;color:#212529;text-align:right;word-break:break-all}
+.rel-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;background:#eef1fb;color:#3b4256;margin-right:6px}
+.gtooltip{position:absolute;background:#1f2430;color:#fff;font-size:12px;border-radius:8px;padding:8px 12px;pointer-events:none;opacity:0;transition:opacity .12s;max-width:340px;line-height:1.5;z-index:60}
+/* 本体模型页 */
+.onto-wrap{display:grid;grid-template-columns:minmax(420px,1.02fr) minmax(400px,1fr);gap:16px;align-items:stretch}
+.onto-card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;min-height:0}
+.onto-card h3{font-size:14.5px;margin-bottom:4px}
+.onto-card .sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+#ontoCanvas{display:block;width:100%;height:calc(100vh - 252px);min-height:400px;border-radius:10px;background:radial-gradient(ellipse at center,#ffffff,#f3f5fb);border:1px solid var(--line)}
+.statline{display:flex;flex-wrap:wrap;gap:10px;font-size:11.5px;color:var(--muted);margin-top:10px}
+.statline span{background:#f8f9fc;border-radius:8px;padding:4px 9px}
+.statline b{color:var(--ink)}
+.onto-head{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.onto-head h3{font-size:14.5px;margin:0}
+.onto-acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.onto-acts input{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12px;width:130px;outline:none}
+.onto-acts input:focus{border-color:var(--accent)}
+.mini-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;color:var(--ink)}
+.mini-btn:hover{border-color:var(--accent);color:var(--accent)}
+.mini-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.mini-btn.primary:hover{filter:brightness(1.08);color:#fff}
+#editorArea{flex:1;min-height:0;overflow-y:auto}
+.o-node{cursor:pointer}
+.o-node rect{fill:#fff;stroke-width:2;filter:drop-shadow(0 2px 4px rgba(30,41,80,.12))}
+.o-node text{font-size:12px;fill:#1f2430;pointer-events:none;font-weight:600}
+.o-node .cnt{font-size:10.5px;fill:var(--muted);font-weight:400}
+.o-edge{stroke:#c9d2ea;stroke-width:1.4;opacity:.7}
+.o-edge-label{font-size:10px;fill:#868e96;pointer-events:none}
+.o-node.sel rect{stroke-width:3}
+/* 实例列表 */
+.inst-list{display:flex;flex-direction:column;gap:4px;max-height:min(240px,26vh);overflow:auto;margin-bottom:10px;flex:0 0 auto}
+.inst-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:#f8f9fc;font-size:12.5px;cursor:pointer;border:1.5px solid transparent}
+.inst-item:hover{background:#eef2ff}
+.inst-item.sel{border-color:var(--accent);background:#fafbff}
+.inst-item .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inst-item .flag{font-size:10.5px;color:var(--warn);flex-shrink:0}
+/* 编辑表单 */
+.detail-card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fff}
+.detail-card:last-child{margin-bottom:0}
+.dc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.dc-title{font-size:12.5px;font-weight:700;color:var(--ink)}
+.dc-tag{font-size:10.5px;color:var(--accent);background:#eef2ff;border-radius:12px;padding:1px 8px;white-space:nowrap}
+.dc-row{display:flex;gap:10px;font-size:12px;padding:5px 0;border-bottom:1px dashed #f0f2f8;line-height:1.5;align-items:baseline}
+.dc-row:last-child{border-bottom:none}
+.dc-row .k{color:var(--muted);min-width:76px;flex-shrink:0}
+.dc-row .v{color:var(--ink);flex:1;word-break:break-word}
+.dc-row .tag{color:var(--muted);font-size:11px;flex-shrink:0;background:#f3f4fa;border-radius:10px;padding:0 7px}
+.paper-link{cursor:pointer;border-radius:6px}
+.paper-link:hover{background:#fafbff}
+.form-row{margin-bottom:12px}
+.form-row label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px;font-weight:600}
+.form-row label .req{color:var(--danger);margin-left:3px}
+.form-row input,.form-row textarea,.form-row select{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none;background:#fff}
+.form-row input:focus,.form-row textarea:focus{border-color:var(--accent)}
+.rel-line{display:flex;align-items:center;gap:6px;margin:4px 0;font-size:12.5px;background:#f8f9fc;border-radius:8px;padding:6px 10px}
+.rel-line .rel-name{color:var(--accent);font-weight:600;min-width:78px;flex-shrink:0}
+.rel-line .rel-obj{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rel-line .del{cursor:pointer;color:var(--danger);border:none;background:transparent;font-size:13px}
+.rel-line.removed{background:#fff5f5;text-decoration:line-through;opacity:.7}
+.rel-line.added{background:#f0fdf7}
+.add-rel{display:flex;gap:6px;margin-top:6px}
+.add-rel select{flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;background:#fff;min-width:0}
+.add-rel button{border:none;background:var(--accent);color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;flex-shrink:0}
+/* diff */
+.diffbox{border:1px solid #f3e6b0;background:#fffdf0;border-radius:10px;padding:12px;margin-top:14px}
+.diffbox h5{font-size:12.5px;color:#b07800;margin-bottom:8px}
+.diff-line{font-size:12px;display:flex;gap:8px;margin:5px 0;line-height:1.5}
+.diff-line .k{color:var(--muted);min-width:80px;flex-shrink:0}
+.diff-line .old{color:var(--danger);text-decoration:line-through;flex:1;word-break:break-word}
+.diff-line .new{color:var(--accent2);flex:1;word-break:break-word}
+.act-row{display:flex;gap:8px;margin-top:12px}
+.btn-primary{flex:1;border:none;background:var(--accent);color:#fff;border-radius:9px;padding:9px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-primary:disabled{background:#b9c4e8;cursor:not-allowed}
+.btn-ghost{flex:1;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px;font-size:13px;cursor:pointer;color:var(--muted)}
+.btn-ghost:hover{color:var(--ink)}
+/* 提交结果 / 校验错误 */
+.commit-ok{margin-top:12px;border:1px solid #b2f2bb;background:#f0fdf4;border-radius:10px;padding:11px 12px;font-size:12.5px;line-height:1.7;color:#2b8a3e}
+.commit-err{margin-top:12px;border:1px solid #ffc9c9;background:#fff5f5;border-radius:10px;padding:11px 12px;font-size:12.5px;line-height:1.7;color:#c92a2a}
+.commit-err ul{margin:6px 0 0 16px}
+/* 关联面板 */
+#relPanel{position:fixed;right:0;top:84px;bottom:0;width:340px;background:var(--panel);box-shadow:-4px 0 24px rgba(30,41,80,.12);padding:20px;overflow:auto;z-index:40;transform:translateX(105%);transition:transform .25s}
+#relPanel.open{transform:translateX(0)}
+#relPanel .close{float:right;border:none;background:#f1f3f9;border-radius:7px;padding:4px 10px;cursor:pointer;font-size:12px}
+#relPanel h3{font-size:15px;margin:8px 0 4px}
+#relPanel .sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.rel-sec{font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+.rel-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;background:#f8f9fc;margin:4px 0;font-size:12.5px;gap:8px}
+.rel-item .tag{font-size:11px;color:var(--accent);background:#eef2ff;border-radius:14px;padding:1px 8px;white-space:nowrap}
+.rel-item .act{color:var(--accent);cursor:pointer;font-size:11.5px;white-space:nowrap}
+/* AI */
+.ai-head{padding:16px 16px 10px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.ai-body{flex:1;overflow:auto;padding:14px 16px}
+.ai-card{background:#f7f9ff;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.6}
+.ai-card .hd{font-weight:600;color:var(--accent);font-size:12.5px;margin-bottom:5px}
+.ai-card.insight{background:#fffdf0;border:1px solid #f3e6b0}
+.ai-card.insight .hd{color:#b07800}
+.ai-q{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13px}
+.ai-q input{width:100%;border:none;outline:none;font-size:13px;font-family:inherit;padding:4px 0}
+.ai-q .send{margin-top:8px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;cursor:pointer}
+.ai-msg{font-size:12.5px;background:#f1f3f9;border-radius:9px;padding:10px;margin-bottom:10px;line-height:1.6}
+.ai-msg b{color:var(--accent)}
+/* 弹窗 */
+#modal,#verModal,#schemaModal,#newModal{position:fixed;inset:0;background:rgba(20,24,40,.45);z-index:100;display:none;align-items:center;justify-content:center}
+#modal.open,#verModal.open,#schemaModal.open,#newModal.open{display:flex}
+.modal-box{width:640px;max-width:94vw;max-height:88vh;background:var(--panel);border-radius:16px;box-shadow:0 20px 60px rgba(20,24,40,.3);overflow:auto;padding:24px 26px}
+.modal-box.wide{width:760px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-head h3{font-size:17px}
+.modal-head .x{border:none;background:#f1f3f9;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px}
+/* ================= 上传记录弹窗（v1.9） ================= */
+#upHistModal{position:fixed;inset:0;background:rgba(20,24,40,.45);z-index:100;display:none;align-items:center;justify-content:center}
+#upHistModal.open{display:flex}
+.up-hist-badge{display:inline-block;min-width:17px;line-height:17px;padding:0 5px;margin-left:6px;border-radius:9px;background:#e3e9ff;color:#3a4bbf;font-size:11px;font-weight:600;font-style:normal;vertical-align:1px}
+.up-hist-badge.hidden{display:none}
+.switch-btn.has-run{border-color:#c7d3ff;color:#3a4bbf}
+.uh-when{font-size:11.5px;color:var(--muted);flex-shrink:0}
+.uh-tip{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.6}
+.uh-empty{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0}
+.drop{border:2px dashed #c5d0f5;border-radius:14px;padding:36px 20px;text-align:center;color:var(--muted);font-size:13.5px;cursor:pointer;background:#fafbff}
+.drop:hover{border-color:var(--accent);background:#f0f4ff}
+.drop b{color:var(--accent);font-size:15px}
+.pipe{margin-top:16px}
+.pstep{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;background:#f8f9fc;margin:6px 0;font-size:13px;color:var(--muted)}
+.pstep .st{width:20px;height:20px;border-radius:50%;background:#e9ecf5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.pstep.done .st{background:var(--accent2)}
+.pstep.doing .st{background:var(--accent)}
+.pstep.fail .st{background:var(--danger)}
+.pstep .nm{flex:1}
+.pstep .sts{font-size:12px}
+/* ================= 逐文件上传解析进度（v1.7） ================= */
+.up-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:2px 0 10px}
+.up-head h4{margin:0}
+.up-meta{font-size:12px;color:var(--muted)}
+.up-list{max-height:54vh;overflow:auto;padding-right:2px}
+.up-item{border:1px solid #e6e9f2;border-radius:10px;padding:9px 11px;margin:7px 0;background:#fbfcff}
+.up-item.parsing{border-color:#c7d3ff;background:#f6f8ff}
+.up-item.done{border-color:#cfe9d8;background:#f7fdf9}
+.up-item.failed{border-color:#f2c9cd;background:#fff8f8}
+.up-line{display:flex;align-items:center;gap:8px}
+.up-name{flex:1;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up-badge{font-size:11.5px;padding:2px 8px;border-radius:20px;background:#eceffa;color:var(--muted);flex-shrink:0}
+.up-item.parsing .up-badge{background:#e3e9ff;color:#3a4bbf}
+.up-item.done .up-badge{background:#e0f3e7;color:#1f7a45}
+.up-item.failed .up-badge{background:#fde8ea;color:var(--danger)}
+.up-time{font-size:11.5px;color:var(--muted);flex-shrink:0;min-width:40px;text-align:right}
+.up-bar{height:5px;border-radius:4px;background:#edf0f8;margin:7px 0 5px;overflow:hidden}
+.up-bar i{display:block;height:100%;width:0;border-radius:4px;background:linear-gradient(90deg,#7f8ff5,#4f63e8);transition:width .4s ease}
+.up-item.queued .up-bar i{background:#c9d1ea}
+.up-item.done .up-bar i{background:linear-gradient(90deg,#57c98a,#2f9e63)}
+.up-item.failed .up-bar i{background:linear-gradient(90deg,#e88b93,#cf4a55)}
+.up-stage{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.result-group{margin-top:16px}
+.result-group h5{font-size:13px;margin-bottom:8px}
+.result-group .row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:#f8f9fc;margin:4px 0;font-size:12.5px}
+.result-group .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.result-group .ok .dot{background:var(--accent2)} .result-group .warn .dot{background:var(--warn)} .result-group .bad .dot{background:var(--danger)}
+.result-group .row .nm{flex:1;word-break:break-all}
+.result-group .row .act{font-size:11.5px;color:var(--accent);cursor:pointer;white-space:nowrap}
+/* 版本列表 */
+.ver-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;background:#f8f9fc;margin:5px 0;font-size:12.5px}
+.ver-item .v{font-weight:600;min-width:112px}
+.ver-item .m{flex:1;color:var(--muted);font-size:11.5px}
+/* 本体结构编辑 */
+.sch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.sch-col h4{margin:0 0 6px;font-size:12.5px;color:var(--muted);font-weight:600}
+.sch-list{border:1px solid var(--line);border-radius:9px;padding:6px;max-height:210px;overflow:auto}
+.sch-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;background:#f8f9fc;margin:3px 0;font-size:12px}
+.sch-row .k{font-weight:600;min-width:96px}
+.sch-row .m{flex:1;color:var(--muted);font-size:11.5px}
+.mini-btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:3px 9px;font-size:11.5px;cursor:pointer;color:var(--fg)}
+.mini-btn:hover{border-color:var(--accent);color:var(--accent)}
+.mini-btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+.sch-form{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.sch-form input,.sch-form select{border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:12px;background:#fff;color:var(--fg);max-width:170px}
+.sch-form input{max-width:130px}
+.pend{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:7px;background:#fff8e6;margin:4px 0;font-size:11.5px}
+.pend .t{flex:1}
+.pend .x{cursor:pointer;color:var(--danger);font-weight:600}
+.sch-tip{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.6}
+.hidden{display:none}
+.banner{margin-bottom:14px;border-radius:10px;padding:10px 14px;font-size:12.5px;line-height:1.6;border:1px solid #ffc9c9;background:#fff5f5;color:#c92a2a}
+.banner.info{border-color:#c5d0f5;background:#f7f9ff;color:#3b5bdb}
+.loading{text-align:center;color:var(--muted);font-size:13px;padding:40px 0}
+/* ===================== 阅读板块（ReX 融合） ===================== */
+#content.reading{padding:0;overflow:hidden}
+#view-read{height:100%}
+#view-read.hidden{display:none}
+#readStage{position:relative;height:100%;background:#eef1f5;overflow:hidden}
+#readFrame{width:100%;height:100%;border:0;display:block;background:#fff}
+#readBar{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:8;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.95);border:1px solid var(--line);box-shadow:0 3px 14px rgba(30,41,80,.16);font-size:12.5px;backdrop-filter:blur(10px)}
+#readBar.hidden{display:none}
+.rb-btn{border:1px solid var(--line);background:#fff;border-radius:7px;min-width:26px;height:24px;line-height:1;padding:0 8px;cursor:pointer;font-size:12.5px;color:var(--ink)}
+.rb-btn:hover{background:#f1f3f5}
+.rb-zoom{min-width:44px;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.rb-pg{width:48px;height:24px;border:1px solid var(--line);border-radius:7px;text-align:center;font-size:12.5px;padding:0 2px}
+.rb-total{color:var(--muted)}
+.rb-sep{width:1px;height:16px;background:var(--line)}
+.rb-name{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+.read-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#fff;color:var(--muted);font-size:13.5px;padding:0 60px;text-align:center}
+.read-empty.hidden{display:none}
+#readLoading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,.88);color:var(--muted);font-size:13.5px;z-index:9}
+#readLoading.hidden{display:none}
+.spin{width:16px;height:16px;border:2px solid #dee2e6;border-top-color:var(--accent);border-radius:50%;animation:rdspin .7s linear infinite}
+@keyframes rdspin{to{transform:rotate(360deg)}}
+.rd-err{max-width:420px}
+.rd-err-t{font-size:15px;font-weight:600;color:#e03131;margin-bottom:8px}
+.rd-err-m{color:#495057;line-height:1.7;word-break:break-all}
+.rd-tip{margin-top:10px;font-size:12px;color:var(--muted)}
+.pcard-read{margin-left:8px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:1px 8px;font-size:11.5px;cursor:pointer;color:var(--accent)}
+.pcard-read:hover{background:#eef2ff}
+.up-read{margin-left:8px;cursor:pointer;color:var(--accent);font-weight:600}
+
+/* ---- 右栏 AI 面板（阅读伴随态） ---- */
+.ai-body.rd{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.rd-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.rd-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;min-width:0}
+.rd-title span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rd-dot{width:7px;height:7px;border-radius:50%;background:#12b886;flex:none}
+.rd-tools{display:flex;gap:6px;flex:none}
+.rd-model-line{padding:6px 12px;font-size:11.5px;color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd-msgs{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.rd-msgs .ai-msg{margin-bottom:0;max-width:96%}
+.rd-msgs .ai-msg.u{background:#e7f5ff;align-self:flex-end;max-width:88%}
+.rd-msgs .ai-msg.a{background:#f1f3f9;align-self:flex-start}
+.rd-welcome{color:var(--muted);font-size:12.5px;line-height:1.9}
+.rd-w-t{font-weight:600;color:#495057;margin-bottom:6px}
+.rd-w-l{font-size:12px}
+.rd-quote{border-left:3px solid #7048e8;background:#f6f3ff;color:#5f3dc4;padding:6px 9px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.6;margin-bottom:6px;max-height:110px;overflow:auto}
+.rd-input{border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:8px;align-items:flex-end}
+.rd-input textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12.5px;font-family:inherit;line-height:1.5;outline:none}
+.rd-input textarea:focus{border-color:var(--accent)}
+.rd-send{border:0;background:var(--accent);color:#fff;border-radius:8px;padding:0 14px;height:34px;font-size:12.5px;cursor:pointer;flex:none}
+.rd-send:disabled{opacity:.55;cursor:default}
+.rd-toast{position:fixed;left:50%;bottom:34px;transform:translate(-50%,12px);background:rgba(33,37,41,.92);color:#fff;font-size:12.5px;padding:8px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:300}
+.rd-toast.on{opacity:1;transform:translate(-50%,0)}
+.rd-mask{position:fixed;inset:0;background:rgba(20,24,40,.45);z-index:200;display:none;align-items:center;justify-content:center}
+.rd-mask.on{display:flex}
+.rd-modal{width:520px;max-width:92vw;max-height:86vh;overflow:auto;background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 20px 60px rgba(20,24,40,.28)}
+.rd-m-head{display:flex;align-items:center;justify-content:space-between;font-size:15px;margin-bottom:4px}
+.rd-m-head .x{border:0;background:transparent;font-size:20px;cursor:pointer;color:var(--muted);line-height:1}
+.rd-m-sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+.rd-m-tabs{display:flex;gap:6px;margin-bottom:12px}
+.rd-m-tab{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 0;font-size:12.5px;cursor:pointer}
+.rd-m-tab.on{background:#eef2ff;border-color:var(--accent);color:var(--accent);font-weight:600}
+.rd-m-form{display:flex;flex-direction:column;gap:10px}
+.rd-m-form.hidden{display:none}
+.rd-m-form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#495057;flex:1}
+.rd-m-form input{border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:12.5px;outline:none;font-family:inherit}
+.rd-m-form input:focus{border-color:var(--accent)}
+.rd-m-row{display:flex;gap:10px}
+.rd-m-acts{display:flex;gap:8px;flex-wrap:wrap}
+.rd-m-out{font-size:12px;color:var(--muted);line-height:1.7;word-break:break-all;min-height:18px;background:#f8f9fa;border-radius:7px;padding:7px 9px}
+.rd-m-foot{font-size:11.5px;color:#adb5bd;margin-top:12px;border-top:1px solid var(--line);padding-top:10px;word-break:break-all}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand"><span class="logo">◆</span>科研文献库</div>
+  <div class="tabs">
+    <button class="tab active" data-tab="lib">📚 检索</button>
+    <button class="tab" data-tab="read">📖 阅读</button>
+    <button class="tab" data-tab="onto">🧩 管理</button>
+  </div>
+  <div class="top-right">
+    <button id="btnUpload">⬆ 上传文献</button>
+    <button id="btnAI" class="on">🤖 AI 伴随</button>
+  </div>
+</div>
+
+<div id="statusbar"><span><span class="dot"></span><span id="stConn">连接中…</span></span>
+  <div class="right"><span id="stKg">—</span><span id="stVer">—</span></div>
+</div>
+
+<div id="main">
+  <div id="content">
+    <!-- ===== 检索 ===== -->
+    <div id="view-lib">
+      <div id="libBanner"></div>
+      <div class="toolbar">
+        <input id="search" placeholder="搜索标题 / 作者 / 关键词…">
+        <button class="switch-btn active" id="viewList">☰ 列表</button>
+        <button class="switch-btn" id="viewGraph">🕸 图谱</button>
+        <button class="switch-btn" id="btnUpHist" title="查看全部上传任务：阶段 / 进度 / 耗时 / 结果，关闭后可随时重开">📋 上传记录<i class="up-hist-badge hidden" id="upHistBadge">0</i></button>
+        <span class="viewhint" id="viewHint"></span>
+      </div>
+      <div id="ctrlBar"></div>
+      <div class="lib">
+        <div id="paperArea"><div class="loading">正在读取图谱…</div></div>
+      </div>
+    </div>
+
+    <!-- ===== 阅读（ReX 融合：视口最大化 + 工具条内嵌 + 右栏复用 AI 面板） ===== -->
+    <div id="view-read" class="hidden">
+      <div id="readStage">
+        <iframe id="readFrame" title="文献阅读视口" allow="clipboard-write"></iframe>
+        <div id="readBar" class="hidden">
+          <button class="rb-btn" id="rdZoomOut" title="缩小">−</button>
+          <span class="rb-zoom" id="rdZoomLabel">100%</span>
+          <button class="rb-btn" id="rdZoomIn" title="放大">＋</button>
+          <span class="rb-sep"></span>
+          <button class="rb-btn" id="rdFit" title="适合宽度">适合宽度</button>
+          <span class="rb-sep"></span>
+          <input class="rb-pg" id="rdPage" type="number" min="1" value="1" title="跳转页码">
+          <span class="rb-total" id="rdPageTotal">/ 0</span>
+          <span class="rb-sep"></span>
+          <span class="rb-name" id="rdName"></span>
+          <button class="rb-btn" id="rdReload" title="重新载入文献">⟳</button>
+        </div>
+        <div id="readEmpty" class="read-empty">从检索列表、图谱详情或管理页选择文献后，将在此打开阅读。</div>
+        <div id="readLoading" class="hidden"><div class="spin"></div><span id="readLoadingText">正在加载文献…</span></div>
+      </div>
+    </div>
+
+    <!-- ===== 管理（本体模型 · 读写） ===== -->
+    <div id="view-onto" class="hidden">
+      <div id="ontoBanner"></div>
+      <div class="onto-wrap">
+        <div class="onto-card">
+          <h3>本体结构</h3>
+          <div class="sub">类（节点大小 = 实例数）· 对象关系（连线）· 点击类查看实例与编辑</div>
+          <svg id="ontoCanvas" viewBox="0 0 1000 720"></svg>
+          <div class="statline" id="ontoStats"></div>
+          <div style="margin-top:10px"><button class="mini-btn" onclick="openSchemaModal()">编辑本体结构（类 / 属性）</button>
+            <span class="sch-tip" id="schHeadTip" style="margin-left:8px">原生定义只读，扩展项可增删改</span></div>
+        </div>
+        <div class="onto-card">
+          <div class="onto-head">
+            <h3 id="ontoTitle">选择左侧类</h3>
+            <div class="onto-acts">
+              <input id="instSearch" placeholder="过滤实例…">
+              <button class="mini-btn" id="btnVersions">版本 / 回滚</button>
+              <button class="mini-btn primary" id="btnNewInst">+ 新建实例</button>
+            </div>
+          </div>
+          <div class="sub" id="ontoSub"></div>
+          <div class="inst-list" id="instList"></div>
+          <div id="editorArea"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="aiPanel" class="on">
+    <div class="ai-head"><span>🤖 AI 伴随</span><button class="x" onclick="toggleAI()">×</button></div>
+    <div class="ai-body" id="aiBody"></div>
+  </div>
+</div>
+
+<div id="relPanel"></div>
+<div class="gtooltip" id="gtip"></div>
+
+<!-- 上传弹窗 -->
+<div id="modal">
+  <div class="modal-box">
+    <div class="modal-head"><h3>上传文献</h3><button class="x" onclick="closeModal()">×</button></div>
+    <div id="uploadStep">
+      <div class="drop" id="dropZone">
+        <b>拖拽文件到这里，或点击选择</b><br><br>
+        支持 PDF（可多选）。上传后自动解析元数据、AI 补全摘要关键词、校验并入库
+      </div>
+      <input type="file" id="fileInput" multiple accept=".pdf" class="hidden">
+      <p style="margin-top:10px;font-size:12px;color:var(--muted)" id="uploadHint"></p>
+    </div>
+    <div id="pipeStep" class="hidden">
+      <div class="up-head">
+        <h4 id="upTitle">AI 解析治理中…</h4>
+        <span class="up-meta" id="upMeta"></span>
+      </div>
+      <div class="up-list" id="upList"></div>
+      <div class="result-group hidden" id="uploadResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 上传记录弹窗（常驻入口：检索页工具栏「📋 上传记录」） -->
+<div id="upHistModal">
+  <div class="modal-box wide">
+    <div class="modal-head"><h3>上传记录</h3><button class="x" onclick="closeUpHist()">×</button></div>
+    <div class="up-head"><h4 id="uhTitle">全部上传任务</h4><span class="up-meta" id="uhMeta"></span></div>
+    <div id="uhList" class="up-list"><div class="uh-empty">读取中…</div></div>
+    <p class="uh-tip">记录保存在后端（最近 50 条），含文件名、当前阶段、进度、耗时与入库结果；关闭本弹窗不影响解析，任务状态不会丢失，上传完成后仍可随时回看。</p>
+  </div>
+</div>
+
+<!-- 版本弹窗 -->
+<div id="verModal">
+  <div class="modal-box wide">
+    <div class="modal-head"><h3>版本快照 / 回滚</h3><button class="x" onclick="closeVerModal()">×</button></div>
+    <div class="sub" style="font-size:12px;color:var(--muted);margin-bottom:10px">每次提交（commit / 回滚）都会生成快照，回滚将用所选快照整体覆盖当前图谱。</div>
+    <div id="verList"><div class="loading">读取中…</div></div>
+  </div>
+</div>
+
+<!-- 本体结构编辑弹窗 -->
+<div id="schemaModal">
+  <div class="modal-box wide">
+    <div class="modal-head"><h3>编辑本体结构</h3><button class="x" onclick="closeSchemaModal()">×</button></div>
+    <div class="sub" style="font-size:12px;color:var(--muted);margin-bottom:6px">扩展类 / 属性提交后写入 schema_ext.json，并重写 edu_scholar_ontology.ttl 与 SHACL 的扩展区；提交前自动备份原生文件。原生定义（基线）只读。</div>
+    <div class="sch-grid">
+      <div class="sch-col">
+        <h4>类（Classes）</h4>
+        <div class="sch-list" id="schClasses"></div>
+        <div class="sch-form">
+          <input id="schClsName" placeholder="类名（英文，如 Grant）">
+          <input id="schClsLabel" placeholder="中文名（如 基金项目）">
+          <button class="mini-btn" onclick="schAddClass()">+ 新增类</button>
+        </div>
+      </div>
+      <div class="sch-col">
+        <h4>数据属性（DatatypeProperty）</h4>
+        <div class="sch-list" id="schDataProps"></div>
+        <h4 style="margin-top:8px">对象关系（ObjectProperty）</h4>
+        <div class="sch-list" id="schObjProps"></div>
+        <div class="sch-form">
+          <input id="schPropName" placeholder="属性名（如 grantNo）">
+          <input id="schPropLabel" placeholder="中文名（如 基金编号）">
+          <select id="schPropKind">
+            <option value="data">数据属性</option>
+            <option value="obj">对象关系</option>
+          </select>
+          <select id="schPropDomain" title="domain 类"></select>
+          <select id="schPropRangeData" title="取值类型"></select>
+          <select id="schPropRangeObj" class="hidden" title="range 类"></select>
+          <button class="mini-btn" onclick="schAddProp()">+ 新增属性</button>
+        </div>
+        <div class="sch-tip">删除扩展类时，指向它的扩展属性会一并删除。原生类 / 属性保持只读。</div>
+      </div>
+    </div>
+    <h4 style="font-size:12.5px;color:var(--muted);margin:12px 0 4px">待提交变更（<span id="schPendCount">0</span>）</h4>
+    <div id="schPending"></div>
+    <div id="schResult"></div>
+    <div class="act-row" style="justify-content:flex-end;margin-top:12px">
+      <button class="btn-ghost" onclick="closeSchemaModal()">关闭</button>
+      <button class="btn-primary" id="btnSchemaCommit" onclick="schCommit()">提交结构修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新建实例弹窗 -->
+<div id="newModal">
+  <div class="modal-box">
+    <div class="modal-head"><h3>新建实例</h3><button class="x" onclick="closeNewModal()">×</button></div>
+    <div class="form-row"><label>本体类</label><select id="newType"></select></div>
+    <div id="newFields"></div>
+    <div id="newResult"></div>
+    <div class="act-row"><button class="btn-ghost" onclick="closeNewModal()">取消</button><button class="btn-primary" id="btnNewSubmit">提交新建</button></div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   v6 = v5 交互壳 + 真实 API
+   数据源：/api/graph/*（只读） /api/ontology/*（只读） /api/commit（写闸门）
+          /api/manage/stats（治理统计） /upload（PDF 入库）
+   后端不可用时：自动回退到内置示例数据（顶部横幅提示）
+   ========================================================================== */
+var NS_PREFIX = "http://edu-scholar.org/ontology#";
+
+/* ------------------ 内置示例（后端未就绪时兜底） ------------------ */
+var FALLBACK_PAPERS = [
+  {id:"p1",title:"Effects of confining stiffness and rupture strain on performance of FRP confined concrete",authors:["Xiao Y","Wu H"],year:2020,journal:"Engineering Structures",org:"Tongji University",kw:["FRP","confined concrete","concrete"],dir:"FRP约束混凝土",conf:0.65,sum:"系统研究了约束刚度与断裂应变对 FRP 约束混凝土性能的影响规律。"},
+  {id:"p2",title:"Axial compressive behavior of confined steel fiber reinforced high strength concrete",authors:["Li J","Wang Q"],year:2021,journal:"Construction and Building Materials",org:"Tsinghua University",kw:["steel fiber","high strength concrete","axial"],dir:"FRP约束混凝土",conf:0.6,sum:"通过 36 个试件试验揭示钢纤维高强混凝土约束受压机理。"},
+  {id:"p3",title:"Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders",authors:["ASCE 1090"],year:2008,journal:"Journal of Composites for Construction",org:"Southeast University",kw:["CFRP","confinement","cylinders"],dir:"FRP约束混凝土",conf:0.8,sum:"评估 CFRP 离散约束系统对混凝土圆柱的约束效率。"},
+  {id:"p4",title:"体外预应力 FRP 筋加固混凝土单向板抗裂及刚度计算方法",authors:["朱超宇","高丹盈"],year:2020,journal:"工程力学",org:"Zhengzhou University",kw:["FRP筋","预应力","单向板"],dir:"混凝土结构",conf:0.85,sum:"提出体外预应力 FRP 筋加固单向板的抗裂验算与刚度折减方法。"},
+  {id:"p5",title:"钢筋混凝土连续梁在集中荷载下的挠度计算",authors:["高丹盈","房栋"],year:2018,journal:"土木工程学报",org:"Zhengzhou University",kw:["钢筋混凝土","连续梁","挠度"],dir:"混凝土结构",conf:0.9,sum:"基于虚功原理推导集中荷载下连续梁挠度计算公式。"},
+  {id:"p6",title:"Machine learning prediction of FRP-confined concrete strength",authors:["Naderpour H"],year:2023,journal:"Journal of Composites for Construction",org:"Semnan University",kw:["machine learning","FRP","strength prediction"],dir:"智能方法",conf:0.82,sum:"基于 700+ 试验数据训练机器学习模型预测 FRP 约束混凝土强度。"}
+];
+function fallbackDims(){
+  return [
+    {key:"all", name:"综合", cls:"—", single:true, synthetic:true, get:null},
+    {key:"dir", name:"研究方向", cls:"autoResearchArea", single:true, get:function(p){return p.dir}},
+    {key:"year", name:"年份", cls:"data:year", single:true, get:function(p){return String(p.year||"")}},
+    {key:"journal", name:"期刊", cls:"Venue", single:true, get:function(p){return p.journal}},
+    {key:"org", name:"机构", cls:"Organization", single:true, get:function(p){return p.org}},
+    {key:"authors", name:"作者", cls:"Author", single:false, get:function(p){return p.authors}},
+    {key:"kw", name:"关键词", cls:"Keyword", single:false, get:function(p){return p.kw}}
+  ];
+}
+
+/* ------------------ 运行时数据 ------------------ */
+var RAW = {ok:false, mode:"loading", nodes:[], edges:[], byId:{}, byType:{}, outIdx:{}, inIdx:{}, stats:null, schema:null, manage:null};
+var PAPERS = [], DIMS = [], CACHE = {};
+var SID = {}, NID = {};              /* 节点长 id ↔ 短 id */
+var state = {tab:"lib", sel:null, selNid:null, filters:{}, graph:true, statDim:"all",
+             ontoClass:"Paper", ontoInst:null, draft:null, edit:null};
+var NS_LABEL = {Paper:"论文",Author:"作者",Organization:"机构",Venue:"期刊",Keyword:"关键词",LocalFile:"本地文件",DomainCategory:"研究方向"};
+var NS_COLOR = {Paper:"#4c6ef5",Author:"#12b886",Organization:"#f59f00",Venue:"#e64980",Keyword:"#7048e8",LocalFile:"#5c7cfa",DomainCategory:"#0ca678"};
+var CLASS_ORDER = ["Paper","Author","Organization","Venue","Keyword","LocalFile","DomainCategory"];
+var FALLBACK_EDGES = [
+  ["Paper","Author","hasAuthor"],["Paper","Venue","publishedIn"],["Paper","Keyword","hasKeyword"],
+  ["Paper","LocalFile","related_to"],["Paper","Paper","cites"],["Author","Organization","hasAffiliation"],
+  ["Author","Keyword","hasResearchTopic"]
+];
+
+/* ------------------ 工具 ------------------ */
+function esc(s){ return String(s===undefined||s===null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function dedup(arr){ var seen = {}, out = []; (arr||[]).forEach(function(x){ var k = String(x); if (!seen[k]){ seen[k] = 1; out.push(x); } }); return out; }
+
+/* 实例详情的对象关系分组：同 (方向, 关系类型, 对端实例) 合并为一行，ids 供批量删除 */
+function groupEdges(edges, selfId){
+  var map = {}, order = [];
+  (edges||[]).forEach(function(e){
+    var dir = (e.source_id === selfId) ? "out" : ((e.target_id === selfId) ? "in" : (e.direction || "out"));
+    var other = (dir === "out") ? e.target_id : e.source_id;
+    var key = dir + "|" + e.type + "|" + other;
+    if (!map[key]){ map[key] = {dir: dir, type: e.type, other: other, ids: []}; order.push(key); }
+    map[key].ids.push(e.id);
+  });
+  return order.map(function(k){ return map[k]; });
+}
+function stripNS(id){ return String(id||"").split("#").pop(); }
+function short(s,n){ s=String(s||""); return s.length>n? s.slice(0,n-1)+"…": s; }
+function empty(v){ return v===undefined||v===null||String(v).trim()===""; }
+
+/* ------------------ API ------------------ */
+/* 桌面端同源（Electron 静态服务反代 /api/*），故默认相对路径即可；
+   window.WB_API_BASE 仅供离线 file:// 调试时指向 http://127.0.0.1:9173。 */
+var API_BASE = String(window.WB_API_BASE || "").replace(/\/+$/, "");
+/* 统一请求封装：永不抛异常，超时/网络错误都返回 {ok:false, reason}，
+   避免任何一次请求失败把界面卡在「读取中…」。 */
+var API = {
+  async _fetch(url, opts, ms){
+    var ctl = (typeof AbortController !== "undefined") ? new AbortController() : null;
+    var timer = ctl ? setTimeout(function(){ try { ctl.abort(); } catch(_){} }, ms || 15000) : null;
+    var o = Object.assign({}, opts || {});
+    if (ctl) o.signal = ctl.signal;
+    try {
+      var r = await fetch(url, o);
+      var t = await r.text();
+      var j = null;
+      try { j = JSON.parse(t); } catch(e){ j = {ok:false, reason:"响应解析失败："+String(t).slice(0,200)}; }
+      if (!j || typeof j !== "object") j = {ok:false, reason:"响应格式异常"};
+      if (r.status >= 400 && j.ok === undefined) j.ok = false;
+      if (r.status >= 400 && !j.reason && !(j.errors && j.errors.length)) j.reason = "HTTP " + r.status;
+      j.http_status = r.status;
+      return j;
+    } catch(e){
+      var to = e && (e.name === "AbortError");
+      return {ok:false, http_status:0,
+              reason: to ? ("请求超时（" + Math.round((ms||15000)/1000) + "s）· 后端可能未就绪或被占用")
+                         : ("网络错误：" + String((e && e.message) || e))};
+    } finally { if (timer) clearTimeout(timer); }
+  },
+  get(path){ return API._fetch(API_BASE + path, {headers:{"Accept":"application/json"}}, 20000); },
+  post(path, body){ return API._fetch(API_BASE + path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)}, 90000); },
+  /* 异步提交单个 PDF：后端立即返回 202 + file_id，随后用 progress() 轮询真实阶段 */
+  async uploadFile(file){
+    var fd = new FormData();
+    fd.append("file", file, file.name);
+    var j = await API._fetch(API_BASE + "/upload", {method:"POST", body: fd}, 600000);
+    j.file = file.name;
+    if (!j.file_id){ j.ok = false; if (!j.reason) j.reason = "后端未返回 file_id（可能仍是旧版同步接口）"; }
+    return j;
+  },
+  /* 进度查询：file_id 逗号分隔，返回 {ok, items:[{file_id,file,status,status_text,percent,stage,stage_name,stage_index,elapsed,title,reason,detail}]} */
+  progress(ids){
+    return API._fetch(API_BASE + "/api/upload/progress?file_id=" + encodeURIComponent(ids.join(",")),
+                      {headers:{"Accept":"application/json"}}, 20000);
+  },
+  /* 全部上传记录（含历史）：limit 上限 50；后端若忽略该参数仍返回最近 20 条，不影响可用性 */
+  progressAll(limit){
+    return API._fetch(API_BASE + "/api/upload/progress?limit=" + (limit || 50),
+                      {headers:{"Accept":"application/json"}}, 20000);
+  }
+};
+
+/* 全局异常兜底：单个脚本错误不再让整页无响应，底部提示 + 可继续操作 */
+window.addEventListener("error", function(ev){
+  try {
+    var box = document.getElementById("errBar");
+    if (!box){ box = document.createElement("div"); box.id = "errBar"; document.body.appendChild(box); }
+    box.textContent = "页面脚本异常：" + ((ev && ev.message) || "未知") + " · 已隔离该异常；若界面无响应请按 ⌘R 刷新";
+    box.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#b02a37;color:#fff;font:12px/1.6 -apple-system,sans-serif;padding:6px 12px;opacity:.94";
+    setTimeout(function(){ try { box.remove(); } catch(_){} }, 15000);
+  } catch(_) {}
+});
+window.addEventListener("unhandledrejection", function(ev){
+  try { console.warn("[workbench] 未处理的 Promise 拒绝：", ev && ev.reason); } catch(_) {}
+});
+
+/* ================= 数据装载 ================= */
+async function reload(showLoading){
+  if (showLoading){ document.getElementById("paperArea").innerHTML = '<div class="loading">正在读取图谱…</div>'; }
+  try {
+    var stats = await API.get("/api/graph/stats");
+    if (!stats || !stats.ok) throw new Error((stats && stats.reason) || "后端未就绪");
+    var nodes = await API.get("/api/graph/nodes");
+    var edges = await API.get("/api/graph/edges");
+    if (!nodes.ok || !edges.ok) throw new Error("图谱数据读取失败");
+    RAW.nodes = nodes.nodes || [];
+    RAW.edges = edges.edges || [];
+    RAW.stats = stats;
+    RAW.ok = true; RAW.mode = "live";
+    try {
+      var sch = await API.get("/api/ontology/schema");
+      RAW.schema = sch && sch.ok ? sch : null;
+    } catch(e){ RAW.schema = null; }
+    try {
+      var mg = await API.get("/api/manage/stats");
+      RAW.manage = mg && mg.ok ? mg : null;
+    } catch(e){ RAW.manage = null; }
+  } catch(err){
+    RAW.ok = false; RAW.mode = "fallback"; RAW.failReason = err.message;
+    RAW.nodes = []; RAW.edges = []; RAW.stats = null; RAW.schema = null; RAW.manage = null;
+  }
+  ALLGRAPH = null;
+  buildIndex();
+  if (RAW.ok) buildFromGraph(); else buildFallback();
+  renderStatus();
+}
+
+function buildIndex(){
+  RAW.byId = {}; RAW.byType = {}; RAW.outIdx = {}; RAW.inIdx = {};
+  SID = {}; NID = {};
+  RAW.nodes.forEach(function(n,i){
+    var sid = "n"+i;
+    SID[n.id] = sid; NID[sid] = n.id;
+    RAW.byId[n.id] = n;
+    (RAW.byType[n.type] = RAW.byType[n.type] || []).push(n);
+  });
+  RAW.edges.forEach(function(e){
+    (RAW.outIdx[e.source_id] = RAW.outIdx[e.source_id] || []).push(e);
+    (RAW.inIdx[e.target_id] = RAW.inIdx[e.target_id] || []).push(e);
+  });
+}
+function nodeLabel(n){
+  if (!n) return "?";
+  var p = n.properties || {};
+  return p.name || p.title || p.file || stripNS(n.id);
+}
+function nodesOfType(t){ return RAW.byType[t] || []; }
+function edgesBetween(nid, type){
+  var all = (RAW.outIdx[nid]||[]).concat(RAW.inIdx[nid]||[]);
+  return type ? all.filter(function(e){ return e.type===type; }) : all;
+}
+
+function buildFromGraph(){
+  var papers = nodesOfType("Paper").map(function(n){
+    var p = n.properties || {};
+    var authors = dedup((RAW.outIdx[n.id]||[]).filter(function(e){return e.type==="hasAuthor";})
+      .map(function(e){ var a = RAW.byId[e.target_id]; return a ? nodeLabel(a) : stripNS(e.target_id); }));
+    var kws = dedup((RAW.outIdx[n.id]||[]).filter(function(e){return e.type==="hasKeyword";})
+      .map(function(e){ var k = RAW.byId[e.target_id]; return k ? nodeLabel(k) : stripNS(e.target_id); }));
+    var org = "";
+    for (var i=0;i<authors.length && !org;i++){
+      var an = nodesOfType("Author").filter(function(a){ return nodeLabel(a)===authors[i]; })[0];
+      if (an){
+        var aff = (RAW.outIdx[an.id]||[]).filter(function(e){return e.type==="hasAffiliation";})[0];
+        if (aff && RAW.byId[aff.target_id]) org = nodeLabel(RAW.byId[aff.target_id]);
+      }
+    }
+    if (!org && p.autoAffiliation) org = p.autoAffiliation;
+    var dir = (p.autoResearchArea||"").split(/[,，;；]/).map(function(x){return x.trim();}).filter(Boolean)[0] || "未分类";
+    return {
+      id: SID[n.id], nid: n.id, node: n,
+      title: p.title || stripNS(n.id),
+      authors: authors,
+      year: p.year || "",
+      journal: p.venue || "",
+      org: org || "未标注",
+      kw: kws,
+      dir: dir,
+      conf: parseFloat(p.confidence)>=0 ? parseFloat(p.confidence) : 0,
+      sum: p.aiSummary || p.abstract || p.content || "",
+      doi: p.doi || "", file: p.file || "", paperType: p.paperType || ""
+    };
+  });
+  papers.sort(function(a,b){ return String(b.year||"").localeCompare(String(a.year||"")); });
+  PAPERS = papers;
+  DIMS = fallbackDims();
+  rebuildCache();
+}
+function buildFallback(){
+  PAPERS = FALLBACK_PAPERS.slice();
+  DIMS = fallbackDims();
+  rebuildCache();
+}
+function dimValues(dim){
+  var m = {};
+  PAPERS.forEach(function(p){
+    var vs = dim.get(p); if (!vs) return;
+    (Array.isArray(vs)?vs:[vs]).forEach(function(v){ if(!empty(v)) m[v]=(m[v]||0)+1; });
+  });
+  return Object.keys(m).map(function(k){return {v:k,n:m[k]}}).sort(function(a,b){return b.n-a.n});
+}
+function rebuildCache(){
+  CACHE = {};
+  DIMS.forEach(function(d){ if (d.synthetic || !d.get) return; CACHE[d.key] = dimValues(d); });
+  var used = Object.keys(state.filters);
+  used.forEach(function(k){
+    var avail = (CACHE[k]||[]).map(function(x){return x.v;});
+    state.filters[k] = (state.filters[k]||[]).filter(function(v){ return avail.indexOf(v)>=0; });
+    if (!state.filters[k].length) delete state.filters[k];
+  });
+}
+function renderStatus(){
+  var bar = document.getElementById("statusbar");
+  var conn = document.getElementById("stConn");
+  bar.classList.remove("live","fake");
+  if (RAW.ok){
+    bar.classList.add("live");
+    conn.textContent = "后端已连接 · /api/graph · /api/commit";
+    document.getElementById("stKg").textContent = "图谱 " + (RAW.stats.nodes||0) + " 节点 / " + (RAW.stats.edges||0) + " 边";
+    document.getElementById("stVer").textContent = "版本 " + ((RAW.stats.meta||{}).version||"—") +
+      (RAW.manage && RAW.manage.versions ? " · 快照 " + RAW.manage.versions : "");
+  } else {
+    bar.classList.add("fake");
+    conn.textContent = "后端未连接（" + esc(RAW.failReason||"") + "）· 当前为内置示例数据";
+    document.getElementById("stKg").textContent = "示例 " + PAPERS.length + " 篇";
+    document.getElementById("stVer").textContent = "写回/上传不可用";
+  }
+  var banner = document.getElementById("libBanner");
+  banner.innerHTML = RAW.ok ? "" :
+    '<div class="banner">后端未就绪：' + esc(RAW.failReason||"") +
+    '。当前展示内置示例数据，仅可浏览；请通过桌面端启动（Electron 会自动拉起 Python 后端）后重试。</div>';
+  var ob = document.getElementById("ontoBanner");
+  if (ob) ob.innerHTML = RAW.ok ? "" :
+    '<div class="banner">本体数据来自后端 /api/ontology，当前不可用。启动后端后本页将展示真实类/实例，并支持读写提交。</div>';
+}
+
+/* ================= 筛选（检索页） ================= */
+function dimByKey(k){ return DIMS.filter(function(x){return x.key===k})[0]; }
+function dimName(k){ var d = dimByKey(k); return d ? d.name : k; }
+function ctrlActiveDim(){
+  if (!dimByKey(state.statDim)) state.statDim = (DIMS[0]||{}).key || "all";
+  return state.statDim;
+}
+function selCount(){
+  var n = 0; Object.keys(state.filters).forEach(function(k){ n += (state.filters[k]||[]).length; }); return n;
+}
+/* v7 统一控件区：维度行（单选，兼作图谱聚团维度）+ 取值行（多选）+ 已选条件行 */
+function renderCtrlBar(){
+  var box = document.getElementById("ctrlBar");
+  if (!box) return;
+  var act = ctrlActiveDim();
+  var d = dimByKey(act);
+  var nSel = selCount();
+  var h = '';
+  /* 第 1 行：维度 */
+  h += '<div class="ctrl-row"><span class="ctrl-lb">维度</span><div class="ctrl-chips" id="dimChips">';
+  DIMS.forEach(function(x){
+    var on = (act === x.key);
+    h += '<button class="dimbtn'+(on?" on":"")+'" data-k="'+esc(x.key)+'" aria-pressed="'+(on?"true":"false")+'">'+esc(x.name)+'</button>';
+  });
+  h += '</div>';
+  if (state.graph) h += '<span class="ctrl-note">图谱按所选维度聚团</span>';
+  h += '<span class="ctrl-acts">';
+  if (nSel) h += '<span class="sel-n">已选 '+nSel+' 项</span><button class="mini-link" id="clearFilters">清空筛选</button>';
+  h += '</span></div>';
+  /* 第 2 行：取值 */
+  h += '<div class="ctrl-row"><span class="ctrl-lb">筛选</span><div class="val-wrap'+(state._valOpen?" open":"")+'" id="valWrap">';
+  if (!d || d.synthetic){
+    h += '<span class="ctrl-empty">综合视图不含取值筛选，请在具体维度上筛选</span>';
+  } else {
+    var vals = CACHE[act] || [];
+    if (!vals.length){
+      h += '<span class="ctrl-empty">该维度暂无可筛选取值</span>';
+    } else {
+      var cur = state.filters[act] || [];
+      var BASE = 14;
+      vals.forEach(function(x, i){
+        var on = cur.indexOf(x.v) >= 0;
+        h += '<button class="fchip'+(on?" on":"")+(i>=BASE?" vx":"")+'" data-v="'+esc(x.v)+'" aria-pressed="'+(on?"true":"false")+'">'+esc(x.v)+' ('+x.n+')</button>';
+      });
+      if (vals.length > BASE) h += '<button class="more-btn" id="moreBtn">'+(state._valOpen ? '收起 ▴' : '更多 ('+(vals.length-BASE)+') ▾')+'</button>';
+    }
+  }
+  h += '</div></div>';
+  /* 第 3 行：已选条件（跨维度汇总，点击 × 单独移除） */
+  if (nSel){
+    h += '<div class="ctrl-row"><span class="ctrl-lb">已选</span><div class="ctrl-chips">';
+    Object.keys(state.filters).forEach(function(k){
+      (state.filters[k]||[]).forEach(function(v){
+        h += '<span class="sel-tag">'+esc(dimName(k))+': '+esc(v)
+          + '<button class="tag-x" data-k="'+esc(k)+'" data-v="'+esc(v)+'" title="移除该条件">×</button></span>';
+      });
+    });
+    h += '</div></div>';
+  }
+  box.innerHTML = h;
+  /* --- 事件绑定 --- */
+  box.querySelectorAll("#dimChips .dimbtn").forEach(function(b){
+    b.addEventListener("click", function(){
+      state.statDim = b.getAttribute("data-k");
+      state._valOpen = false;
+      renderCtrlBar(); refreshArea();
+    });
+  });
+  box.querySelectorAll(".fchip").forEach(function(c){
+    c.addEventListener("click", function(){
+      var v = c.getAttribute("data-v");
+      if (!state.filters[act]) state.filters[act] = [];
+      var arr = state.filters[act], idx = arr.indexOf(v);
+      if (idx >= 0) arr.splice(idx,1); else arr.push(v);
+      if (!arr.length) delete state.filters[act];
+      renderCtrlBar(); refreshArea();
+    });
+  });
+  box.querySelectorAll(".tag-x").forEach(function(b){
+    b.addEventListener("click", function(){
+      var k = b.getAttribute("data-k"), v = b.getAttribute("data-v");
+      var arr = state.filters[k] || [], idx = arr.indexOf(v);
+      if (idx >= 0) arr.splice(idx,1);
+      if (!arr.length) delete state.filters[k];
+      renderCtrlBar(); refreshArea();
+    });
+  });
+  var cb = document.getElementById("clearFilters");
+  if (cb) cb.addEventListener("click", function(){ state.filters = {}; renderCtrlBar(); refreshArea(); });
+  var mb = document.getElementById("moreBtn");
+  if (mb) mb.addEventListener("click", function(){ state._valOpen = !state._valOpen; renderCtrlBar(); });
+}
+/* 兼容旧调用点：v7 起统一走 renderCtrlBar */
+function renderFilters(){ renderCtrlBar(); }
+function filteredPapers(){
+  var q = (document.getElementById("search").value||"").toLowerCase();
+  return PAPERS.filter(function(p){
+    for (var k in state.filters){
+      var d = DIMS.filter(function(x){return x.key===k})[0]; if(!d) return false;
+      var vs = d.get(p); vs = Array.isArray(vs)?vs:[vs];
+      if (!state.filters[k].some(function(v){ return vs.indexOf(v)>=0; })) return false;
+    }
+    if (q){
+      var blob = (p.title+" "+p.authors.join(" ")+p.kw.join(" ")+p.sum+" "+p.journal+" "+p.org+" "+p.dir).toLowerCase();
+      if (blob.indexOf(q)<0) return false;
+    }
+    return true;
+  });
+}
+document.getElementById("search").addEventListener("input", refreshArea);
+document.getElementById("viewList").addEventListener("click", function(){ state.graph=false; syncView(); });
+document.getElementById("viewGraph").addEventListener("click", function(){ state.graph=true; syncView(); });
+function syncView(){
+  document.getElementById("viewList").classList.toggle("active", !state.graph);
+  document.getElementById("viewGraph").classList.toggle("active", state.graph);
+  syncNarrow();
+  renderCtrlBar();
+  refreshArea();
+}
+/* 窄屏保护：取值行改横向滚动，避免撑高控件区 */
+function syncNarrow(){
+  var v = document.getElementById("view-lib");
+  if (v) v.classList.toggle("narrow", (window.innerWidth || 1200) < 1100);
+}
+window.addEventListener("resize", syncNarrow);
+function refreshArea(){ if (state.graph) renderGraph(); else renderList(); }
+
+/* ================= 列表 ================= */
+function renderList(){
+  var list = filteredPapers();
+  var box = document.getElementById("paperArea");
+  document.getElementById("viewHint").textContent = "共 "+list.length+" 篇" + (RAW.ok?"（真实图谱）":"（示例）");
+  if (!list.length){ box.innerHTML = '<div class="pcard" style="text-align:center;color:var(--muted)">没有匹配的文献，试试放宽筛选条件</div>'; return; }
+  var h = '<div class="paperlist">';
+  list.forEach(function(p){
+    h += '<div class="pcard'+(state.sel&&state.sel.id===p.id?" sel":"")+'" data-id="'+p.id+'">'
+      + '<div class="t">'+esc(p.title)+'</div>'
+      + '<div class="meta">'+esc(p.authors.join(", ")||"未标注作者")+' · '+esc(p.year||"—")+' · '+esc(p.journal||"—")+' · <span style="color:var(--accent2)">'+esc(p.dir)+'</span></div>'
+      + '<div class="kw">'+p.kw.slice(0,10).map(function(k){return '<span class="kwtag">'+esc(k)+'</span>'}).join("")+'</div>'
+      + '<div class="sum">'+esc(p.sum)+'</div>'
+      + '<div class="ai">🤖 AI 摘要 · 置信度 '+(p.conf||"—")+' · '+esc(p.org)
+      + (p.file ? '<button class="pcard-read" data-read="'+esc(String(p.id))+'">📖 阅读</button>' : '')+'</div></div>';
+  });
+  h += '</div>';
+  box.innerHTML = h;
+  box.querySelectorAll(".pcard-read[data-read]").forEach(function(b){
+    b.addEventListener("click", function(e){
+      e.stopPropagation();
+      openReaderPaper(b.getAttribute("data-read"));
+    });
+  });
+  box.querySelectorAll(".pcard[data-id]").forEach(function(c){
+    c.addEventListener("click", function(){
+      var p = findP(c.getAttribute("data-id"));
+      if (!p) return;
+      state.sel = p; state.selNid = p.nid;
+      box.querySelectorAll(".pcard").forEach(function(x){ x.classList.remove("sel"); });
+      c.classList.add("sel");
+      openRel(p); renderAI("lib");
+    });
+  });
+}
+function findP(id){ for (var i=0;i<PAPERS.length;i++) if (String(PAPERS[i].id)===String(id)) return PAPERS[i]; return null; }
+
+/* ================= 图谱 ================= */
+function renderDimBtns(){ renderCtrlBar(); /* v7：已合并进统一控件区，保留兼容旧调用点 */ }
+var gtip = document.getElementById("gtip");
+function palette(n){ var cols=[]; for (var i=0;i<n;i++){ var hue=Math.round(210 - i*(210/Math.max(n,1))); cols.push("hsl("+hue+",72%,55%)"); } return cols; }
+var EDGE_COLOR = {cites:"#adb5bd", hasAuthor:"#12b886", hasKeyword:"#7048e8", hasResearchTopic:"#0ca678",
+                  publishedIn:"#e64980", hasAffiliation:"#f59f00", related_to:"#5c7cfa"};
+/* 通用力导向布局：随机初值（不再固定圆环），斥力质量与节点半径相关，
+   使关联规模大的节点既更大也更舒展；末段做硬性防重叠分离 */
+/* 自由力导向布局（对齐 semantica Knowledge Explorer）
+   —— 不再把节点裁剪进矩形边框：节点在无限平面上自由铺开，视口按内容包围盒自适应 */
+/* 目标视口宽高比：优先取真实图谱容器，首次构建（容器未挂载）时按窗口估算 */
+function layoutAR(){
+  var w = document.getElementById("graphWrap");
+  if (w && w.clientWidth > 60 && w.clientHeight > 60) return w.clientWidth / w.clientHeight;
+  var vw = (window.innerWidth || 1440) - 320;
+  var vh = (window.innerHeight || 900) - 262;
+  return Math.max(0.5, vw / Math.max(320, vh));
+}
+
+/* 稳定哈希：同一节点在多次渲染/重排中保持一致的有机抖动（避免每次跳变，也让外缘天然参差） */
+function nodeHash(s){
+  var h = 2166136261, i;
+  s = String(s == null ? "" : s);
+  for (i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = (h * 16777619) >>> 0; }
+  return h >>> 0;
+}
+function nodeRand(s, k){ return (nodeHash(s + "#" + (k || 0)) % 10000) / 10000; }
+
+function layoutGraph(nodes, edges, nodeMap, opt){
+  opt = opt || {};
+  var spread = (opt.spread === undefined) ? 0.44 : opt.spread;
+  var N = nodes.length; if (!N) return;
+  var E = edges.length;
+
+  var avgR = 0;
+  nodes.forEach(function(n){ avgR += (n.r || 7); });
+  avgR = avgR / N;
+
+  /* 初始分布：多中心有机铺开（不再用单圆盘 sunflower，也不再做视口宽高比拉伸）
+     —— 节点按类型分组落到若干簇心，簇心沿黄金角螺旋分布在带径向噪声的扁椭圆盘上，
+        簇内再按黄金角散开；外轮廓天然凹凸不平，而非"圆盘被塞进矩形视口" */
+  var GOLD = Math.PI * (3 - Math.sqrt(5));
+  var step = (avgR * 2 + 12) * Math.max(1, Math.sqrt(Math.max(E, 1) / N)) * (0.5 + spread);
+  var groups = {}, order = [];
+  nodes.forEach(function(n){
+    var gk = String(n.nsType || n.type || "n") + "#" + (nodeHash(n.id) % 5);
+    if (!groups[gk]){ groups[gk] = []; order.push(gk); }
+    groups[gk].push(n);
+  });
+  var clusterStep = step * 2.8;   /* 簇心更散 → 簇与簇之间留出空隙，轮廓自然凹凸 */
+  var centers = order.map(function(gk, gi){
+    var rad = clusterStep * Math.sqrt(gi + 0.5) * (0.55 + nodeRand(gk, 7) * 1.15);
+    var ang = gi * GOLD + nodeRand(gk, 3) * 1.4;
+    return {x: Math.cos(ang) * rad * 1.24, y: Math.sin(ang) * rad * 0.80};
+  });
+  order.forEach(function(gk, gi){
+    var arr = groups[gk], c = centers[gi];
+    var inner = step * Math.max(0.7, Math.sqrt(Math.max(arr.length, 1)) * 0.5);
+    arr.forEach(function(n, i){
+      if (typeof n.x === "number" && typeof n.y === "number") return;
+      /* 约 14% 的节点作为"卫星"落到更远轨道 → 外轮廓出现大小不一的凸起，而非光滑壳层 */
+      var sat = nodeRand(n.id, 31) < 0.14;
+      var rad = inner * Math.sqrt(i + 0.6) * (0.66 + nodeRand(n.id, 11) * 0.80)
+                * (sat ? (1.9 + nodeRand(n.id, 37) * 1.3) : 1);
+      var ang = i * GOLD + nodeRand(gk, 5) * 3.1 + (sat ? nodeRand(n.id, 41) * 6.283 : 0);
+      n.x = c.x + Math.cos(ang) * rad;
+      n.y = c.y + Math.sin(ang) * rad;
+    });
+  });
+
+  var iters = N > 400 ? 90 : (N > 150 ? 170 : 260);
+  var alpha = 0.95;
+  var linkRest = avgR * 2 + 68;
+  var LIMIT = step * Math.sqrt(N) * 3.4 + 420;   /* 软半径：仅兜住极端外扩，非硬裁剪 */
+
+  for (var it = 0; it < iters; it++){
+    /* 斥力：自由平面上互相推开，无边界约束 */
+    for (var i = 0; i < N; i++) for (var j = i + 1; j < N; j++){
+      var a = nodes[i], b = nodes[j];
+      var dx = a.x - b.x, dy = a.y - b.y;
+      var d2 = dx*dx + dy*dy;
+      if (d2 < 1){ dx = (Math.random() - 0.5) * 2; dy = (Math.random() - 0.5) * 2; d2 = dx*dx + dy*dy || 1; }
+      var dd = Math.sqrt(d2) || 0.7;
+      var mass = a.r*a.r + b.r*b.r + 70;
+      var f = mass / d2 * 44; if (f > 58) f = 58;
+      var ux = dx/dd, uy = dy/dd;
+      a.x += ux*f*alpha; a.y += uy*f*alpha;
+      b.x -= ux*f*alpha; b.y -= uy*f*alpha;
+    }
+    /* 边弹簧：把有关系的节点拉成不规则的团簇，而不是整齐网格 */
+    for (var k = 0; k < E; k++){
+      var e = edges[k], a2 = nodeMap[e.s], b2 = nodeMap[e.t];
+      if (!a2 || !b2) continue;
+      var ddx = a2.x - b2.x, ddy = a2.y - b2.y;
+      var dd2 = Math.sqrt(ddx*ddx + ddy*ddy) || 0.7;
+      var rest = a2.r + b2.r + linkRest;
+      var kk = 0.015 * (dd2 - rest); if (kk > 30) kk = 30; if (kk < -30) kk = -30;
+      var vx = ddx/dd2, vy = ddy/dd2;
+      a2.x -= vx*kk*alpha; a2.y -= vy*kk*alpha;
+      b2.x += vx*kk*alpha; b2.y += vy*kk*alpha;
+    }
+    /* 重力：朝当前质心温和收缩（FA2 gravity），只收拢松散结构，不设画布边界 */
+    var cx = 0, cy = 0, wsum = 0;
+    for (var m = 0; m < N; m++){
+      var wt = 1 + (nodes[m].deg || 0) * 0.3;
+      cx += nodes[m].x * wt; cy += nodes[m].y * wt; wsum += wt;
+    }
+    cx /= wsum; cy /= wsum;
+    for (var g2 = 0; g2 < N; g2++){
+      var n3 = nodes[g2];
+      var gw = (n3.deg ? 0.0015 : 0.0026);   /* 孤立节点稍强回拉，避免飘远 */
+      n3.x += (cx - n3.x) * gw * alpha;
+      n3.y += (cy - n3.y) * gw * alpha;
+      /* 极端外扩时的软回拉（每节点软半径不同 → 外缘参差，不形成规整壳层/边框） */
+      var rlim = LIMIT * (0.82 + nodeRand(n3.id, 13) * 0.42);
+      var rr = Math.sqrt(n3.x*n3.x + n3.y*n3.y);
+      if (rr > rlim){
+        var pull = (rr - rlim) / rr * 0.05 * alpha;
+        n3.x -= n3.x * pull; n3.y -= n3.y * pull;
+      }
+    }
+    alpha *= 0.986;
+  }
+
+  /* 说明：已移除"按视口宽高比拉伸坐标"的形状适配——它会把自由分布压成贴边的矩形块 */
+
+  /* 有机形变：对整体坐标做低频径向调制（3/5 叶凹凸）+ 轻微旋转，
+     使外轮廓既不与画布边平行、也不形成规整壳层或矩形边界；
+     同一布局只施加一次（标记挂在 nodes 数组上，避免多次重渲染时累积旋转） */
+  if (!nodes.__organic){
+    nodes.__organic = true;
+    var fx = 0, fy = 0;
+    for (var f = 0; f < N; f++){ fx += nodes[f].x; fy += nodes[f].y; }
+    fx /= Math.max(1, N); fy /= Math.max(1, N);
+    var rot = 0.21, cR = Math.cos(rot), sR = Math.sin(rot);
+    for (var f2 = 0; f2 < N; f2++){
+      var n4 = nodes[f2];
+      var dx4 = n4.x - fx, dy4 = n4.y - fy;
+      var a4 = Math.atan2(dy4, dx4);
+      var mod4 = 1 + 0.13 * Math.sin(3 * a4 + 0.7) + 0.07 * Math.sin(5 * a4 + 2.1);
+      var rx4 = dx4 * mod4, ry4 = dy4 * mod4;
+      n4.x = fx + rx4 * cR - ry4 * sR;
+      n4.y = fy + rx4 * sR + ry4 * cR;
+    }
+  }
+
+  /* 去重叠：保持自由分布，不做矩形裁剪（间距按节点对微抖，避免磨成整齐均匀的壳层） */
+  for (var pass = 0; pass < 12; pass++){
+    for (var p = 0; p < N; p++) for (var q = p + 1; q < N; q++){
+      var p1 = nodes[p], p2 = nodes[q];
+      var px = p1.x - p2.x, py = p1.y - p2.y;
+      var pd = Math.sqrt(px*px + py*py);
+      if (pd === 0){ px = (Math.random() - 0.5) * 2; py = (Math.random() - 0.5) * 2; pd = Math.sqrt(px*px + py*py) || 0.7; }
+      var minD = p1.r + p2.r + 4 + nodeRand(p1.id + "|" + p2.id, 17) * 8;
+      if (pd < minD){
+        var push = (minD - pd) / 2, ux2 = px/pd, uy2 = py/pd;
+        p1.x += ux2*push; p1.y += uy2*push;
+        p2.x -= ux2*push; p2.y -= uy2*push;
+      }
+    }
+  }
+}
+
+/* 维度聚团图：维度值大节点（半径 ∝ 关联文献数）→ 文献小节点
+   维度值集合按【当前筛选结果】实时重算，保证每个大节点都真实挂着文献，不再出现空节点 */
+function buildDimGraph(){
+  var list = filteredPapers();
+  var d = DIMS.filter(function(x){ return x.key===state.statDim; })[0];
+  if (!d || !d.get) d = DIMS.filter(function(x){ return !!x.get; })[0];
+  var dm = {}, dims = [];
+  list.forEach(function(p){
+    var vs = d.get(p); vs = (vs===undefined||vs===null) ? [] : (Array.isArray(vs)?vs:[vs]);
+    vs.forEach(function(v){
+      if (empty(v)) return;
+      v = String(v);
+      if (!dm[v]){ dm[v] = {id:"d_"+v, key:"d_"+v, name:v, type:"dim", count:0, papers:[]}; dims.push(dm[v]); }
+      dm[v].count++;
+    });
+  });
+  var maxC = 1; dims.forEach(function(n){ if (n.count>maxC) maxC = n.count; });
+  dims.forEach(function(n){ n.r = 13 + 24*(Math.log(1+n.count)/Math.log(1+maxC)); });
+  var nodes = dims.slice(), edges = [], nodeMap = {}, orphan = null;
+  dims.forEach(function(n){ nodeMap[n.id] = n; });
+  list.forEach(function(p){
+    var pn = {id:"p"+p.id, key:"p"+p.id, name:p.title, type:"paper", paper:p,
+              r: 7 + Math.round((p.conf||0)*7)};
+    nodes.push(pn); nodeMap[pn.id] = pn;
+    var vs = d.get(p); vs = (vs===undefined||vs===null) ? [] : (Array.isArray(vs)?vs:[vs]);
+    var hit = 0;
+    vs.forEach(function(v){
+      if (empty(v)) return;
+      var t = dm[String(v)];
+      if (!t) return;
+      t.papers.push(pn); edges.push({s:t.id, t:pn.id, etype:"dim"}); hit++;
+    });
+    if (!hit){
+      if (!orphan){
+        orphan = {id:"d__unlabeled", key:"d__unlabeled", name:"未标注", type:"dim", count:0, papers:[], r:13};
+        nodes.push(orphan); nodeMap[orphan.id] = orphan; dims.push(orphan);
+      }
+      orphan.count++; orphan.papers.push(pn); edges.push({s:orphan.id, t:pn.id, etype:"dim"});
+    }
+  });
+  layoutGraph(nodes, edges, nodeMap, {spread:0.40});
+  return {mode:"dim", nodes:nodes, edges:edges, nodeMap:nodeMap, dims:dims, dim:d};
+}
+
+/* 综合图：全量本体节点 + 全量关系边，对齐 semantica Knowledge Explorer */
+var ALLGRAPH = null;
+function buildAllGraph(){
+  if (ALLGRAPH) return ALLGRAPH;
+  var nodes = [], edges = [], nodeMap = {}, deg = {};
+  RAW.edges.forEach(function(e){ deg[e.source_id]=(deg[e.source_id]||0)+1; deg[e.target_id]=(deg[e.target_id]||0)+1; });
+  var maxDeg = 1; Object.keys(deg).forEach(function(k){ if (deg[k]>maxDeg) maxDeg = deg[k]; });
+  RAW.nodes.forEach(function(nd){
+    var pr = nd.properties || {}, r = 7;
+    if (nd.type === "Paper"){
+      var c = parseFloat(pr.confidence); r = 9 + (isFinite(c) ? c*11 : 4);
+    } else if (nd.type === "LocalFile"){
+      r = 6.5;
+    } else {
+      r = 6 + 11*(Math.log(1+(deg[nd.id]||0))/Math.log(1+maxDeg));
+    }
+    var nn = {id:nd.id, key:nd.id, name:nodeLabel(nd), type:"ns", nsType:nd.type, node:nd, r:r, deg:(deg[nd.id]||0)};
+    nodes.push(nn); nodeMap[nd.id] = nn;
+  });
+  RAW.edges.forEach(function(e){
+    if (nodeMap[e.source_id] && nodeMap[e.target_id]) edges.push({s:e.source_id, t:e.target_id, etype:e.type});
+  });
+  layoutGraph(nodes, edges, nodeMap, {spread:0.44});
+  ALLGRAPH = {mode:"all", nodes:nodes, edges:edges, nodeMap:nodeMap, dims:[], dim:{key:"all", name:"综合"}};
+  return ALLGRAPH;
+}
+function buildAllGraphFallback(){
+  if (ALLGRAPH) return ALLGRAPH;
+  var nodes = [], edges = [], nodeMap = {}, deg = {};
+  function add(id, name, nsType, r){
+    if (nodeMap[id]) return nodeMap[id];
+    var n = {id:id, key:id, name:name, type:"ns", nsType:nsType, r:r||7, node:null};
+    nodes.push(n); nodeMap[id] = n; return n;
+  }
+  function link(a, b, t){
+    if (!a || !b || a===b) return;
+    edges.push({s:a.id, t:b.id, etype:t});
+    deg[a.id]=(deg[a.id]||0)+1; deg[b.id]=(deg[b.id]||0)+1;
+  }
+  PAPERS.forEach(function(p){
+    var pn = add("p"+p.id, p.title, "Paper", 10);
+    p.authors.forEach(function(a){ link(pn, add("au_"+a, a, "Author", 7), "hasAuthor"); });
+    p.kw.forEach(function(k){ link(pn, add("kw_"+k, k, "Keyword", 7), "hasKeyword"); });
+    if (p.journal) link(pn, add("ve_"+p.journal, p.journal, "Venue", 8), "publishedIn");
+    if (p.org && p.org !== "未标注") link(pn, add("og_"+p.org, p.org, "Organization", 8), "hasAffiliation");
+    if (p.year) link(pn, add("yr_"+p.year, p.year+"年", "DomainCategory", 8), "hasResearchTopic");
+  });
+  var maxDeg = 1; Object.keys(deg).forEach(function(k){ if (deg[k]>maxDeg) maxDeg = deg[k]; });
+  nodes.forEach(function(n){ if (n.nsType !== "Paper") n.r = 6 + 11*(Math.log(1+(deg[n.id]||0))/Math.log(1+maxDeg)); });
+  layoutGraph(nodes, edges, nodeMap, {spread:0.44});
+  ALLGRAPH = {mode:"all", nodes:nodes, edges:edges, nodeMap:nodeMap, dims:[], dim:{key:"all", name:"综合"}};
+  return ALLGRAPH;
+}
+
+/* ================= 图谱：形状编码 / 交互 / 统一详情 ================= */
+
+/* --- 形状编码：一眼区分节点类型（对齐 Knowledge Explorer 的 visual key） --- */
+var NS_SHAPE = {
+  Paper: "ring", LocalFile: "dot",
+  Author: "square", Keyword: "diamond", Venue: "capsule",
+  Organization: "hex", DomainCategory: "tri"
+};
+var SHAPE_LABEL = {ring:"圆环", dot:"虚点", square:"方点", diamond:"菱形", capsule:"胶囊", hex:"六边形", tri:"三角"};
+var EDGE_LABEL = {cites:"引用", hasAuthor:"作者", hasKeyword:"关键词", hasResearchTopic:"研究方向",
+                  publishedIn:"发表于", hasAffiliation:"所属机构", related_to:"相关", dim:"归属维度"};
+
+/* 图谱节点 → 文献对象 */
+function nodeToPaper(n){
+  if (!n) return null;
+  if (n.paper) return n.paper;
+  for (var i=0;i<PAPERS.length;i++) if (String(PAPERS[i].nid) === String(n.id)) return PAPERS[i];
+  return findP(n.id) || null;
+}
+
+function shapeGeom(nsType, r){
+  var t = NS_SHAPE[nsType] || "ring";
+  if (t === "ring" || t === "dot") return {t:t, geom:'<circle cx="0" cy="0" r="'+r.toFixed(1)+'"/>'};
+  if (t === "square"){ var s = r*0.95; return {t:t, geom:'<rect x="'+(-s).toFixed(1)+'" y="'+(-s).toFixed(1)+'" width="'+(2*s).toFixed(1)+'" height="'+(2*s).toFixed(1)+'" rx="2.5"/>'}; }
+  if (t === "capsule"){ var w = r*1.45, h = r*0.92; return {t:t, geom:'<rect x="'+(-w).toFixed(1)+'" y="'+(-h).toFixed(1)+'" width="'+(2*w).toFixed(1)+'" height="'+(2*h).toFixed(1)+'" rx="'+(h*0.95).toFixed(1)+'"/>'}; }
+  var sides = (t==="tri") ? 3 : 4, rot = -Math.PI/2, K = (t==="diamond") ? 1.30 : 1.20;
+  if (t === "hex"){ sides = 6; rot = -Math.PI/2; }
+  var pts = [];
+  for (var k=0;k<sides;k++){
+    var a = rot + k*2*Math.PI/sides;
+    pts.push((Math.cos(a)*r*K).toFixed(1)+","+(Math.sin(a)*r*K).toFixed(1));
+  }
+  return {t:t, geom:'<polygon points="'+pts.join(" ")+'"/>'};
+}
+
+/* --- 图数据缓存与视图状态 --- */
+var GRAPH = null;   /* {g, viewBox, selId, adj, svg, wrap} */
+var gtip = null;
+
+function graphAdj(g){
+  var adj = {};
+  g.edges.forEach(function(e){
+    if (!g.nodeMap[e.s] || !g.nodeMap[e.t]) return;
+    (adj[e.s] = adj[e.s] || []).push({id:e.t, etype:e.etype, dir:"out"});
+    (adj[e.t] = adj[e.t] || []).push({id:e.s, etype:e.etype, dir:"in"});
+  });
+  return adj;
+}
+function graphApplyVB(){
+  var G = GRAPH; if (!G || !G.svg) return;
+  G.svg.setAttribute("viewBox", G.viewBox.join(" "));
+}
+function graphZoom(f, cx, cy){
+  var G = GRAPH; if (!G) return;
+  var vb = G.viewBox;
+  var mx = (cx===undefined) ? 0.5 : cx, my = (cy===undefined) ? 0.5 : cy;
+  var nw = Math.max(120, Math.min(20000, vb[2]*f)), nh = nw*(vb[3]/vb[2]);
+  var ax = vb[0] + mx*vb[2], ay = vb[1] + my*vb[3];
+  G.viewBox = [ax-mx*nw, ay-my*nh, nw, nh];
+  graphApplyVB();
+}
+/* 内容包围盒（含节点半径与标签预留）——作为视口的唯一依据，不再使用固定 1000x660 画布 */
+function graphBBox(g){
+  var x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+  (g.nodes || []).forEach(function(n){
+    var r = (typeof n.r === "number") ? n.r : 8;
+    /* 每节点预留随 id 小幅抖动 → 内容外缘天然参差，不齐平 */
+    var pad = r + (n.type === "dim" ? 18 : 20) + nodeRand(n.id, 23) * 12;
+    if (n.x - pad < x1) x1 = n.x - pad;
+    if (n.y - pad < y1) y1 = n.y - pad;
+    if (n.x + pad > x2) x2 = n.x + pad;
+    if (n.y + pad > y2) y2 = n.y + pad;
+  });
+  if (!isFinite(x1)) return {x:0, y:0, w:1000, h:660};
+  var w = Math.max(2, x2 - x1), h = Math.max(2, y2 - y1);
+  /* 有机留白：四边不等量（右侧/下方略多），内容不贴边也不齐平 → 消除"铺满矩形框"的观感，
+     同时把四边差距控制在 ~1.7 倍内，避免某一边出现突兀的大片空白 */
+  var padL = w * 0.055, padR = w * 0.085, padT = h * 0.072, padB = h * 0.098;
+  return {x: x1 - padL, y: y1 - padT, w: w + padL + padR, h: h + padT + padB};
+}
+
+/* 适应视图：按内容包围盒 + 容器实际宽高比计算 viewBox（对齐 KE 的 Fit，内容铺满且不被裁切） */
+function graphFitView(){
+  var G = GRAPH; if (!G || !G.svg) return;
+  var b = graphBBox(G.g);
+  var cw = (G.wrap && G.wrap.clientWidth) || 1000;
+  var ch = (G.wrap && G.wrap.clientHeight) || 660;
+  var ar = cw / ch;
+  /* b 已含四边不等量的有机留白；这里只做温和的宽高比修正，
+     不再把视口强行拉成容器宽高比（那会让内容铺满整个矩形区） */
+  var w = b.w * 1.02, h = b.h * 1.02;
+  var arC = w / h;
+  if (isFinite(arC) && arC > 0.05){
+    var corr = Math.sqrt(ar / arC);
+    if (corr > 1.12) corr = 1.12;
+    if (corr < 0.90) corr = 0.90;
+    if (corr > 1) w *= corr; else h /= corr;
+  }
+  /* 详情面板以浮层形式覆盖在右侧时，把内容中心对准可视区中心，避免节点被面板盖住 */
+  var offX = 0;
+  var rp = document.getElementById("relPanel");
+  if (rp && rp.classList.contains("open") && document.getElementById("graphWrap")){
+    offX = (rp.offsetWidth || 340) / 2;
+  }
+  G.viewBox = [b.x + b.w/2 - w/2 + offX, b.y + b.h/2 - h/2, w, h];
+  graphApplyVB();
+}
+function graphFit(){ graphFitView(); }
+function graphFocusNode(id){
+  var G = GRAPH; if (!G) return;
+  var n = G.g.nodeMap[id]; if (!n) return;
+  var w = Math.min(G.viewBox[2], 460), h = w*(G.viewBox[3]/G.viewBox[2]);
+  G.viewBox = [n.x-w/2, n.y-h/2, w, h];
+  graphApplyVB();
+}
+
+/* 依据视图高度不同，重算布局并重绘（换一种分布） */
+function graphRelayout(){
+  var G = GRAPH; if (!G || !G.g) return;
+  var g = G.g;
+  var focus = G.focusIds;
+  g.nodes.forEach(function(n){ delete n.x; delete n.y; });
+  layoutGraph(g.nodes, g.edges, g.nodeMap, {spread: (g.mode==="all" ? 0.44 : 0.40)});
+  var host = document.getElementById("gHost");
+  if (host) host.innerHTML = graphMarkup(g);
+  bindGraph(g, focus);
+  graphSelect(null);
+}
+
+/* --- HUD 按钮组：统一生成；busy 时整组保留（仅置禁用 + 刷新键转圈），避免按钮丢失 --- */
+function graphHudHtml(busy){
+  var d = busy ? ' disabled' : '';
+  return '<button onclick="graphZoom(0.85)" title="放大"' + d + '>＋</button>'
+    + '<button onclick="graphZoom(1.18)" title="缩小"' + d + '>－</button>'
+    + '<button onclick="graphFit()" title="适应视图"' + d + '>⊞</button>'
+    + '<button class="' + (busy ? 'busy' : '') + '" onclick="graphRefresh()" title="'
+    + (busy ? '正在刷新…' : '刷新：更新最新数据') + '"' + d + '>'
+    + (busy ? '<span>⟳</span>' : '⟳') + '</button>';
+}
+/* 底部轻提示（中性/错误两色），不遮挡页面内其它交互 */
+function graphTip(msg, isErr){
+  try{
+    var eb = document.getElementById("errBar"); if (eb) eb.remove();
+    var box = document.getElementById("tipBar");
+    if (!box){ box = document.createElement("div"); box.id = "tipBar"; document.body.appendChild(box); }
+    box.textContent = msg;
+    box.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99998;background:"
+      + (isErr ? "#b02a37" : "#1f6f43")
+      + ";color:#fff;font:12px/1.6 -apple-system,sans-serif;padding:6px 12px;opacity:.94";
+    setTimeout(function(){ try{ box.remove(); }catch(_e){} }, 4000);
+  }catch(_e){}
+}
+
+/* --- 刷新按钮：重新拉取最新图谱数据（stats/nodes/edges）+ 重建文献与筛选索引 + 重新渲染 --- */
+function graphRefresh(){
+  var G = GRAPH; if (!G) return;              /* 图谱未就绪：静默忽略 */
+  if (G.loading) return;                      /* 防重入：刷新中不再重复触发 */
+  G.loading = true;
+  var hud = document.getElementById("gHud");
+  if (hud) hud.innerHTML = graphHudHtml(true);
+  var finish = function(msg, isErr){
+    if (GRAPH === G) G.loading = false;
+    var h = document.getElementById("gHud");
+    if (h) h.innerHTML = graphHudHtml(false); /* 成功/失败都恢复完整可点按钮组，保证可重试 */
+    if (msg) graphTip(msg, isErr);
+  };
+  /* 先探活，后端不可用时直接提示，不破坏当前视图 */
+  API.get("/api/graph/stats").then(function(st){
+    if (!st || !st.ok) throw new Error((st && st.reason) || "后端未就绪");
+    return reload(false);
+  }).then(function(){
+    if (!RAW.ok) throw new Error(RAW.failReason || "图谱数据读取失败");
+    refreshArea();
+    finish("图谱已刷新 · 节点 " + RAW.nodes.length + " / 边 " + RAW.edges.length, false);
+  }).catch(function(err){
+    finish("刷新失败：" + ((err && err.message) || "未知错误") + "，已保留当前视图", true);
+  });
+}
+
+/* --- SVG 主体生成 --- */
+function graphMarkup(g){
+  var _bb = graphBBox(g);
+  var labSet = {}, hubSet = {};
+  if (g.mode === "all"){
+    g.nodes.slice().sort(function(a,b){ return (b.deg||0)-(a.deg||0); }).slice(0, 46).forEach(function(n){ labSet[n.id] = 1; hubSet[n.id] = 1; });
+  }
+  var s = '<svg id="graphSvg" viewBox="' + [_bb.x,_bb.y,_bb.w,_bb.h].join(" ") + '" preserveAspectRatio="xMidYMid meet"><g id="gEdges">';
+  g.edges.forEach(function(e){
+    var a = g.nodeMap[e.s], b = g.nodeMap[e.t]; if (!a || !b) return;
+    var col = (g.mode === "all") ? (EDGE_COLOR[e.etype] || "#ced4da") : "#b9c2f0";
+    var op = (g.mode === "all") ? 0.26 : 0.5;
+    s += '<line class="g-edge" data-s="'+esc(e.s)+'" data-t="'+esc(e.t)+'" data-op="'+op+'"'
+       + ' x1="'+a.x.toFixed(1)+'" y1="'+a.y.toFixed(1)+'" x2="'+b.x.toFixed(1)+'" y2="'+b.y.toFixed(1)+'"'
+       + ' stroke="'+col+'" stroke-opacity="'+op+'" stroke-width="1"/>';
+  });
+  s += '</g><g id="gNodes">';
+
+  /* 维度聚团图：大节点（维度值） */
+  if (g.mode === "dim"){
+    var cols = palette(g.dims.length);
+    g.dims.forEach(function(n, i){
+      n.color = cols[i];
+      var fs = Math.max(9.5, Math.min(13.5, n.r*0.55));
+      s += '<g class="g-node dim" data-id="'+esc(n.id)+'" data-kind="dim">'
+         + '<circle cx="'+n.x.toFixed(1)+'" cy="'+n.y.toFixed(1)+'" r="'+n.r.toFixed(1)+'" fill="'+n.color+'" fill-opacity=".92"/>'
+         + '<text class="g-label" x="'+n.x.toFixed(1)+'" y="'+(n.y-n.r-6).toFixed(1)+'" text-anchor="middle" font-size="'+fs.toFixed(1)+'">'
+         + esc(short(n.name,12)) + (n.count>1 ? '<tspan fill="#868e96" font-size="'+(fs*0.85).toFixed(1)+'"> '+n.count+'</tspan>' : '') + '</text></g>';
+    });
+  }
+
+  /* 文献 / 本体节点 */
+  g.nodes.forEach(function(n){
+    if (n.type === "dim") return;
+    var isPaper = (n.type === "paper") || (n.nsType === "Paper");
+    var col = isPaper ? "#4c6ef5" : (NS_COLOR[n.nsType] || "#868e96");
+    var nsType = isPaper ? "Paper" : n.nsType;
+    var geo = shapeGeom(nsType, n.r);
+    var fill, stroke = "#fff", sw = 1.1;
+    if (geo.t === "ring"){ fill = "#fff"; stroke = col; sw = 1.6; }
+    else if (geo.t === "dot"){ fill = "#fff"; stroke = col; sw = 1.4; }
+    else { fill = col; }
+    var gid = esc(n.id), pid = isPaper ? (n.type==="paper" ? n.paper.id : "") : "";
+    s += '<g class="g-node'+(isPaper?" paper":" ns")+(g.mode==="dim"?" pnode":"")+'" data-id="'+gid+'" data-kind="'+(isPaper?"paper":"ns")+'"'
+       + (pid!=="" ? ' data-pid="'+esc(pid)+'"' : '')
+       + (isPaper ? '' : ' data-nstype="'+esc(nsType)+'"')
+       + ' transform="translate('+n.x.toFixed(1)+','+n.y.toFixed(1)+')" '
+       + (geo.t==="dot" ? 'stroke-dasharray="2 2" ' : '')
+       + 'fill="'+fill+'" fill-opacity="'+(geo.t==="ring"||geo.t==="dot"?1:0.9)+'" stroke="'+stroke+'" stroke-width="'+sw+'">'
+       + geo.geom;
+    /* 内芯（ring 类型加实心核，视觉权重按半径） */
+    if (geo.t === "ring" && n.r >= 8){
+      s += '<circle cx="0" cy="0" r="'+Math.max(1.6, n.r-4).toFixed(1)+'" fill="'+col+'" opacity=".9"/>';
+    }
+    var showLb = (g.mode === "dim") || !!labSet[n.id];
+    if (showLb){
+      var hub = !!hubSet[n.id];
+      s += '<text class="g-label'+(hub?" hub":"")+'" x="0" y="'+(-n.r-(geo.t==="capsule"?3:7)).toFixed(1)+'" text-anchor="middle">'
+         + esc(short(n.name, hub ? 22 : 16)) + '</text>';
+    }
+    s += '</g>';
+  });
+  s += '</g></svg>';
+  return s;
+}
+
+function graphLegend(g, hasFocus){
+  /* v7：仅保留图例项（Top 5 + 其他），移除全部说明性文字 */
+  var TOP = ["Paper","Author","Organization","Venue","Keyword"].filter(function(c){ return CLASS_ORDER.indexOf(c) >= 0; });
+  var s = TOP.map(function(c){
+    return '<span class="lg-item"><span class="lg-dot" style="background:'+(NS_COLOR[c]||"#868e96")+'"></span>'
+      + esc(NS_LABEL[c]||c)
+      + '<span class="lg-shape">'+esc(SHAPE_LABEL[NS_SHAPE[c]]||"")+'</span></span>';
+  }).join("");
+  var rest = CLASS_ORDER.filter(function(c){ return TOP.indexOf(c) < 0; });
+  if (rest.length){
+    s += '<span class="lg-item" title="'+esc(rest.map(function(c){ return NS_LABEL[c]||c; }).join("、"))+'">'
+      + '<span class="lg-dot" style="background:#adb5bd"></span>其他</span>';
+  }
+  return s;
+}
+function legendCollapsed(){
+  try{ return localStorage.getItem("wb_legend_collapsed") === "1"; }catch(e){ return false; }
+}
+function isSmallGraph(){ return (window.innerHeight || 900) < 820; }
+function toggleLegend(){
+  var el = document.getElementById("gLegend");
+  if (!el) return;
+  var c = !el.classList.contains("collapsed");
+  el.classList.toggle("collapsed", c);
+  state._legendForced = true;
+  try{ localStorage.setItem("wb_legend_collapsed", c ? "1" : "0"); }catch(e){}
+}
+
+/* --- 统一高亮绘制：baseIds 为高亮核心集（自动并入一跳邻居），null = 全部复原 --- */
+function graphPaint(baseIds, selId){
+  var G = GRAPH; if (!G || !G.svg) return;
+  var svg = G.svg;
+  G.selId = selId || null;
+  var base = {}, nb = null;
+  if (baseIds && baseIds.length){
+    nb = {};
+    baseIds.forEach(function(id){
+      id = String(id);
+      base[id] = 1; nb[id] = 1;
+      (G.adj[id] || []).forEach(function(x){ nb[String(x.id)] = 1; });
+    });
+  }
+  svg.querySelectorAll(".g-node").forEach(function(el){
+    var id = el.getAttribute("data-id");
+    el.style.opacity = (!nb || nb[id]) ? 1 : 0.08;
+    el.classList.toggle("sel", !!G.selId && id === String(G.selId));
+  });
+  svg.querySelectorAll(".g-edge").forEach(function(el){
+    var op = parseFloat(el.getAttribute("data-op")) || 0.26;
+    if (!nb){ el.setAttribute("stroke-opacity", op); el.setAttribute("stroke-width", 1); return; }
+    var hit = base[el.getAttribute("data-s")] || base[el.getAttribute("data-t")];
+    el.setAttribute("stroke-opacity", hit ? 0.95 : 0.03);
+    el.setAttribute("stroke-width", hit ? 2 : 1);
+  });
+  if (gtip) gtip.style.opacity = 0;
+}
+/* 选中单节点（清除选中时自动回落到筛选/搜索高亮） */
+function graphSelect(selId){
+  var G = GRAPH; if (!G) return;
+  graphPaint(selId ? [String(selId)] : (G.focusIds || null), selId || null);
+}
+
+function bindGraph(g, focusIds){
+  var wrap = document.getElementById("graphWrap"), svg = document.getElementById("graphSvg");
+  if (!wrap || !svg) return;
+  gtip = gtip || document.getElementById("gtip");
+  var prevG = GRAPH;
+  if (prevG && prevG._ro){ try{ prevG._ro.disconnect(); }catch(_e){} }
+  var _bb = graphBBox(g);
+  GRAPH = {g:g, svg:svg, wrap:wrap, viewBox:[_bb.x, _bb.y, _bb.w, _bb.h], selId:null, adj:graphAdj(g),
+           focusIds:(focusIds && focusIds.length) ? focusIds : null};
+  var G = GRAPH;
+  graphApplyVB();
+  requestAnimationFrame(function(){ if (GRAPH === G) graphFitView(); });
+
+  /* 滚轮：以指针为锚点缩放 */
+  wrap.onwheel = function(e){
+    e.preventDefault();
+    var r = wrap.getBoundingClientRect();
+    graphZoom(e.deltaY < 0 ? 0.88 : 1.14, (e.clientX-r.left)/r.width, (e.clientY-r.top)/r.height);
+  };
+
+  /* 拖拽平移（带阈值，避免与点击冲突） */
+  wrap.onmousedown = function(e){ G.drag = {x:e.clientX, y:e.clientY, vx:G.viewBox[0], vy:G.viewBox[1], moved:false}; };
+  window.onmousemove = function(e){
+    var d = G.drag; if (!d) return;
+    var dx = e.clientX-d.x, dy = e.clientY-d.y;
+    if (Math.abs(dx)+Math.abs(dy) > 3) d.moved = true;
+    if (!d.moved) return;
+    G.viewBox[0] = d.vx - dx*G.viewBox[2]/wrap.clientWidth;
+    G.viewBox[1] = d.vy - dy*G.viewBox[3]/wrap.clientHeight;
+    graphApplyVB();
+  };
+  window.onmouseup = function(){ if (G.drag) setTimeout(function(){ G.drag = null; }, 0); };
+
+  /* hover：邻居高亮 + tooltip（事件委托，重复渲染无需重绑） */
+  svg.onmousemove = function(e){
+    var el = e.target;
+    while (el && el !== svg && !(el.classList && el.classList.contains("g-node"))) el = el.parentNode;
+    if (!el || el === svg || !gtip) { if (gtip) gtip.style.opacity = 0; return; }
+    var id = el.getAttribute("data-id");
+    graphHover(id);
+    var html = "";
+    var kind = el.getAttribute("data-kind");
+    if (kind === "dim"){
+      var dn = g.nodeMap[id];
+      html = "<b>"+esc(dn.name)+"</b><br>维度值 · 关联 "+dn.papers.length+" 篇文献<br><span style='color:#adb5bd'>单击查看详情</span>";
+    } else if (kind === "ns"){
+      var nd = g.nodeMap[id], pr = (nd && nd.node && nd.node.properties) || {}, eb = [];
+      Object.keys(pr).forEach(function(k){ if (eb.length < 4 && pr[k] !== undefined && pr[k] !== null && String(pr[k]).trim() !== "") eb.push(esc(k)+"："+esc(short(String(pr[k]), 42))); });
+      html = "<b>"+esc(NS_LABEL[nd.nsType]||nd.nsType)+" · "+esc(nd.name)+"</b><br>"+(eb.join("<br>")||"—")+"<br><span style='color:#adb5bd'>关联 "+(G.adj[id]||[]).length+" 条边</span>";
+    } else {
+      var p = g.nodeMap[id] && g.nodeMap[id].paper ? g.nodeMap[id].paper : findP(el.getAttribute("data-pid"));
+      if (!p) { gtip.style.opacity = 0; return; }
+      html = "<b>"+esc(short(p.title,60))+"</b><br>"+esc(p.authors.join(", "))+" · "+esc(p.year||"—")+" · "+esc(p.journal||"—")+"<br>置信度 "+esc(p.conf);
+    }
+    gtip.innerHTML = html;
+    gtip.style.opacity = 1;
+    gtip.style.left = (e.clientX + 14) + "px";
+    gtip.style.top = (e.clientY - 12) + "px";
+  };
+  var nodeOf = function(t){
+    while (t && t !== svg && !(t.classList && t.classList.contains("g-node"))) t = t.parentNode;
+    return (t && t !== svg) ? t : null;
+  };
+  svg.onmouseout = function(e){
+    /* 同一节点内部（图形↔文字）移动不重置高亮，避免闪烁 */
+    if (e.relatedTarget && svg.contains(e.relatedTarget) && nodeOf(e.relatedTarget) === nodeOf(e.target)) return;
+    if (gtip) gtip.style.opacity = 0;
+    graphHover(null);
+  };
+
+  /* 单击：统一进右侧详情，不再跳转 tab */
+  svg.onclick = function(e){
+    var el = e.target;
+    while (el && el !== svg && !(el.classList && el.classList.contains("g-node"))) el = el.parentNode;
+    if (!el || el === svg || !el.classList){   /* 空白 / 边 → 清除选中 */
+      closeRel();
+      return;
+    }
+    var kind = el.getAttribute("data-kind"), id = el.getAttribute("data-id");
+    graphSelect(id);
+    if (kind === "dim") openDimDetail(g.nodeMap[id], g);
+    else if (kind === "ns") openNSDetail(g.nodeMap[id], g);
+    else openPaperDetail(nodeToPaper(g.nodeMap[id]), g);
+  };
+
+  /* HUD 控件（每次渲染重建，用内联 onclick） */
+  var hud = document.getElementById("gHud");
+  if (hud){
+    hud.innerHTML = graphHudHtml(false);
+  }
+  /* 容器尺寸变化（窗口缩放、右侧详情面板开合）自动重新适配内容 */
+  if (window.ResizeObserver){
+    G._ro = new ResizeObserver(function(){ if (GRAPH === G) graphFitView(); });
+    try{ G._ro.observe(wrap); }catch(_e){}
+  }
+  /* 筛选 / 搜索命中：初次渲染即把命中文献作为高亮核心集 */
+  if (G.focusIds && G.focusIds.length) graphPaint(G.focusIds, null);
+}
+
+/* hover 临时高亮（无选中时） */
+function graphHover(id){
+  var G = GRAPH; if (!G || !G.svg || G.selId) return;
+  if (G._hv === id) return;
+  G._hv = id;
+  graphPaint(id ? [String(id)] : (G.focusIds || null), null);
+}
+
+function renderGraph(){
+  var area = document.getElementById("paperArea");
+  var isAll = (state.statDim === "all");
+  var list = filteredPapers();
+  var d = DIMS.filter(function(x){return x.key===state.statDim})[0] || DIMS[0];
+  if (!isAll && !list.length){
+    document.getElementById("viewHint").textContent = "共 0 篇";
+    area.innerHTML = '<div class="pcard" style="text-align:center;color:var(--muted)">没有匹配的文献，试试放宽筛选条件</div>';
+    return;
+  }
+  var hasFocus = false;
+  Object.keys(state.filters).forEach(function(k){ if (k !== "all" && state.filters[k] && state.filters[k].length) hasFocus = true; });
+  var q = (document.getElementById("search").value||"").trim();
+  if (q) hasFocus = true;
+  try{
+    var g = isAll ? (RAW.ok ? buildAllGraph() : buildAllGraphFallback()) : buildDimGraph();
+    /* 综合图 + 筛选/搜索：命中文献作为高亮核心集（自动并入一跳邻居），其余淡化 */
+    var focusIds = null;
+    if (isAll && hasFocus && list.length && RAW.ok){
+      focusIds = [];
+      list.forEach(function(p){ if (p.nid) focusIds.push(p.nid); });
+    }
+    var markup = graphMarkup(g);
+    var lg = graphLegend(g, hasFocus);
+    var legendFold = legendCollapsed() || (isSmallGraph() && !state._legendForced);
+    area.innerHTML = '<div class="graphbox"><div id="graphWrap">'
+      + '<div id="gHost">'+markup+'</div>'
+      + '<div class="ghud" id="gHud"></div>'
+      + '<div class="legend'+(legendFold?' collapsed':'')+'" id="gLegend">'
+        + '<div class="lg-head"><span>图例</span>'
+        + '<button class="legend-toggle" id="lgToggle" title="折叠 / 展开图例">⌄</button></div>'
+        + '<div class="lg-body">'+lg+'</div>'
+      + '</div>'
+      + '</div></div>';
+    var lgt = document.getElementById("lgToggle");
+    if (lgt) lgt.addEventListener("click", function(e){ e.stopPropagation(); toggleLegend(); });
+    document.getElementById("viewHint").textContent = isAll
+      ? ("共 "+PAPERS.length+" 篇 · 全量图谱 "+(RAW.ok ? ((RAW.stats.nodes||0)+" 节点 / "+(RAW.stats.edges||0)+" 边") : "（示例数据）"))
+      : ("共 "+list.length+" 篇" + (RAW.ok?"（真实图谱）":"（示例）"));
+    bindGraph(g, focusIds);
+  }catch(err){
+    area.innerHTML = '<div class="pcard" style="border:2px solid #ffc9c9;background:#fff5f5"><b style="color:#c92a2a">图谱渲染失败</b><br><span style="font-size:12.5px;color:#e03131">'+esc(err.message)+'</span></div>';
+    document.getElementById("viewHint").textContent = "图谱渲染失败";
+  }
+}
+
+/* ================= 右侧统一详情面板 ================= */
+function relOpen(){ document.getElementById("paperArea").classList.add("rel-open"); }
+function relCloseArea(){ document.getElementById("paperArea").classList.remove("rel-open"); }
+function closeRel(){
+  document.getElementById("relPanel").classList.remove("open");
+  relCloseArea();
+  if (GRAPH) graphSelect(null);
+}
+function relHead(color, label, title, sub){
+  return '<button class="close" onclick="closeRel()">× 关闭</button>'
+    + '<div style="margin-bottom:8px"><span class="rel-badge" style="background:'+(color||"#eef1fb")+'22;color:#3b4256">'
+    + '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+(color||"#868e96")+';margin-right:5px;vertical-align:middle"></span>'
+    + esc(label)+'</span></div>'
+    + '<h3>'+esc(title)+'</h3><div class="sub">'+esc(sub||"")+'</div>';
+}
+function relAdjGroup(title, items){
+  if (!items.length) return "";
+  return '<div class="rel-kind">'+esc(title)+' <em>'+items.length+'</em></div><div class="rel-adj">'
+    + items.slice(0, 26).map(function(x){
+        return '<span title="'+esc(x.name)+'" onclick="selectInGraph(\''+esc(String(x.id)).replace(/'/g,"")+'\')">'
+          + '<span class="dot" style="background:'+x.color+'"></span>'+esc(short(x.name, 20))+'</span>';
+      }).join("") + '</div>';
+}
+
+/* 图谱内定位选中（右侧面板内条目点击） */
+function selectInGraph(id){
+  if (!GRAPH) return;
+  var n = GRAPH.g.nodeMap[id];
+  if (!n) return;
+  graphSelect(id);
+  graphFocusNode(id);
+  var kind = (n.type === "paper" || n.nsType === "Paper") ? "paper" : "ns";
+  if (n.type === "dim") openDimDetail(n, GRAPH.g);
+  else if (kind === "paper") openPaperDetail(nodeToPaper(n), GRAPH.g);
+  else openNSDetail(n, GRAPH.g);
+}
+
+/* 文献详情 */
+function openPaperDetail(p, g){
+  if (!p) return;
+  var r = document.getElementById("relPanel");
+  var related = PAPERS.filter(function(x){
+    return x.id !== p.id && (x.dir === p.dir || x.kw.some(function(k){ return p.kw.indexOf(k) >= 0; }));
+  });
+  var h = relHead("#4c6ef5", "文献 Paper", short(p.title,46),
+    (p.authors.join(", ")||"未标注作者")+" · "+(p.year||"—")+" · "+(p.journal||"—")+" · "+(p.org||""));
+  h += '<div class="kw">'+p.kw.slice(0,12).map(function(k){ return '<span class="kwtag">'+esc(k)+'</span>'; }).join("")+'</div>';
+
+  /* 图谱内关联分组 */
+  if (g && g.nodeMap && p.nid != null && g.nodeMap[p.nid]){
+    var byType = {};
+    (GRAPH ? (GRAPH.adj[p.nid]||[]) : []).forEach(function(x){
+      var nn = g.nodeMap[x.id]; if (!nn) return;
+      var t = (nn.type === "dim") ? "维度值" : (NS_LABEL[nn.nsType] || nn.nsType);
+      var col = (nn.type === "dim") ? "#748ffc" : (NS_COLOR[nn.nsType] || "#868e96");
+      (byType[t] = byType[t] || []).push({id:x.id, name:nn.name, color:col});
+    });
+    Object.keys(byType).forEach(function(t){ h += relAdjGroup("图谱关联 · "+t, byType[t]); });
+  }
+
+  h += '<div class="rel-sec">研究方向</div><div class="kv"><b>'+esc(p.dir)+'</b></div>';
+  h += '<div class="rel-sec">关键字段</div>'
+    + '<div class="kv"><i>DOI</i><b>'+esc(p.doi||"—")+'</b></div>'
+    + '<div class="kv"><i>本地文件</i><b>'+esc(short(p.file||"—",26))+'</b></div>'
+    + '<div class="kv"><i>置信度</i><b>'+esc(p.conf||"—")+'</b></div>';
+  h += '<div class="rel-sec">关联文献（'+related.length+'）</div>';
+  related.slice(0,6).forEach(function(x){
+    h += '<div class="kv"><i style="cursor:pointer" onclick="selectInGraph(\'p'+esc(String(x.nid))+'\')">'+esc(short(x.title,26))+'</i><b>'+esc(x.year||"—")+'</b></div>';
+  });
+  h += '<div class="rel-sec">快捷操作</div>'
+    + '<div class="kv"><i>📖 进入阅读</i><b class="act" style="cursor:pointer" onclick="openReaderPaper(\''+esc(String(p.id))+'\')">去阅读 →</b></div>'
+    + '<div class="kv"><i>🧩 在管理中打开</i><b class="act" style="cursor:pointer" onclick="openInManager(\''+esc(String(p.id))+'\')">去编辑 →</b></div>';
+  if (RAW.ok) h += '<div class="kv"><i>📂 在访达中显示</i><b class="act" style="cursor:pointer" onclick="state.sel=findP(\''+esc(String(p.id))+'\');revealFile()">显示 →</b></div>';
+  r.innerHTML = h;
+  r.classList.add("open"); relOpen();
+}
+
+/* 本体节点详情（作者/期刊/机构/关键词/研究方向/本地文件） */
+function openNSDetail(n, g){
+  if (!n) return;
+  var r = document.getElementById("relPanel");
+  var col = NS_COLOR[n.nsType] || "#868e96";
+  var pr = (n.node && n.node.properties) || {};
+  var deg = (GRAPH ? (GRAPH.adj[n.id]||[]).length : 0);
+  var h = relHead(col, NS_LABEL[n.nsType]||n.nsType, n.name, "本体节点 · "+(n.nsType||"")+" · 关联 "+deg+" 条边");
+
+  var kv = [];
+  Object.keys(pr).forEach(function(k){
+    if (pr[k] === undefined || pr[k] === null || String(pr[k]).trim() === "") return;
+    kv.push('<div class="kv"><i>'+esc(k)+'</i><b>'+esc(short(String(pr[k]), 60))+'</b></div>');
+  });
+  if (kv.length){ h += '<div class="rel-sec">属性</div>'+kv.join(""); }
+
+  /* 关联分组（按边类型） */
+  if (GRAPH){
+    var byType = {};
+    (GRAPH.adj[n.id]||[]).forEach(function(x){
+      var nn = g.nodeMap[x.id]; if (!nn) return;
+      var et = EDGE_LABEL[x.etype] || x.etype;
+      var c = (nn.nsType === "Paper") ? "#4c6ef5" : (NS_COLOR[nn.nsType] || "#868e96");
+      (byType[et] = byType[et] || []).push({id:x.id, name:nn.name, color:c});
+    });
+    Object.keys(byType).forEach(function(t){ h += relAdjGroup("关联 · "+t, byType[t]); });
+  }
+  h += '<div class="rel-sec">快捷操作</div>'
+    + '<div class="kv"><i>🧩 在管理中打开</i><b class="act" style="cursor:pointer" onclick="openInManagerNid(\''+esc(String(n.id))+'\',\''+esc(n.nsType||"")+'\')">去编辑 →</b></div>';
+  r.innerHTML = h;
+  r.classList.add("open"); relOpen();
+}
+
+/* 维度值详情（聚团图大节点） */
+function openDimDetail(n, g){
+  if (!n) return;
+  var r = document.getElementById("relPanel");
+  var d = (g && g.dim) ? g.dim : {key:"dim", name:"维度"};
+  var h = relHead("#748ffc", "维度值 · " + d.name, n.name, "关联 "+(n.papers||[]).length+" 篇文献");
+  h += '<div class="rel-sec">关联文献（'+(n.papers||[]).length+'）</div>';
+  (n.papers||[]).slice(0, 20).forEach(function(pn){
+    var p = pn.paper || findP(pn.id);
+    if (!p) return;
+    h += '<div class="kv"><i style="cursor:pointer" onclick="selectInGraph(\'p'+esc(String(p.id))+'\')">'+esc(short(p.title, 26))+'</i><b>'+esc(p.year||"—")+'</b></div>';
+  });
+  h += '<div class="rel-sec">快捷操作</div><div class="kv"><i>只高亮该维度下的文献</i><b class="act" style="cursor:pointer" onclick="graphSelect(\''+esc(String(n.id))+'\')">高亮 →</b></div>';
+  r.innerHTML = h;
+  r.classList.add("open"); relOpen();
+}
+
+/* 列表视图点击文献 → 复用统一详情面板 */
+function openRel(p){
+  if (!p) return;
+  if (!state.graph){ GRAPH = null; }
+  openPaperDetail(p, (state.graph && GRAPH) ? GRAPH.g : null);
+}
+
+function revealFile(){
+  if (window.workbenchDesktop && state.sel && state.sel.file){
+    window.workbenchDesktop.revealInFinder(state.sel.file);
+  }
+}
+function openInManager(pid){
+  var p = findP(pid); if (!p) return;
+  closeRel();
+  state.ontoClass = "Paper"; state.ontoInst = p.nid;
+  switchTab("onto");
+}
+function openInManagerNid(nid, cls){
+  closeRel();
+  state.ontoClass = cls || "Paper"; state.ontoInst = nid;
+  switchTab("onto");
+}
+
+/* ================= 管理：本体结构画布 ================= */
+function ontoClassList(){
+  var names = [];
+  if (RAW.schema && RAW.schema.classes) names = Object.keys(RAW.schema.classes);
+  if (!names.length) {
+    var seen = {};
+    RAW.nodes.forEach(function(n){ if (!seen[n.type]) { seen[n.type]=1; names.push(n.type); } });
+  }
+  if (!names.length) names = CLASS_ORDER.slice();
+  names = names.filter(function(x){ return x; });
+  names.sort(function(a,b){
+    var ia = CLASS_ORDER.indexOf(a), ib = CLASS_ORDER.indexOf(b);
+    if (ia<0) ia = 99; if (ib<0) ib = 99;
+    return ia-ib || a.localeCompare(b);
+  });
+  return names;
+}
+function ontoObjProps(){
+  var out = [];
+  if (RAW.schema && RAW.schema.object_props){
+    Object.keys(RAW.schema.object_props).forEach(function(k){
+      var v = RAW.schema.object_props[k] || {};
+      if (v.domain && v.range) out.push([v.domain, v.range, k]);
+    });
+  }
+  FALLBACK_EDGES.forEach(function(e){
+    if (!out.some(function(x){ return x[2]===e[2]; })) out.push(e);
+  });
+  return out;
+}
+function ontoPos(W,H,keys){
+  var known = {
+    LocalFile:{x:Math.round(W/2),y:Math.round(H*0.10)},
+    Author:{x:Math.round(Math.max(94,W*0.16)),y:Math.round(H*0.27)},
+    Venue:{x:Math.round(Math.min(W-94,W*0.84)),y:Math.round(H*0.27)},
+    Paper:{x:Math.round(W/2),y:Math.round(H*0.50)},
+    Organization:{x:Math.round(Math.max(94,W*0.16)),y:Math.round(H*0.74)},
+    Keyword:{x:Math.round(Math.min(W-94,W*0.84)),y:Math.round(H*0.74)},
+    DomainCategory:{x:Math.round(W/2),y:Math.round(H*0.90)}
+  };
+  var out = {}, extra = [];
+  keys.forEach(function(k){ if (known[k]) out[k]=known[k]; else extra.push(k); });
+  extra.forEach(function(k,i){
+    var ang = 2*Math.PI*i/Math.max(extra.length,1);
+    out[k] = {x:Math.round(W/2 + W*0.34*Math.cos(ang)), y:Math.round(H/2 + H*0.38*Math.sin(ang))};
+  });
+  return out;
+}
+function renderOntoCanvas(){
+  var svg = document.getElementById("ontoCanvas");
+  if (!svg) return;
+  var rect = svg.getBoundingClientRect();
+  var W = Math.max(420, Math.round(rect.width)||1000);
+  var H = Math.max(380, Math.round(rect.height)||600);
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
+  var keys = ontoClassList();
+  var POS = ontoPos(W,H,keys);
+  var h = "";
+  ontoObjProps().forEach(function(e){
+    var a = POS[e[0]], b = POS[e[1]];
+    if (!a || !b) return;
+    var mx = (a.x+b.x)/2, my = (a.y+b.y)/2;
+    h += '<line class="o-edge" x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'"/>';
+    h += '<text class="o-edge-label" x="'+mx+'" y="'+(my-6)+'" text-anchor="middle">'+esc(e[2])+'</text>';
+  });
+  var S = Math.max(1, Math.min(1.45, Math.min(W/1000, H/700)));
+  var bw = Math.round(116*S), bh = Math.round(48*S), rr = Math.round(12*S), cr = Math.round(9*S);
+  keys.forEach(function(k){
+    var p = POS[k]; if (!p) return;
+    var cnt = nodesOfType(k).length;
+    var color = NS_COLOR[k] || "#495057";
+    var sel = k===state.ontoClass ? " sel" : "";
+    h += '<g class="o-node'+sel+'" data-k="'+esc(k)+'">'
+      + '<rect x="'+(p.x-bw/2)+'" y="'+(p.y-bh/2)+'" width="'+bw+'" height="'+bh+'" rx="'+rr+'" fill="#fff" stroke="'+color+'" stroke-width="2"/>'
+      + '<circle cx="'+(p.x-bw/2+14*S)+'" cy="'+(p.y-bh/2)+'" r="'+cr+'" fill="'+color+'" opacity=".9"/>'
+      + '<text x="'+(p.x-bw/2+28*S)+'" y="'+(p.y-bh/2+6*S)+'" style="font-size:'+(11*S)+'px">'+esc(schemaLabel(k))+'</text>'
+      + '<text class="cnt" x="'+(p.x-bw/2+28*S)+'" y="'+(p.y-bh/2+23*S)+'" style="font-size:'+(10.5*S)+'px">'+cnt+' 实例</text>'
+      + '</g>';
+  });
+  svg.innerHTML = h;
+  svg.querySelectorAll(".o-node").forEach(function(n){
+    n.addEventListener("click", function(){
+      state.ontoClass = n.getAttribute("data-k");
+      state.ontoInst = null; state.edit = null;
+      renderOntoCanvas(); renderOntoPanel();
+    });
+  });
+  var st = document.getElementById("ontoStats");
+  if (st){
+    if (RAW.ok){
+      var mg = RAW.manage || {};
+      st.innerHTML = '<span>节点 <b>'+(RAW.stats.nodes||0)+'</b></span><span>边 <b>'+(RAW.stats.edges||0)+'</b></span>'
+        + '<span>快照 <b>'+((mg.versions)||0)+'</b></span><span>更新 <b>'+esc(((RAW.stats.meta||{}).updated||(RAW.stats.meta||{}).created||"—"))+'</b></span>'
+        + '<span>命名空间 <b>'+esc(NS_PREFIX)+'</b></span>';
+    } else {
+      st.innerHTML = '<span>后端未连接 · 无可读写数据</span>';
+    }
+  }
+}
+var _rz = null;
+window.addEventListener("resize", function(){
+  clearTimeout(_rz);
+  _rz = setTimeout(function(){ if (state.tab==="onto") renderOntoCanvas(); }, 160);
+});
+
+/* ================= 管理：实例列表 + 编辑器 ================= */
+function instListOf(cls){
+  var q = (document.getElementById("instSearch").value||"").toLowerCase();
+  return nodesOfType(cls).filter(function(n){
+    if (!q) return true;
+    return nodeLabel(n).toLowerCase().indexOf(q)>=0 || String(n.id).toLowerCase().indexOf(q)>=0;
+  });
+}
+function renderOntoPanel(){
+  var cls = state.ontoClass;
+  document.getElementById("ontoTitle").textContent = schemaLabel(cls)+" 实例（"+nodesOfType(cls).length+"）";
+  document.getElementById("ontoSub").textContent = "本体类 "+cls+" · 点击实例进入编辑 · 提交经 /api/commit 闸门（快照→校验→写回 JSON→派生 TTL）";
+  var list = document.getElementById("instList");
+  var items = instListOf(cls);
+  if (!items.length){
+    list.innerHTML = '<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">'
+      + (RAW.ok ? '该类暂无实例' + (cls==="DomainCategory" ? '（当前数据未实例化研究方向类，检索页的「研究方向」维度由 autoResearchArea 派生）' : '') : '后端未连接') + '</div>';
+  } else {
+    var h = "";
+    items.forEach(function(n){
+      var p = n.properties||{};
+      var low = cls==="Paper" && p.confidence!==undefined && parseFloat(p.confidence)<0.7;
+      h += '<div class="inst-item'+(state.ontoInst===n.id?" sel":"")+'" data-nid="'+esc(SID[n.id])+'"><span class="nm">'+esc(nodeLabel(n))+'</span>'+(low?'<span class="flag">⚠ 低置信度</span>':"")+'</div>';
+    });
+    list.innerHTML = h;
+    list.querySelectorAll(".inst-item").forEach(function(it){
+      it.addEventListener("click", function(){
+        state.ontoInst = NID[it.getAttribute("data-nid")];
+        state.edit = null;
+        renderOntoPanel();
+      });
+    });
+  }
+  renderOntoEditor();
+}
+
+var SHACL_REQUIRED = {Paper:["title","year"], Author:["name"], Venue:["name"], Keyword:["name"], Organization:["name"]};
+
+function renderOntoEditor(){
+  var area = document.getElementById("editorArea");
+  if (!RAW.ok){ area.innerHTML = '<div style="font-size:12.5px;color:var(--muted);padding:20px 0;text-align:center">后端未连接，无法读写本体实例。<br>启动桌面端（Electron 会自动拉起 Python 后端）后重试。</div>'; return; }
+  if (!state.ontoInst){
+    area.innerHTML = '<div style="font-size:12.5px;color:var(--muted);padding:20px 0;text-align:center">点击上方实例查看详情与编辑</div>';
+    return;
+  }
+  var node = RAW.byId[state.ontoInst];
+  if (!node){ area.innerHTML = '<div style="font-size:12.5px;color:var(--danger);padding:20px 0;text-align:center">实例已不存在（可能已被其他提交删除）</div>'; return; }
+
+  var cls = node.type, props = node.properties || {};
+  var spec = fieldSpecFor(cls);
+  var required = SHACL_REQUIRED[cls] || [];
+  var outE = RAW.outIdx[node.id] || [], inE = RAW.inIdx[node.id] || [];
+  var groups = groupEdges(outE, node.id).concat(groupEdges(inE, node.id));
+
+  var h = '<div class="detail-card"><div class="dc-head"><span class="dc-title">实例标识</span><span class="dc-tag">'+esc(cls)+'</span></div>'
+    + '<div class="dc-row"><span class="k">实体 ID</span><span class="v">'+esc(node.id)+'</span></div>'
+    + '<div class="dc-row"><span class="k">出边 / 入边</span><span class="v">'+outE.length+' / '+inE.length+'</span></div>'
+    + ((cls==="Paper" && props.file) ? '<div class="dc-row"><span class="k">阅读</span><span class="v"><button class="mini-btn primary" data-read-file="'+esc(props.file)+'" data-read-title="'+esc(props.title||"")+'">📖 进入阅读</button></span></div>' : "")
+    + '</div>';
+
+  h += '<div class="detail-card"><div class="dc-head"><span class="dc-title">数据属性（可编辑）</span><span class="dc-tag">'+esc(cls)+'Shape</span></div>';
+  spec.forEach(function(f){
+    var k = f[0], label = f[1], kind = f[2];
+    var val = props[k]===undefined ? "" : props[k];
+    var req = required.indexOf(k)>=0 ? '<span class="req">*</span>' : "";
+    h += '<div class="form-row"><label>'+esc(label)+req+'</label>';
+    if (kind==="textarea") h += '<textarea id="f_'+k+'" rows="3">'+esc(val)+'</textarea>';
+    else h += '<input id="f_'+k+'" value="'+esc(val)+'">';
+    h += '</div>';
+  });
+  /* 其余属性（只读展示，避免误改 prov 元数据） */
+  var others = Object.keys(props).filter(function(k){ return !spec.some(function(f){return f[0]===k;}) && k.indexOf("prov:")<0; });
+  if (others.length){
+    h += '<div class="dc-row" style="border-top:1px solid var(--line);padding-top:8px"><span class="k">其他属性</span><span class="v">'+others.map(function(k){return esc(k)+"="+esc(short(props[k],40));}).join("；")+'</span></div>';
+  }
+  h += '</div>';
+
+  /* 对象关系 */
+  h += '<div class="detail-card"><div class="dc-head"><span class="dc-title">对象关系</span><span class="dc-tag">'+esc(cls)+'</span></div>';
+  if (outE.length||inE.length){
+    groups.forEach(function(g){
+      h += '<div class="rel-line" data-group="'+esc(g.dir)+"|"+esc(g.type)+"|"+esc(g.other)+'">'
+        + '<span class="rel-name">'+esc(g.type)+' '+(g.dir==="out"?"↗":"↘")+'</span>'
+        + '<span class="rel-obj">'+esc(labelOfId(g.other))+(g.ids.length>1?' <span style="color:#adb5bd">×'+g.ids.length+' 条重复</span>':"")+'</span>'
+        + '<button class="del" data-edges="'+esc(g.ids.join(","))+'">×</button></div>';
+    });
+  } else {
+    h += '<div class="dc-row"><span class="v" style="color:#adb5bd">暂无对象关系</span></div>';
+  }
+  h += '<div class="add-rel"><select id="addRelType">'+ontoObjProps().map(function(e){return '<option value="'+esc(e[2])+'">'+esc(e[2])+'（'+esc(e[0])+'→'+esc(e[1])+'）</option>'}).join("")+'</select>'
+    + '<select id="addRelTarget">'+instanceOptions(node.id)+'</select>'
+    + '<button id="btnAddRel">+ 添加</button></div>';
+  h += '</div>';
+
+  /* 溯源 */
+  var prov = Object.keys(props).filter(function(k){ return k.indexOf("prov:")===0 || k==="createdBy" || k==="sourcedFrom"; });
+  if (prov.length){
+    h += '<div class="detail-card"><div class="dc-head"><span class="dc-title">数据溯源</span><span class="dc-tag">prov</span></div>'
+      + prov.map(function(k){ return '<div class="dc-row"><span class="k">'+esc(k.replace("prov:",""))+'</span><span class="v">'+esc(short(props[k],90))+'</span></div>'; }).join("")
+      + '</div>';
+  }
+
+  h += '<div id="diffBox"></div>'
+    + '<div class="form-row" style="margin-top:12px"><label>提交说明</label><input id="f_desc" placeholder="例如：修正标题 / 补充作者"></div>'
+    + '<div class="act-row"><button class="btn-ghost" id="btnRollbackEdit">放弃改动</button><button class="btn-primary" id="btnCommit">提交修改</button></div>'
+    + '<div id="commitResult"></div>'
+    + '<div class="act-row"><button class="btn-ghost" id="btnDeleteInst" style="color:var(--danger)">删除该实例</button></div>';
+  area.innerHTML = h;
+
+  /* 编辑监听 → diff 预览 */
+  function collect(){
+    var out = {};
+    spec.forEach(function(f){
+      var el = document.getElementById("f_"+f[0]);
+      if (el) out[f[0]] = el.value;
+    });
+    return out;
+  }
+  function currentDiff(){
+    var nv = collect(), diffs = [];
+    spec.forEach(function(f){
+      var k = f[0];
+      var ov = props[k]===undefined ? "" : String(props[k]);
+      var v = nv[k]===undefined ? "" : String(nv[k]);
+      if (ov!==v) diffs.push({k:f[1], old:ov, new:v});
+    });
+    return diffs;
+  }
+  function renderDiff(){
+    var diffs = currentDiff();
+    var pend = pendingEdges;
+    var box = document.getElementById("diffBox");
+    if (!diffs.length && !pend.add.length && !pend.del.length){
+      box.className = "diffbox hidden"; box.innerHTML = ""; return false;
+    }
+    var h2 = '<h5>🔄 改动预览（字段 '+diffs.length+' 处 · 新增关系 '+pend.add.length+' · 删除关系 '+pend.del.length+'）</h5>';
+    diffs.forEach(function(d){
+      h2 += '<div class="diff-line"><span class="k">'+esc(d.k)+'</span><span class="old">'+esc(short(d.old,60))+'</span><span class="new">'+esc(short(d.new,60))+'</span></div>';
+    });
+    pend.add.forEach(function(a){
+      h2 += '<div class="diff-line"><span class="k">+ 关系</span><span class="new">'+esc(a.type)+' → '+esc(labelOfId(a.target_id))+'</span></div>';
+    });
+    pend.del.forEach(function(id){
+      h2 += '<div class="diff-line"><span class="k">- 关系</span><span class="old">'+esc(id)+'</span></div>';
+    });
+    box.className = "diffbox"; box.innerHTML = h2;
+    return true;
+  }
+  var pendingEdges = {add:[], del:[]};
+  spec.forEach(function(f){
+    var el = document.getElementById("f_"+f[0]);
+    if (el) el.addEventListener("input", renderDiff);
+  });
+  area.querySelectorAll(".del[data-edges]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var ids = (b.getAttribute("data-edges")||"").split(",").filter(function(x){return x;});
+      ids.forEach(function(id){
+        if (pendingEdges.del.indexOf(id) === -1) pendingEdges.del.push(id);
+      });
+      b.parentNode.classList.add("removed");
+      renderDiff();
+    });
+  });
+  document.getElementById("btnAddRel").addEventListener("click", function(){
+    var t = document.getElementById("addRelType").value;
+    var tgt = document.getElementById("addRelTarget").value;
+    if (!tgt){ alert("先选择目标实例"); return; }
+    pendingEdges.add.push({operation:"add_edge", source_id:node.id, target_id:tgt, type:t});
+    renderDiff();
+    this.textContent = "已加入（" + pendingEdges.add.length + "）";
+  });
+  document.getElementById("btnRollbackEdit").addEventListener("click", function(){
+    state.edit = null; renderOntoPanel();
+  });
+  document.getElementById("btnCommit").addEventListener("click", async function(){
+    var changes = [];
+    var nv = collect();
+    var upd = {};
+    spec.forEach(function(f){
+      var k = f[0];
+      var ov = props[k]===undefined ? "" : String(props[k]);
+      var v = nv[k]===undefined ? "" : String(nv[k]);
+      if (ov!==v) upd[k] = v;
+    });
+    if (Object.keys(upd).length) changes.push({operation:"update", id:node.id, properties:upd});
+    pendingEdges.del.forEach(function(id){ changes.push({operation:"delete_edge", id:id}); });
+    pendingEdges.add.forEach(function(a){ changes.push(a); });
+    if (!changes.length){ alert("没有改动，无需提交"); return; }
+    if (cls === "Paper"){
+      var tEl = document.getElementById("f_title");
+      if (!tEl || !tEl.value.trim()){ alert("Paper（文献）的 title 为 SHACL 必填，不能清空"); return; }
+    }
+    var desc = (document.getElementById("f_desc").value||"").trim() || ("编辑 " + cls + "：" + short(nodeLabel(node),30));
+    var btn = this; btn.disabled = true; btn.textContent = "提交中…";
+    var res = await API.post("/api/commit", {changes:changes, author:"web", description:desc});
+    btn.disabled = false; btn.textContent = "提交修改";
+    var box = document.getElementById("commitResult");
+    if (res && res.ok){
+      box.innerHTML = '<div class="commit-ok">✅ 已提交 · 版本 <b>'+esc(res.version)+'</b> · 快照 <b>'+esc(res.snapshot||"")+'</b><br>'
+        + '校验通过 · 写回图谱 '+esc(res.n_nodes)+' 节点 / '+esc(res.n_edges)+' 边 · TTL 派生 '+esc(res.ttl_info||"")+'<br>'
+        + 'checksum '+esc(String(res.checksum||"").slice(0,16))+'…</div>';
+      await reload(false);
+      state.ontoInst = node.id; state.edit = null;
+      renderOntoCanvas(); renderOntoPanel(); renderFilters(); refreshArea(); renderAI("onto");
+    } else {
+      var errs = (res && res.errors) || [];
+      box.innerHTML = '<div class="commit-err">❌ 提交被拒（'+(res&&res.status||"error")+'）：'+esc((res&&res.reason)||"校验未通过")
+        + (errs.length ? '<ul>'+errs.map(function(e){return '<li>'+esc(e)+'</li>'}).join("")+'</ul>' : '')
+        + '<div style="margin-top:6px;font-size:11.5px">提示：SHACL 要求 Paper 必须有 title、year（gYear），且至少 1 条 hasAuthor。</div></div>';
+    }
+  });
+  document.getElementById("btnDeleteInst").addEventListener("click", async function(){
+    if (!confirm("确定删除该实例？\n"+nodeLabel(node)+"\n\n相关边会级联删除，操作将生成新快照（可回滚）。")) return;
+    var res = await API.post("/api/commit", {changes:[{operation:"delete_node", id:node.id}], author:"web", description:"删除实例 "+short(nodeLabel(node),30)});
+    if (res && res.ok){
+      await reload(false);
+      state.ontoInst = null;
+      renderOntoCanvas(); renderOntoPanel(); renderFilters(); refreshArea();
+      alert("已删除 · 版本 "+res.version);
+    } else {
+      alert("删除失败：" + ((res&&res.reason)||"未知原因"));
+    }
+  });
+  renderDiff();
+}
+function labelOfId(id){
+  var n = RAW.byId[id];
+  return n ? nodeLabel(n) : stripNS(id);
+}
+function instanceOptions(excludeId){
+  var h = "";
+  ontoClassList().forEach(function(cls){
+    var items = nodesOfType(cls).filter(function(n){ return n.id!==excludeId; });
+    if (!items.length) return;
+    h += '<optgroup label="'+esc(schemaLabel(cls))+'">';
+    items.slice(0,300).forEach(function(n){
+      h += '<option value="'+esc(n.id)+'">'+esc(short(nodeLabel(n),34))+'</option>';
+    });
+    h += '</optgroup>';
+  });
+  return h;
+}
+var FIELD_SPEC = {
+  Paper: [["title","标题","text"],["year","年份","text"],["venue","期刊/会议","text"],["doi","DOI","text"],
+          ["paperType","文献类型","text"],["confidence","置信度","text"],["autoResearchArea","研究方向","text"],
+          ["autoKeywords","自动关键词","text"],["aiSummary","AI 摘要","textarea"],["abstract","原文摘要","textarea"]],
+  Author: [["name","姓名","text"],["affiliation","机构","text"],["researchArea","研究领域","textarea"]],
+  Organization: [["name","名称","text"]],
+  Venue: [["name","期刊/会议名","text"]],
+  Keyword: [["name","关键词","text"]],
+  LocalFile: [["file","文件名","text"],["filePath","文件路径","text"]],
+  DomainCategory: [["name","研究方向","text"]]
+};
+
+/* 类 → 可编辑字段：基线 FIELD_SPEC + 扩展类的数据属性（domain 指向该类） */
+function fieldSpecFor(cls){
+  var out = (FIELD_SPEC[cls] || []).map(function(f){ return f.slice(); });
+  var s = schData();
+  var have = {};
+  out.forEach(function(f){ have[f[0]] = 1; });
+  if (s && s.data_props){
+    Object.keys(s.data_props).forEach(function(k){
+      var name = String(k).split("#").pop();
+      var meta = s.data_props[k] || {};
+      var dom = String(meta.domain || "").split("#").pop();
+      if (dom !== cls || have[name]) return;
+      out.push([name, meta.label || name, "text"]);
+      have[name] = 1;
+    });
+  }
+  return out;
+}
+
+/* ================= 本体结构编辑（类 / 属性） ================= */
+var SCH = { changes: [] };
+
+function schData(){ return (RAW.schema && RAW.schema.ok) ? RAW.schema : null; }
+function schemaLabel(k){
+  var s = schData();
+  var c = s && s.classes ? s.classes[k] : null;
+  return (c && c.label) || NS_LABEL[k] || k;
+}
+function schClassNames(){ var s = schData(); return s ? Object.keys(s.classes||{}).sort() : CLASS_ORDER.slice(); }
+
+function openSchemaModal(){
+  document.getElementById("schemaModal").classList.add("open");
+  SCH.changes = [];
+  renderSchemaModal();
+  schResult("", false);
+}
+function closeSchemaModal(){ document.getElementById("schemaModal").classList.remove("open"); }
+
+/* 结构下拉候选：基线/已提交扩展类 + 待提交的新增类 − 待提交的删除类 */
+function schClassNamesEff(){
+  var set = {};
+  schClassNames().forEach(function(n){ set[n] = 1; });
+  SCH.changes.forEach(function(c){
+    if (c.operation === "add_class") set[c.name] = 1;
+    if (c.operation === "delete_class") delete set[c.name];
+  });
+  return Object.keys(set).sort();
+}
+
+function renderSchSelects(){
+  var s = schData();
+  if (!s) return;
+  var domSel = document.getElementById("schPropDomain");
+  var rngSel = document.getElementById("schPropRangeObj");
+  var dPrev = domSel.value, rPrev = rngSel.value;
+  var opts = schClassNamesEff().map(function(n){
+    var lb = (s.classes[n]||{}).label;
+    var pending = SCH.changes.some(function(c){ return c.operation==="add_class" && c.name===n; });
+    return '<option value="'+esc(n)+'">'+esc(n)+(lb? " · "+esc(lb) : "")+(pending? " · 待提交" : "")+'</option>';
+  }).join("");
+  domSel.innerHTML = opts;
+  rngSel.innerHTML = opts;
+  if (dPrev) domSel.value = dPrev;
+  if (rPrev) rngSel.value = rPrev;
+  var dataSel = document.getElementById("schPropRangeData");
+  if (!dataSel.options.length){
+    dataSel.innerHTML = (s.xsd_types||["string","integer","decimal","boolean","date","gYear","anyURI"])
+      .map(function(t){ return '<option value="'+esc(t)+'">'+esc(t)+'</option>'; }).join("");
+  }
+}
+
+function renderSchemaModal(){
+  var s = schData();
+  if (!s){
+    document.getElementById("schClasses").innerHTML = '<div class="sch-tip">本体结构未加载（后端未就绪或接口异常）</div>';
+    document.getElementById("schDataProps").innerHTML = '<div class="sch-tip">暂时读不到结构</div>';
+    document.getElementById("schObjProps").innerHTML = '<div class="sch-tip">暂时读不到结构</div>';
+    return;
+  }
+  var counts = s.instance_counts || {};
+  var h = "";
+  Object.keys(s.classes||{}).sort().forEach(function(k){
+    var c = s.classes[k] || {};
+    h += '<div class="sch-row"><span class="k">'+esc(k)+'</span><span class="m">'
+      + esc(c.label||"") + ' · 实例 ' + (counts[k]||0) + (c.ext? ' · 扩展' : ' · 基线') + '</span>'
+      + (c.ext? '<button class="mini-btn" onclick="schRename(\''+esc(k)+'\')">改标签</button>'
+              + '<button class="mini-btn danger" onclick="schDel(\'class\',\''+esc(k)+'\')">删除</button>' : '')
+      + '</div>';
+  });
+  document.getElementById("schClasses").innerHTML = h || '<div class="sch-tip">暂无</div>';
+  function rows(map){
+    var o = "";
+    Object.keys(map||{}).sort().forEach(function(k){
+      var p = map[k] || {};
+      o += '<div class="sch-row"><span class="k">'+esc(k)+'</span><span class="m">'
+        + esc(p.domain||"—") + ' → ' + esc(p.range||"—") + (p.ext? ' · 扩展' : ' · 基线') + '</span>'
+        + (p.ext? '<button class="mini-btn danger" onclick="schDel(\'prop\',\''+esc(k)+'\')">删除</button>' : '')
+        + '</div>';
+    });
+    return o || '<div class="sch-tip">暂无</div>';
+  }
+  document.getElementById("schDataProps").innerHTML = rows(s.data_props);
+  document.getElementById("schObjProps").innerHTML = rows(s.object_props);
+  renderSchSelects();
+  schKindToggle();
+  renderSchPending();
+}
+
+function schKindToggle(){
+  var k = document.getElementById("schPropKind").value;
+  var a = document.getElementById("schPropRangeData"), b = document.getElementById("schPropRangeObj");
+  if (a) a.classList.toggle("hidden", k !== "data");
+  if (b) b.classList.toggle("hidden", k !== "obj");
+}
+
+function schAddClass(){
+  var name = (document.getElementById("schClsName").value||"").trim();
+  var label = (document.getElementById("schClsLabel").value||"").trim();
+  if (!name){ schResult("请填写类名（英文）", true); return; }
+  SCH.changes.push({operation:"add_class", name:name, label:label||name});
+  document.getElementById("schClsName").value = "";
+  document.getElementById("schClsLabel").value = "";
+  schResult("已加入待提交：新增类 "+name, false);
+  renderSchPending();
+  renderSchSelects();
+}
+
+function schAddProp(){
+  var name = (document.getElementById("schPropName").value||"").trim();
+  var label = (document.getElementById("schPropLabel").value||"").trim();
+  var kind = document.getElementById("schPropKind").value;
+  var dom = document.getElementById("schPropDomain").value;
+  var rng = kind==="data" ? document.getElementById("schPropRangeData").value
+                          : document.getElementById("schPropRangeObj").value;
+  if (!name){ schResult("请填写属性名（英文）", true); return; }
+  if (!dom){ schResult("缺少 domain 类", true); return; }
+  SCH.changes.push({operation: kind==="data" ? "add_data_prop" : "add_obj_prop",
+                    name:name, label:label||name, domain:dom, range:rng});
+  document.getElementById("schPropName").value = "";
+  document.getElementById("schPropLabel").value = "";
+  schResult("已加入待提交："+(kind==="data"?"数据属性 ":"对象关系 ")+name, false);
+  renderSchPending();
+}
+
+function schRename(name){
+  var lb = prompt("新的中文名（留空则不改）", "");
+  if (lb===null) return;
+  SCH.changes.push({operation:"update_class", name:name, label:String(lb).trim()});
+  schResult("已加入待提交：修改 "+name+" 的中文名", false);
+  renderSchPending();
+}
+
+function schDel(kind, name){
+  SCH.changes.push(kind==="class" ? {operation:"delete_class", name:name}
+                                  : {operation:"delete_prop", name:name});
+  schResult("已加入待提交：删除 "+(kind==="class"?"类 ":"属性 ")+name, false);
+  renderSchPending();
+  renderSchSelects();
+}
+
+function schUndo(i){ SCH.changes.splice(i,1); renderSchPending(); renderSchSelects(); }
+
+function renderSchPending(){
+  var box = document.getElementById("schPending");
+  document.getElementById("schPendCount").textContent = SCH.changes.length;
+  if (!SCH.changes.length){
+    box.innerHTML = '<div class="sch-tip">暂无。新增 / 删除项会显示在这里，点 × 可撤销。</div>';
+    return;
+  }
+  var names = {add_class:"新增类", update_class:"改中文名", delete_class:"删除类",
+               add_data_prop:"新增数据属性", add_obj_prop:"新增对象关系", delete_prop:"删除属性"};
+  box.innerHTML = SCH.changes.map(function(c,i){
+    var extra = c.range ? "（"+esc(c.domain||"")+" → "+esc(c.range)+"）" : (c.label? "（"+esc(c.label)+"）" : "");
+    return '<div class="pend"><span class="t">'+(names[c.operation]||c.operation)+'：'+esc(c.name)+extra
+      + '</span><span class="x" onclick="schUndo('+i+')">×</span></div>';
+  }).join("");
+}
+
+function schResult(msg, isErr){
+  var box = document.getElementById("schResult");
+  if (!msg){ box.innerHTML = ""; return; }
+  box.innerHTML = '<div class="'+(isErr?"commit-err":"commit-ok")+'">'+esc(msg)+'</div>';
+}
+
+async function schCommit(){
+  if (!SCH.changes.length){ schResult("没有待提交的变更", true); return; }
+  var btn = document.getElementById("btnSchemaCommit");
+  btn.disabled = true; btn.textContent = "提交中…";
+  try {
+    var res = await API.post("/api/ontology/schema", {changes:SCH.changes, author:"web"});
+    if (res && res.ok){
+      SCH.changes = [];
+      renderSchPending();
+      schResult("结构已提交 · 类 "+(res.classes||[]).length+" / 对象关系 "+(res.object_props||[]).length
+        +" / 数据属性 "+(res.data_props||[]).length+" · 备份 "+(((res.backup||{}).stamp)||"—")
+        +" · 数据 TTL "+(res.data_ttl_ok===false? "派生失败 "+esc(res.data_ttl_info||"") : esc(res.data_ttl_info||"")), false);
+      await reload(false);
+      renderFilters(); refreshArea(); renderOntoCanvas(); renderOntoPanel(); renderAI("onto");
+      renderSchemaModal();
+    } else {
+      var errs = (res && (res.errors||[])) || [];
+      schResult("结构提交被拒绝：" + (errs.length? errs.join("；") : ((res&&res.reason)||"未知原因")), true);
+    }
+  } catch(e){
+    schResult("提交失败：" + e.message, true);
+  } finally {
+    btn.disabled = false; btn.textContent = "提交结构修改";
+  }
+}
+
+/* ================= 版本 / 回滚 ================= */
+async function openVerModal(){
+  try {
+  document.getElementById("verModal").classList.add("open");
+  var box = document.getElementById("verList");
+  box.innerHTML = '<div class="loading">读取中…</div>';
+  var res = await API.get("/api/commit/versions");
+  if (!res || !res.ok){ box.innerHTML = '<div class="commit-err">读取失败：'+esc((res&&res.reason)||"后端未就绪")+'</div>'; return; }
+  var vs = res.versions || [];
+  if (!vs.length){ box.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:16px 0">暂无快照</div>'; return; }
+  var h = "";
+  vs.slice(0,40).forEach(function(v){
+    var key = v.version || String(v.file||"").split("_")[0];
+    h += '<div class="ver-item"><span class="v">'+esc(v.version||"—")+'</span>'
+      + '<span class="m">'+esc(v.taken_at||"")+' · '+esc(v.n_nodes||0)+' 节点 / '+esc(v.n_edges||0)+' 边<br>'+esc(String(v.sha||"").slice(0,20))+'…</span>'
+      + '<button class="mini-btn" data-v="'+esc(key)+'">回滚到此版本</button></div>';
+  });
+  box.innerHTML = h;
+  box.querySelectorAll("button[data-v]").forEach(function(b){
+    b.addEventListener("click", async function(){
+      var v = b.getAttribute("data-v");
+      if (!confirm("回滚到快照 "+v+"？\n\n当前图谱将被该快照整体覆盖（本次回滚会生成新的版本记录，可再次回滚）。")) return;
+      b.disabled = true; b.textContent = "回滚中…";
+      var res2 = await API.post("/api/commit/rollback", {version:v});
+      if (res2 && res2.ok){
+        await reload(false);
+        renderOntoCanvas(); renderOntoPanel(); renderFilters(); refreshArea();
+        alert("已回滚到快照 "+v+"（图谱版本 "+((res2.graph_version)||"—")+"）· 当前 "+((res2.n_nodes)||0)+" 节点 / "+((res2.n_edges)||0)+" 边 · TTL "+((res2.ttl_info)||""));
+        openVerModal();
+      } else {
+        b.disabled = false; b.textContent = "回滚到此版本";
+        alert("回滚失败：" + ((res2&&res2.reason)||"未知原因"));
+      }
+    });
+  });
+  } catch(e){ box.innerHTML = '<div class="commit-err">读取失败：'+ esc(String((e && e.message) || e)) + '。可按 ⌘R 刷新后重试。</div>'; }
+}
+function closeVerModal(){ document.getElementById("verModal").classList.remove("open"); }
+
+/* ================= 新建实例 ================= */
+function openNewModal(){
+  var sel = document.getElementById("newType");
+  sel.innerHTML = ontoClassList().map(function(k){ return '<option value="'+esc(k)+'">'+esc(schemaLabel(k)+"（"+k+"）")+'</option>'; }).join("");
+  sel.value = ontoClassList().indexOf(state.ontoClass)>=0 ? state.ontoClass : ontoClassList()[0];
+  renderNewFields();
+  document.getElementById("newResult").innerHTML = "";
+  document.getElementById("newModal").classList.add("open");
+}
+function closeNewModal(){ document.getElementById("newModal").classList.remove("open"); }
+function renderNewFields(){
+  var cls = document.getElementById("newType").value;
+  var spec = fieldSpecFor(cls).slice(0,4);
+  document.getElementById("newFields").innerHTML = spec.map(function(f){
+    return '<div class="form-row"><label>'+esc(f[1])+'</label><input id="n_'+f[0]+'"></div>';
+  }).join("");
+}
+async function submitNew(){
+  var cls = document.getElementById("newType").value;
+  var spec = fieldSpecFor(cls).slice(0,4);
+  var props = {};
+  spec.forEach(function(f){
+    var el = document.getElementById("n_"+f[0]);
+    if (el && el.value.trim()) props[f[0]] = el.value.trim();
+  });
+  if (!Object.keys(props).length){ alert("至少填写一个属性"); return; }
+  var res = await API.post("/api/commit", {changes:[{operation:"add_node", type:cls, properties:props}], author:"web", description:"新建实例 "+cls});
+  var box = document.getElementById("newResult");
+  if (res && res.ok){
+    box.innerHTML = '<div class="commit-ok">✅ 已新建 · 版本 '+esc(res.version)+' · 当前 '+esc(res.n_nodes)+' 节点 / '+esc(res.n_edges)+' 边</div>';
+    await reload(false);
+    state.ontoClass = cls;
+    renderOntoCanvas(); renderOntoPanel(); renderFilters(); refreshArea();
+  } else {
+    var errs = (res && res.errors) || [];
+    box.innerHTML = '<div class="commit-err">❌ 新建被拒：'+esc((res&&res.reason)||"校验未通过")
+      + (errs.length ? '<ul>'+errs.map(function(e){return '<li>'+esc(e)+'</li>'}).join("")+'</ul>' : '') + '</div>';
+  }
+}
+
+/* ================= 导航 / AI ================= */
+document.querySelectorAll(".tab").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".tab").forEach(function(x){ x.classList.remove("active"); });
+    b.classList.add("active");
+    switchTab(b.getAttribute("data-tab"));
+  });
+});
+function switchTab(t){
+  state.tab = t;
+  document.getElementById("content").classList.toggle("reading", t==="read");
+  document.getElementById("view-lib").classList.toggle("hidden", t!=="lib");
+  document.getElementById("view-read").classList.toggle("hidden", t!=="read");
+  document.getElementById("view-onto").classList.toggle("hidden", t!=="onto");
+  closeRel();
+  if (t==="lib"){ renderCtrlBar(); refreshArea(); renderAI("lib"); }
+  else if (t==="read") renderAI("read");
+  else { renderOntoCanvas(); renderOntoPanel(); renderAI("onto"); }
+}
+function toggleAI(){ var p = document.getElementById("aiPanel"); p.classList.toggle("on"); document.getElementById("btnAI").classList.toggle("on"); }
+function renderAI(ctx){
+  var b = document.getElementById("aiBody");
+  b.classList.remove("rd");
+  if (ctx==="read"){ renderAIRead(b); return; }
+  if (ctx==="onto"){
+    var low = PAPERS.filter(function(p){ return p.conf && p.conf<0.7; }).length;
+    var types = Object.keys(RAW.byType).map(function(k){ return k+" "+RAW.byType[k].length; }).join(" · ");
+    b.innerHTML = aiCard("模型体检", RAW.ok
+        ? ("类 "+ontoClassList().length+" 个、对象关系 "+ontoObjProps().length+" 组，对齐 GB/T 48000.3-2026。<br>实例分布："+esc(types))
+          + (low? "<br>当前 <b>"+low+"</b> 篇置信度 &lt; 0.7，建议复核。" : "")
+        : "后端未连接，暂无法体检。", "insight")
+      + aiCard("使用提示","① 点画布类节点 → 看实例；② 点实例 → 编辑字段与关系；③ 改动实时预览 diff；④ 提交经 /api/commit：快照 → SHACL 校验 → 写回 JSON → 派生 TTL。")
+      + aiCard("写回范围","可写：类实例的数据属性、对象关系（增/删）、新建与删除实例。<br>只读：本体 Schema 与 SHACL 定义（TTL 权威，不随页面改动）。");
+    return;
+  }
+  var zero = DIMS.map(function(d){ return d.name+" "+(CACHE[d.key]||[]).length; }).join(" · ");
+  b.innerHTML = aiCard("库洞察","共 "+PAPERS.length+" 篇文献"+(RAW.ok?"（真实图谱）":"（内置示例）")+"。☰ 列表逐条细读；🕸 图谱按所选维度聚团看结构。","insight")
+    + aiCard("维度概览", esc(zero))
+    + aiCard("数据来源", RAW.ok ? "已连接 /api/graph · 节点 "+RAW.stats.nodes+" / 边 "+RAW.stats.edges : "后端未连接，展示内置示例")
+    + aiAsk();
+}
+function aiCard(hd,body,cls){ return '<div class="ai-card '+(cls||"")+'"><div class="hd">'+hd+'</div>'+body.replace(/\n/g,"<br>")+'</div>'; }
+function aiAsk(){ return '<div class="ai-q"><input id="aiInput" placeholder="问问你的文献库…"><button class="send" onclick="aiSend()">提问</button></div><div id="aiMsgs"></div>'; }
+async function aiSend(){
+  var inp = document.getElementById("aiInput"); if (!inp) return;
+  var q = inp.value.trim(); if (!q) return;
+  var box = document.getElementById("aiMsgs");
+  var msg = document.createElement("div"); msg.className = "ai-msg";
+  msg.innerHTML = "<b>检索中…</b>";
+  box.appendChild(msg); inp.value = "";
+  var hits = [];
+  if (RAW.ok){
+    var r = await API.get("/api/graph/search?q="+encodeURIComponent(q));
+    hits = (r && r.ok ? r.results||[] : []).slice(0,5);
+  } else {
+    hits = PAPERS.filter(function(p){
+      return (p.title+p.authors.join(" ")+p.kw.join(" ")).toLowerCase().indexOf(q.toLowerCase())>=0;
+    }).slice(0,5).map(function(p){ return {id:p.nid||p.id, type:"Paper", label:p.title}; });
+  }
+  if (hits.length){
+    msg.innerHTML = "<b>在图谱中找到 "+hits.length+" 条匹配：</b><br>" + hits.map(function(x){
+      return "· ["+esc(x.type)+"] "+esc(short(x.label||x.id,46));
+    }).join("<br>");
+  } else {
+    msg.innerHTML = "<b>未找到</b>与「"+esc(q)+"」直接匹配的节点。可换个说法，或到上传页导入更多文献。";
+  }
+  box.scrollTop = box.scrollHeight;
+}
+
+/* ================= 上传 ================= */
+document.getElementById("btnUpload").addEventListener("click", openModal);
+document.getElementById("dropZone").addEventListener("click", function(){
+  var api = window.workbenchDesktop || {};
+  if (api.pickAndUploadProgress || api.submitPdfs){ nativeUpload(); }
+  else document.getElementById("fileInput").click();  /* 旧主进程壳：回退系统文件选择器，仍可逐文件实时进度 */
+});
+document.getElementById("fileInput").addEventListener("change", function(){
+  var files = Array.prototype.slice.call(this.files||[]);
+  if (files.length) startPipe(files);
+  this.value = "";
+});
+document.getElementById("dropZone").addEventListener("dragover", function(e){
+  e.preventDefault(); this.style.borderColor = "var(--accent)";
+});
+document.getElementById("dropZone").addEventListener("dragleave", function(){ this.style.borderColor = "#c5d0f5"; });
+document.getElementById("dropZone").addEventListener("drop", function(e){
+  e.preventDefault(); this.style.borderColor = "#c5d0f5";
+  var files = Array.prototype.slice.call((e.dataTransfer && e.dataTransfer.files)||[]).filter(function(f){ return /\.pdf$/i.test(f.name); });
+  if (files.length) startPipe(files);
+});
+function openModal(){
+  document.getElementById("modal").classList.add("open");
+  if (UP.running || (UP.order.length && UP.order.some(function(k){ return UP.byKey[k].status === "done" || UP.byKey[k].status === "failed"; }) === false)){
+    document.getElementById("uploadStep").classList.add("hidden");
+    document.getElementById("pipeStep").classList.remove("hidden");
+    upRender();
+  }
+  document.getElementById("uploadHint").textContent = (window.workbenchDesktop && window.workbenchDesktop.pickAndUploadProgress)
+    ? "桌面端：提交后按文件逐条显示解析进度（排队 / 解析阶段 / 完成 / 失败），可最小化窗口等待。"
+    : (window.workbenchDesktop && window.workbenchDesktop.pickAndUpload)
+      ? "桌面端：点击上方区域将调用系统文件选择器，由主进程提交后端 /upload。"
+      : "浏览器：点击上方区域选择 PDF，逐个异步提交 /upload 并实时显示每篇进度。";
+}
+function closeModal(){ document.getElementById("modal").classList.remove("open"); setTimeout(resetModal,300); }
+function resetModal(){
+  document.getElementById("uploadStep").classList.remove("hidden");
+  document.getElementById("pipeStep").classList.add("hidden");
+  document.getElementById("uploadResult").classList.add("hidden");
+  var ul = document.getElementById("upList"); if (ul && !UP.running) ul.innerHTML = "";
+  var t = document.getElementById("upTitle");
+  if (t && !UP.running) t.textContent = "AI 解析治理中…";
+  var m = document.getElementById("upMeta"); if (m && !UP.running) m.textContent = "";
+}
+/* ================= 逐文件解析进度引擎（v1.7） ================= */
+/* 后端阶段 → 百分比（与 serve_workbench.py UPLOAD_STAGES 对齐） */
+var UP_STAGE_PERCENT = [6, 14, 30, 72, 86, 96, 99, 100];
+var UP_LLM_DURATION = 60;    /* AI 补全阶段预期耗时（秒），用于进度条平滑爬升 */
+var UP_TICK_MS = 400;        /* 本地重绘间隔 */
+var UP_POLL_MS = 1200;       /* 轮询后端间隔 */
+var UP = {byKey:{}, order:[], byId:{}, poll:null, t0:0, running:false};
+
+function upPrepare(files){
+  UP.byKey = {}; UP.order = []; UP.byId = {}; UP.t0 = Date.now(); UP.running = true;
+  var now = Date.now();
+  files.forEach(function(f, i){
+    var k = "f" + i;
+    UP.byKey[k] = {key:k, file:(f && f.name) || ("文件 " + (i + 1)), file_id:"", status:"preparing",
+                   status_text:"提交中…", stage:"receive", stage_name:"接收文件", stage_index:0,
+                   percent:2, queue_position:0, elapsed:0, title:"", reason:"", detail:"",
+                   result_status:"", stage_since:now};
+    UP.order.push(k);
+  });
+  var t = document.getElementById("upTitle"); if (t) t.textContent = "AI 解析治理中…";
+  upRender();
+}
+function upDisplayPercent(it){
+  var p = it.percent || 0;
+  if (it.status !== "parsing" && it.status !== "preparing") return p;
+  var idx = it.stage_index || 0;
+  var next = UP_STAGE_PERCENT[Math.min(idx + 1, UP_STAGE_PERCENT.length - 1)];
+  var dur = (idx === 3) ? UP_LLM_DURATION : 6;
+  var frac = Math.min(0.92, (Date.now() - (it.stage_since || Date.now())) / 1000 / dur);
+  return Math.max(p, p + Math.max(0, next - p - 1) * frac);
+}
+function upItemHtml(it){
+  var st = it.status;
+  var cls = (st === "done") ? "done" : (st === "failed") ? "failed" : (st === "parsing") ? "parsing" : "queued";
+  var badge = (st === "done") ? (it.status_text || "解析完成") : (st === "failed") ? "失败"
+            : (st === "parsing") ? "解析中" : (st === "preparing") ? "提交中" : "排队中";
+  var pct = Math.max(0, Math.min(100, Math.round(upDisplayPercent(it))));
+  var secs = Math.max(0, Math.round(it.elapsed || ((Date.now() - UP.t0) / 1000)));
+  var stageTxt;
+  if (st === "done" && (it.llm_status === "pending" || it.llm_status === "running"))
+    stageTxt = "已入库 · " + (it.llm_status_text || "AI 摘要后台补全中…") + (it.title ? ("｜" + it.title) : "");
+  else if (st === "done" && it.llm_status === "done")
+    stageTxt = "已入库 · AI 摘要已补全" + (it.title ? ("｜" + it.title) : "");
+  else if (st === "done" && it.llm_status === "failed")
+    stageTxt = "已入库 · AI 摘要补全失败（可在检索页手动重试）" + (it.title ? ("｜" + it.title) : "");
+  else if (st === "done") stageTxt = it.title ? ("完成 · " + it.title) : (it.status_text || "解析完成");
+  else if (st === "failed") stageTxt = "失败 · " + (it.reason || it.status_text || "未知原因");
+  else if (st === "parsing") stageTxt = (it.stage_name || "解析中") + "…（阶段 " + ((it.stage_index || 0) + 1) + "/8）";
+  else if (st === "preparing") stageTxt = "正在提交到后端…";
+  else stageTxt = it.queue_position > 1 ? ("排队等待（前方 " + (it.queue_position - 1) + " 篇）") : "排队等待";
+  return '<div class="up-item ' + cls + '">'
+    + '<div class="up-line"><span class="up-name" title="' + esc(it.file) + '">' + esc(it.file) + '</span>'
+    + '<span class="up-badge">' + esc(badge) + '</span><span class="up-time">' + secs + 's</span></div>'
+    + '<div class="up-bar"><i style="width:' + pct + '%"></i></div>'
+    + '<div class="up-stage" title="' + esc(stageTxt) + '">' + esc(stageTxt) + ' · ' + pct + '%</div></div>';
+}
+function upRender(){
+  var box = document.getElementById("upList"); if (!box) return;
+  var h = "", doneN = 0, failN = 0, parseN = 0, queueN = 0;
+  UP.order.forEach(function(k){
+    var it = UP.byKey[k]; if (!it) return;
+    if (it.status === "done") doneN++;
+    else if (it.status === "failed") failN++;
+    else if (it.status === "queued") queueN++;
+    else parseN++;
+    h += upItemHtml(it);
+  });
+  box.innerHTML = h;
+  var n = UP.order.length;
+  var t = document.getElementById("upTitle");
+  if (t) t.textContent = UP.running ? ("AI 解析治理中…（完成 " + doneN + "/" + n + "）")
+                                    : ("解析结束 · 成功 " + doneN + " / 失败 " + failN);
+  var m = document.getElementById("upMeta");
+  if (m) m.textContent = "已用 " + Math.round((Date.now() - UP.t0) / 1000) + "s"
+    + (parseN ? " · 解析中 " + parseN : "") + (queueN ? " · 排队 " + queueN : "")
+    + " · 元数据约 2 秒入库，AI 摘要由后台自动补全";
+}
+function upApply(r){
+  var k = UP.byId[r.file_id];
+  if (k == null) return;
+  var it = UP.byKey[k];
+  if (!it) return;
+  /* S3：done 之后仍需接收 AI 摘要后台补全状态（llm_status / llm_status_text） */
+  if (it.status === "done" || it.status === "failed"){
+    if (r.llm_status) it.llm_status = r.llm_status;
+    if (r.llm_status_text) it.llm_status_text = r.llm_status_text;
+    if (typeof r.llm_elapsed === "number") it.llm_elapsed = r.llm_elapsed;
+    return;
+  }
+  var prevStage = it.stage_index || 0;
+  it.status = r.status || it.status;
+  it.status_text = r.status_text || it.status_text;
+  if (typeof r.percent === "number") it.percent = r.percent;
+  it.stage = r.stage || it.stage;
+  it.stage_name = r.stage_name || it.stage_name;
+  if (typeof r.stage_index === "number" && r.stage_index > prevStage){
+    it.stage_index = r.stage_index;
+    it.stage_since = Date.now();
+  }
+  it.queue_position = r.queue_position || 0;
+  if (typeof r.elapsed === "number") it.elapsed = r.elapsed;
+  if (r.title) it.title = r.title;
+  if (r.reason) it.reason = r.reason;
+  if (r.result_status) it.result_status = r.result_status;
+  if (r.detail) it.detail = r.detail;
+  if (r.llm_status) it.llm_status = r.llm_status;
+  if (r.llm_status_text) it.llm_status_text = r.llm_status_text;
+  if (typeof r.llm_elapsed === "number") it.llm_elapsed = r.llm_elapsed;
+}
+function upCollect(){
+  return UP.order.map(function(k){
+    var it = UP.byKey[k];
+    var rs = it.result_status || (it.status === "done" ? "ingested" : "error");
+    return {ok: it.status === "done", file: it.file, status: rs, statusText: it.status_text,
+            title: it.title, reason: it.reason, detail: it.detail, elapsed: it.elapsed,
+            llm_status: it.llm_status || "", llm_status_text: it.llm_status_text || ""};
+  });
+}
+/* 轮询后端直到每个文件都进入终态（done / failed） */
+function upPoll(){
+  return new Promise(function(resolve){
+    var ticker = setInterval(function(){ if (UP.running) upRender(); }, UP_TICK_MS);
+    var stop = function(){ clearInterval(UP.poll); clearInterval(ticker); UP.poll = null; UP.running = false; upRender(); resolve(); };
+    UP.poll = setInterval(async function(){
+      var ids = Object.keys(UP.byId);
+      if (!ids.length){ stop(); return; }
+      var j = await API.progress(ids);
+      if (j && j.ok && j.items && j.items.length){ j.items.forEach(upApply); }
+      var pend = UP.order.filter(function(k){
+        var it = UP.byKey[k], s = it.status;
+        /* S3：已入库但 AI 摘要仍在后台补全的，继续轮询到补全终态 */
+        if (s === "done") return it.llm_status === "pending" || it.llm_status === "running";
+        return s === "queued" || s === "parsing" || s === "preparing";
+      });
+      upRender();
+      if (!pend.length) stop();
+    }, UP_POLL_MS);
+  });
+}
+/* 全部终态后：回显结果 + 刷新图谱/检索页 */
+async function upSettle(){
+  UP.running = false; upRender();
+  var results = upCollect();
+  renderUploadResults(results);
+  if (results.some(function(x){ return x.ok; })){ await reload(false); renderFilters(); refreshArea(); }
+}
+function renderUploadResults(results){
+  var r = document.getElementById("uploadResult");
+  r.classList.remove("hidden");
+  var stMap = {ingested:["ok","已入库（新增）"],duplicate:["warn","已入库（去重命中，跳过新增）"],
+               updated:["ok","已入库（修正噪声旧记录）"],failed:["bad","入库失败"],error:["bad","处理异常"]};
+  var okN = 0, dupN = 0, failN = 0;
+  results.forEach(function(x){
+    if (!x.ok) failN++;
+    else if (x.status === "duplicate") dupN++;
+    else okN++;
+  });
+  var h = '<h5>解析完成 · 入库结果（新增 ' + okN + ' · 去重 ' + dupN + ' · 失败 ' + failN + '）</h5>';
+  results.forEach(function(x){
+    var m = stMap[x.status] || (x.ok? ["ok", x.statusText||"处理完成"] : ["bad", (x.reason||"处理失败")]);
+    var used = (typeof x.elapsed === "number" && x.elapsed > 0)
+      ? ' <span style="color:var(--muted)">· ' + Math.round(x.elapsed) + 's</span>' : "";
+    var llmNote = (x.llm_status === "done") ? ' <span style="color:var(--muted)">· AI 摘要已补全</span>'
+                : (x.llm_status === "pending" || x.llm_status === "running")
+                  ? ' <span style="color:var(--muted)">· AI 摘要后台补全中…</span>'
+                  : (x.llm_status === "failed") ? ' <span style="color:var(--muted)">· AI 摘要补全失败</span>' : "";
+    h += '<div class="row '+m[0]+'"><span class="dot"></span><span class="nm">'+esc(x.file||x.saved_at||"?")
+      + (x.title? ' <span style="color:var(--muted)">｜'+esc(short(x.title,40))+'</span>':"")+'</span>'
+      + '<span class="act">'+esc(m[1])+used+llmNote
+      + ((x.ok && x.file) ? ' <b class="up-read" data-read="'+esc(x.file)+'" data-title="'+esc(x.title||"")+'">📖 阅读</b>' : "")
+      + '</span></div>';
+    if (x.detail){
+      h += '<div class="row" style="display:block;font-size:11.5px;color:var(--muted)">'+esc(short(String(x.detail),300))+'</div>';
+    }
+  });
+  h += '<p style="margin-top:10px;font-size:12px;color:var(--muted)">进度与结果均来自后端 /upload + /api/upload/progress 的真实响应；入库成功后图谱与检索页数据已刷新。</p>';
+  r.innerHTML = h;
+  r.querySelectorAll(".up-read[data-read]").forEach(function(b){
+    b.addEventListener("click", function(){
+      openReader({ name: b.getAttribute("data-read"), title: b.getAttribute("data-title") || "", from: "upload" });
+    });
+  });
+}
+/* 把已受理的 file_id 登记进进度卡（提交失败的直接落终态）；keys 可选，指定行 key */
+function upRegister(items, keys){
+  items.forEach(function(x, i){
+    var k = keys ? keys[i] : ("f" + i);
+    var it = UP.byKey[k]; if (!it) return;
+    if (x && x.file) it.file = x.file;
+    if (x && x.ok && x.file_id){
+      it.file_id = x.file_id; UP.byId[x.file_id] = it.key;
+      it.status = "queued"; it.status_text = "排队中"; it.percent = 2;
+      if (typeof x.queue_position === "number" && x.queue_position > 0) it.queue_position = x.queue_position;
+    } else {
+      it.status = "failed"; it.status_text = "提交失败"; it.percent = 0;
+      it.reason = (x && x.reason) || "上传失败";
+    }
+  });
+  upRender();
+}
+/* 桌面端：主进程选取文件 → 异步提交（拿 file_id）→ 渲染层统一轮询逐文件进度 */
+async function nativeUpload(){
+  var api = window.workbenchDesktop || {};
+  openModal();
+  if (api.pickAndUploadProgress){
+    var picked = await api.pickAndUploadProgress();
+    if (!picked || picked.canceled) return;
+    document.getElementById("uploadStep").classList.add("hidden");
+    document.getElementById("pipeStep").classList.remove("hidden");
+    document.getElementById("uploadResult").classList.add("hidden");
+    var items = picked.items || [];
+    upPrepare(items.map(function(x){ return {name: x.file}; }));
+    upRegister(items);
+    if (Object.keys(UP.byId).length) await upPoll();
+    await upSettle();
+    return;
+  }
+  /* 旧主进程壳（既无 pickAndUploadProgress 也无 submitPdfs）：回退系统文件选择器，
+     由 startPipe 逐文件异步 POST + 轮询，保留逐文件实时进度 */
+  closeModal();
+  document.getElementById("fileInput").click();
+}
+/* 浏览器端：逐个异步 POST /upload（立即返回 file_id），随后统一轮询真实阶段 */
+async function startPipe(files){
+  document.getElementById("uploadStep").classList.add("hidden");
+  document.getElementById("pipeStep").classList.remove("hidden");
+  document.getElementById("uploadResult").classList.add("hidden");
+  upPrepare(files);
+  for (var i = 0; i < files.length; i++){
+    var j = await API.uploadFile(files[i]);
+    upRegister([{file:files[i].name, ok:!!(j && j.file_id), file_id:(j && j.file_id) || "",
+                 reason:(j && j.reason) || "上传失败", queue_position:(j && j.queue_position) || 0}],
+               ["f" + i]);
+  }
+  if (Object.keys(UP.byId).length) await upPoll();
+  await upSettle();
+}
+window.addEventListener("workbench-data-changed", async function(){
+  await reload(false); renderFilters(); refreshArea(); renderOntoCanvas(); renderOntoPanel();
+});
+
+/* ================= 上传记录弹窗（常驻入口，v1.9） ================= */
+/* 数据源为后端 /api/upload/progress（最近 50 条），因此关闭弹窗不丢状态、上传完成后仍可回看 */
+var UH = {open:false, timer:null, items:[], err:""};
+
+function uhIsActive(it){
+  if (it.status === "queued" || it.status === "parsing") return true;
+  if (it.status === "done" && (it.llm_status === "pending" || it.llm_status === "running")) return true;
+  return false;
+}
+function uhResultText(it){
+  if (it.status === "failed") return "失败 · " + (it.reason || it.status_text || "未知原因");
+  if (it.status === "queued") return "排队等待" + (it.queue_position > 1 ? ("（前方 " + (it.queue_position - 1) + " 篇）") : "");
+  if (it.status === "parsing") return (it.stage_name || "解析中") + "…（阶段 " + ((it.stage_index || 0) + 1) + "/8）";
+  var base = ({ingested:"已入库（新增）", duplicate:"已入库（去重命中，跳过新增）",
+               updated:"已入库（修正噪声旧记录）", failed:"入库失败", error:"处理异常",
+               unknown:"处理完成（状态未知）"})[it.result_status] || (it.status_text || "解析完成");
+  if (it.llm_status === "done") base += " · AI 摘要已补全";
+  else if (it.llm_status === "pending" || it.llm_status === "running") base += " · AI 摘要后台补全中…";
+  else if (it.llm_status === "failed") base += " · AI 摘要补全失败";
+  return base;
+}
+function uhItemHtml(it){
+  var st = it.status;
+  var cls = (st === "done") ? "done" : (st === "failed") ? "failed" : (st === "parsing" ? "parsing" : "queued");
+  var badge = (st === "done") ? (it.status_text || "解析完成") : (st === "failed") ? "失败"
+            : (st === "parsing") ? "解析中" : "排队中";
+  var pct = Math.max(0, Math.min(100, Math.round(st === "done" ? 100 : (it.percent || 0))));
+  var dur = (it.finished_at && it.started_at) ? Math.round(it.finished_at - it.started_at)
+                                               : Math.round(it.elapsed || 0);
+  var when = "";
+  var tsv = it.finished_at || it.created_at;
+  if (tsv){
+    var d = new Date(tsv * 1000);
+    var hhmm = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+    when = (it.finished_at ? "完成 " : "提交 ") + hhmm;
+  }
+  var line = uhResultText(it) + (it.title ? ("｜" + it.title) : "");
+  return '<div class="up-item ' + cls + '">'
+    + '<div class="up-line"><span class="up-name" title="' + esc(it.file) + '">' + esc(it.file) + '</span>'
+    + '<span class="uh-when">' + esc(when) + '</span>'
+    + '<span class="up-badge">' + esc(badge) + '</span><span class="up-time">' + dur + 's</span></div>'
+    + '<div class="up-bar"><i style="width:' + pct + '%"></i></div>'
+    + '<div class="up-stage" title="' + esc(line) + '">' + esc(line) + ' · ' + pct + '%</div></div>';
+}
+function uhRender(){
+  var box = document.getElementById("uhList"); if (!box) return;
+  var items = UH.items || [];
+  box.innerHTML = items.length
+    ? items.slice().reverse().map(uhItemHtml).join("")
+    : '<div class="uh-empty">暂无上传记录</div>';
+  var act = items.filter(uhIsActive).length, done = 0, fail = 0;
+  items.forEach(function(x){ if (x.status === "done") done++; else if (x.status === "failed") fail++; });
+  var t = document.getElementById("uhTitle");
+  if (t) t.textContent = "全部上传任务（共 " + items.length + " 条）";
+  var m = document.getElementById("uhMeta");
+  if (m) m.textContent = "进行中 " + act + " · 已完成 " + done + " · 失败 " + fail + (UH.err ? (" · " + UH.err) : "");
+}
+function uhBadgeRender(){
+  var el = document.getElementById("upHistBadge"); if (!el) return;
+  var act = (UH.items || []).filter(uhIsActive).length;
+  if (act > 0){ el.textContent = String(act); el.classList.remove("hidden"); }
+  else { el.classList.add("hidden"); }
+  var btn = document.getElementById("btnUpHist");
+  if (btn){ if (act > 0) btn.classList.add("has-run"); else btn.classList.remove("has-run"); }
+}
+async function uhFetch(){
+  var j = await API.progressAll(50);
+  if (j && j.ok && j.items){ UH.items = j.items; UH.err = ""; }
+  else { UH.err = "读取失败，稍后自动重试"; }
+  uhBadgeRender();
+  if (UH.open) uhRender();
+}
+function uhTick(){
+  if (document.hidden && !UH.open) return;   /* 窗口在后台且弹窗未打开时省去无谓请求 */
+  uhFetch();
+}
+function uhSchedule(){
+  if (UH.timer) clearInterval(UH.timer);
+  UH.timer = setInterval(uhTick, UH.open ? 1200 : 4000);
+}
+function openUpHist(){
+  UH.open = true;
+  document.getElementById("upHistModal").classList.add("open");
+  uhSchedule(); uhFetch();
+}
+function closeUpHist(){
+  UH.open = false;
+  document.getElementById("upHistModal").classList.remove("open");
+  uhSchedule();
+}
+document.getElementById("btnUpHist").addEventListener("click", openUpHist);
+document.getElementById("upHistModal").addEventListener("click", function(e){
+  if (e.target === this) closeUpHist();
+});
+document.addEventListener("visibilitychange", function(){ if (!document.hidden) uhFetch(); });
+uhSchedule(); uhFetch();
+
+/* ================= 弹窗按钮绑定 ================= */
+document.getElementById("btnVersions").addEventListener("click", openVerModal);
+document.getElementById("btnNewInst").addEventListener("click", openNewModal);
+document.getElementById("instSearch").addEventListener("input", function(){ renderOntoPanel(); });
+document.getElementById("newType").addEventListener("change", renderNewFields);
+document.getElementById("btnNewSubmit").addEventListener("click", submitNew);
+document.addEventListener("keydown", function(e){
+  if (e.key==="Escape"){ closeModal(); closeVerModal(); closeNewModal(); closeRel(); closeUpHist(); }
+});
+
+/* ================= 初始化 ================= */
+window.WB_V6 = {
+  status: function(){
+    return {mode:RAW.mode, nodes:RAW.nodes.length, edges:RAW.edges.length,
+            papers:PAPERS.length, classes:ontoClassList().length, tab:state.tab};
+  }
+};
+(async function init(){
+  await reload(true);
+  renderCtrlBar(); syncView();
+  renderAI("lib"); renderAI("onto");
+  renderOntoCanvas(); renderOntoPanel();
+})();
+
+/* ===== 管理页实例 → 进入阅读（事件委托，免疫动态重渲染） ===== */
+(function(){
+  var ea = document.getElementById("editorArea");
+  if (!ea) return;
+  ea.addEventListener("click", function(e){
+    var t = e.target;
+    while (t && t !== ea && !(t.getAttribute && t.getAttribute("data-read-file"))) t = t.parentNode;
+    if (!t || t === ea || !t.getAttribute) return;
+    openReader({ name: t.getAttribute("data-read-file"),
+                 title: t.getAttribute("data-read-title") || "",
+                 nid: state.ontoInst, from: "onto" });
+  });
+})();
+
+/* =============================================================================
+   阅读板块（ReX × 工作台 融合实现）  —— File Agent
+   入口：openReader(ctx)
+   布局：隐藏 ReX 顶栏/左栏/右栏，融入工作台外壳；工具条悬浮在阅读视口内；
+        右栏复用工作台 AI 面板（阅读伴随，不含本文摘要）
+   锚点：不设锚点列表；锚点标记就地呈现在被划词文字正上方，悬浮时高亮正文对应区域
+   通道：字节走后端 HTTP（/api/read/file，支持 Range）；模型走后端 9173 代理
+   ============================================================================= */
+
+var RD = {
+  key: "", name: "", title: "", pid: null, nid: null,
+  ready: false, host: null, booted: false, busy: false,
+  msgs: [], sending: false, pages: 0, page: 1, anchor: null
+};
+
+/* 阅读伴随 system prompt：先结论后展开，禁止编造 */
+var RD_SYS = "你是严谨的学术文献伴读助手。请严格基于用户随消息提供的文献内容作答："
+  + "先给出结论，再分点展开；引用原文时保持原样。"
+  + "若提供的内容不足以支撑回答，请直接说明缺少哪些信息，绝不编造数据、结论或参考文献。";
+
+/* 全量携带的字符上限（约 3 万 token 量级，与后端 num_ctx=32768 对齐） */
+var RD_CTX_MAX = 48000;
+
+var RD_CFG = null;
+
+/* ------------------------------------------------------------------ 工具 */
+function rdEl(id){ return document.getElementById(id); }
+
+function rdToast(msg){
+  var t = rdEl("rdToast");
+  if (!t){
+    t = document.createElement("div");
+    t.id = "rdToast";
+    t.className = "rd-toast";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add("on");
+  clearTimeout(t._tm);
+  t._tm = setTimeout(function(){ t.classList.remove("on"); }, 2600);
+}
+
+function rdCap(t, max){
+  t = String(t || "");
+  if (t.length <= max) return t;
+  var head = Math.floor(max * 0.7), tail = max - head;
+  return t.slice(0, head) + "\n……（此处省略中间部分，如需请针对具体页提问）……\n" + t.slice(-tail);
+}
+
+/* ------------------------------------------------------- 入口：openReader */
+/**
+ * 统一阅读入口。ctx 支持字段：
+ *   name  : 本地文件名（basename，取自图谱 Paper.file / 上传回执）
+ *   title : 文献标题（可选，用于展示）
+ *   pid   : 检索列表文献 id（可选）
+ *   nid   : 图谱节点 id（可选）
+ *   from  : 入口来源标记（lib / graph / onto / upload）
+ */
+function openReader(ctx){
+  ctx = ctx || {};
+  var raw = String(ctx.name || ctx.file || "").trim();
+  if (!raw){
+    rdToast("该条目未关联本地文件，无法进入阅读");
+    return;
+  }
+  var base = raw.replace(/\\/g, "/").split("/").pop();
+  if (!/\.(pdf|md|txt|html?)$/i.test(base)){
+    rdToast("仅支持 PDF / Markdown / 文本类文献阅读");
+    return;
+  }
+  var key = base.toLowerCase();
+  var same = (key === RD.key);
+
+  if (!same){
+    /* 多文档切换：清空 AI 会话上下文 + 清空阅读器内文档与锚点 */
+    RD.key = key;
+    RD.name = base;
+    RD.title = ctx.title || "";
+    RD.pid = ctx.pid || null;
+    RD.nid = ctx.nid || null;
+    RD.anchor = null;
+    RD.msgs = [];
+    rdResetHostDoc();
+  } else {
+    if (ctx.title) RD.title = ctx.title;
+    if (ctx.pid) RD.pid = ctx.pid;
+    if (ctx.nid) RD.nid = ctx.nid;
+  }
+
+  closeRel();
+  switchTab("read");
+  rdEnsureAiPanel();
+  if (!same || !RD.hostReadyDoc()) rdLoad(same);
+  else { rdRenderPanelHead(); rdSyncBar(); }
+}
+
+/** 从检索列表 / 上传回执的 paper 对象打开阅读 */
+function openReaderPaper(pid){
+  var p = findP(pid);
+  if (!p){ rdToast("未找到该文献记录"); return; }
+  openReader({ name: p.file, title: p.title, pid: p.id, nid: p.nid, from: "lib" });
+}
+
+/** 从图谱节点打开阅读（节点属性里取 file / title） */
+function openReaderNid(nid){
+  var n = RAW && RAW.byId ? RAW.byId[nid] : null;
+  if (!n){ rdToast("未找到该图谱节点"); return; }
+  var pr = n.properties || {};
+  var f = pr.file || pr.local_file || "";
+  if (!f){ rdToast("该节点未关联本地文件"); return; }
+  var title = pr.title || nodeLabel(n) || "";
+  openReader({ name: f, title: title, nid: nid, from: "graph" });
+}
+
+function rdEnsureAiPanel(){
+  var p = rdEl("aiPanel");
+  if (p && !p.classList.contains("on")) p.classList.add("on");
+  var b = rdEl("btnAI");
+  if (b) b.classList.add("on");
+}
+
+function rdResetHostDoc(){
+  try { if (RD.host && RD.host.reset) RD.host.reset(); } catch (e) {}
+  RD.pages = 0; RD.page = 1;
+  var f = rdEl("readFrame");
+  if (f && !RD.host){ /* 尚未初始化，交由 rdLoad 处理 */ }
+}
+
+function rdHostReadyDoc(){
+  try {
+    if (!RD.ready || !RD.host) return false;
+    var st = RD.host.getState ? RD.host.getState() : null;
+    return !!(st && st.docs > 0 && String(st.name || "").toLowerCase() === RD.key);
+  } catch (e) { return false; }
+}
+
+/* ------------------------------------------------------------ 阅读器加载 */
+function rdEnsureFrame(){
+  return new Promise(function(resolve){
+    var f = rdEl("readFrame");
+    if (!f) return resolve(false);
+    if (RD.ready && RD.host){
+      try { RD.host.setHost({ onAsk: rdOnAsk, onDropFiles: rdOnDrop }); } catch (e) {}
+      return resolve(true);
+    }
+    if (!f.getAttribute("data-init")){
+      f.setAttribute("data-init", "1");
+      /* 同源 HTTP 提供：file:// 为 opaque origin，父页无法访问 iframe 内容 */
+      f.src = "/rex/index.html?embed=1";
+    }
+    var n = 0;
+    (function poll(){
+      n++;
+      var w = null;
+      try { w = f.contentWindow; } catch (e) { w = null; }
+      if (w && w.ReX && typeof w.ReX.open === "function"){
+        RD.host = w.ReX;
+        RD.ready = true;
+        try { RD.host.setHost({ onAsk: rdOnAsk, onDropFiles: rdOnDrop }); } catch (e) {}
+        return resolve(true);
+      }
+      if (n > 150) return resolve(false);
+      setTimeout(poll, 100);
+    })();
+  });
+}
+
+async function rdLoad(keepDoc){
+  if (RD.busy) return;
+  RD.busy = true;
+  rdShowLoading("正在初始化阅读器…");
+  try {
+    var ok = await rdEnsureFrame();
+    if (!ok) throw new Error("阅读器初始化超时，请重启工作台后重试");
+    if (!keepDoc){
+      try { RD.host.reset(); } catch (e) {}
+    }
+    rdShowLoading("正在定位文献…");
+    var info = await API.get("/api/read/probe?name=" + encodeURIComponent(RD.name));
+    if (!info || !info.ok) throw new Error((info && info.reason) || "未找到该文献的本地文件");
+    if (!RD.title) RD.title = info.name || RD.name;
+
+    rdShowLoading("正在读取文献字节…");
+    var res = await fetch(API_BASE + "/api/read/file?name=" + encodeURIComponent(RD.name));
+    if (!res.ok) throw new Error("字节通道异常 HTTP " + res.status);
+    var buf = new Uint8Array(await res.arrayBuffer());
+
+    rdShowLoading("正在渲染阅读视口…");
+    var r = await RD.host.open({ bytes: buf, name: info.name || RD.name });
+    if (!r || r.ok !== true) throw new Error("渲染失败：该文件可能已损坏或格式不受支持");
+    try { RD.host.fitWidth(); } catch (e) {}
+
+    var emp = rdEl("readEmpty"); if (emp){ emp.classList.add("hidden"); emp.innerHTML = ""; }
+    var bar = rdEl("readBar"); if (bar) bar.classList.remove("hidden");
+    rdShowLoading("");
+    rdRenderPanelHead();
+    setTimeout(rdSyncBar, 120);
+    setTimeout(rdSyncBar, 600);
+  } catch (e){
+    rdShowLoading("");
+    rdError(e && e.message ? e.message : String(e));
+  } finally {
+    RD.busy = false;
+  }
+}
+
+function rdShowLoading(t){
+  var el = rdEl("readLoading");
+  if (!el) return;
+  if (!t){ el.classList.add("hidden"); return; }
+  var tx = rdEl("readLoadingText"); if (tx) tx.textContent = t;
+  el.classList.remove("hidden");
+}
+
+function rdError(msg){
+  var bar = rdEl("readBar"); if (bar) bar.classList.add("hidden");
+  var emp = rdEl("readEmpty");
+  if (emp){
+    emp.classList.remove("hidden");
+    emp.innerHTML = '<div class="rd-err"><div class="rd-err-t">无法打开该文献</div>'
+      + '<div class="rd-err-m">' + esc(msg) + '</div>'
+      + '<div class="rd-tip">请确认文件位于 data_test/论文 目录内，且后端（9173）已启动。</div></div>';
+  }
+  rdRenderPanelHead();
+}
+
+/* ------------------------------------------------------------ 工具条联动 */
+function rdSyncBar(){
+  if (!RD.ready || !RD.host) return;
+  var st = null;
+  try { st = RD.host.getState ? RD.host.getState() : null; } catch (e) { st = null; }
+  if (!st) return;
+  RD.pages = st.pages || 0;
+  RD.page = st.page || 1;
+
+  var lb = rdEl("rdZoomLabel");
+  if (lb) lb.textContent = st.fitWidth ? "适应" : (Math.round(st.zoom || 100) + "%");
+  var pi = rdEl("rdPage");
+  if (pi && document.activeElement !== pi) pi.value = RD.page;
+  var pt = rdEl("rdPageTotal");
+  if (pt) pt.textContent = "/ " + (RD.pages || 0);
+  var nm = rdEl("rdName");
+  if (nm){ nm.textContent = RD.title || RD.name; nm.title = RD.name; }
+}
+
+function rdBindBar(){
+  var q = rdEl;
+  if (q("rdZoomIn")) q("rdZoomIn").onclick = function(){ try{ RD.host.zoomIn(); }catch(e){} setTimeout(rdSyncBar, 90); };
+  if (q("rdZoomOut")) q("rdZoomOut").onclick = function(){ try{ RD.host.zoomOut(); }catch(e){} setTimeout(rdSyncBar, 90); };
+  if (q("rdFit")) q("rdFit").onclick = function(){ try{ RD.host.fitWidth(); }catch(e){} setTimeout(rdSyncBar, 140); };
+  if (q("rdPage")) q("rdPage").addEventListener("change", function(){
+    var v = parseInt(this.value, 10);
+    if (RD.ready && v >= 1){ try{ RD.host.gotoPage(v); }catch(e){} }
+    setTimeout(rdSyncBar, 180);
+  });
+  if (q("rdReload")) q("rdReload").onclick = function(){ if (RD.key) rdLoad(false); };
+
+  var stage = rdEl("readStage");
+  if (stage){
+    stage.addEventListener("dragover", function(e){ e.preventDefault(); });
+    stage.addEventListener("drop", function(e){
+      e.preventDefault();
+      rdOnDrop(e.dataTransfer && e.dataTransfer.files);
+    });
+  }
+  setInterval(function(){ if (state.tab === "read") rdSyncBar(); }, 900);
+}
+
+/* --------------------------------------------------------- ReX → 宿主回调 */
+function rdOnAsk(info){
+  if (!info || !info.text) return;
+  if (info.page) RD.anchor = { page: info.page, text: info.text };
+  rdEnsureAiPanel();
+  if (info.source === "anchor"){
+    /* 点击锚点：回填输入框，便于二次编辑后再问 */
+    var inp = rdEl("rdInput");
+    if (inp){ inp.value = info.text; inp.focus(); }
+    return;
+  }
+  /* 划词提问：预填充输入框 */
+  var inp = rdEl("rdInput");
+  if (inp){
+    if (inp.dataset.quote) return;  // 已预填充过，不重复
+    var prefix = "【选中文本】\n" + info.text + "\n\n";
+    inp.value = prefix + (inp.value || "");
+    inp.dataset.quote = "1";
+    inp.focus();
+    inp.scrollTop = inp.scrollHeight;
+  }
+  /* 同步锚点标记 */
+  if (info.page && info.text) RD.anchor = { page: info.page, text: info.text };
+}
+
+function rdOnDrop(files){
+  var arr = Array.prototype.slice.call(files || []).filter(function(f){
+    return /\.pdf$/i.test(f && f.name || "");
+  });
+  if (!arr.length){ rdToast("仅支持 PDF 文件入库"); return; }
+  if (typeof startPipe === "function"){
+    openModal && openModal();
+    startPipe(arr);
+  } else {
+    rdToast("当前环境不支持直接入库，请使用顶部上传入口");
+  }
+}
+
+/* -------------------------------------------------------------- AI 会话 */
+function rdAddMsg(role, content, quote){
+  RD.msgs.push({ role: role, content: content || "", quote: quote || "" });
+  rdRenderMsgs();
+  return RD.msgs.length - 1;
+}
+
+function rdSetMsg(i, content){
+  if (!RD.msgs[i]) return;
+  RD.msgs[i].content = content;
+  var el = RD.msgs[i].el;
+  if (el) el.innerHTML = rdMsgHtml(RD.msgs[i]);
+  var box = rdEl("rdMsgs");
+  if (box) box.scrollTop = box.scrollHeight;
+}
+
+function rdMsgHtml(m){
+  var h = "";
+  if (m.quote) h += '<div class="rd-quote">' + esc(m.quote) + '</div>';
+  h += '<div class="rd-text">' + esc(m.content).replace(/\n/g, "<br>") + '</div>';
+  return h;
+}
+
+function rdRenderMsgs(){
+  var box = rdEl("rdMsgs");
+  if (!box) return;
+  if (!RD.msgs.length){
+    box.innerHTML = '<div class="rd-welcome">'
+      + '<div class="rd-w-t">阅读伴随已就绪</div>'
+      + '<div class="rd-w-l">· 在左侧正文中<b>选中文字</b> → 点浮动按钮「划词提问」<br>'
+      + '· 紫色<b>锚点</b>悬停可高亮正文对应位置，点击可回填问题<br>'
+      + '· 切换文献会自动清空本会话上下文</div></div>';
+    return;
+  }
+  var h = "";
+  RD.msgs.forEach(function(m){
+    h += '<div class="ai-msg ' + (m.role === "user" ? "u" : "a") + '">' + rdMsgHtml(m) + '</div>';
+  });
+  box.innerHTML = h;
+  var els = box.querySelectorAll(".ai-msg");
+  RD.msgs.forEach(function(m, i){ m.el = els[i]; });
+  box.scrollTop = box.scrollHeight;
+}
+
+function rdClearChat(){
+  RD.msgs = [];
+  RD.anchor = null;
+  rdRenderMsgs();
+  rdRenderPanelHead();
+  rdToast("已开启新对话，上下文已清空");
+}
+
+function rdSendFromInput(){
+  var inp = rdEl("rdInput");
+  if (!inp || RD.sending) return;
+  var q = inp.value.trim();
+  if (!q) return;
+  inp.value = "";
+  rdAddMsg("user", q);
+  rdAsk(q, RD.anchor);
+}
+
+/* 上下文组装：全文全量携带 + 锚点页优先 */
+async function rdBuildContext(info){
+  var out = "【文献】" + (RD.title || RD.name) + "\n【文件名】" + RD.name + "\n";
+  var pageTexts = null, full = "";
+  try { pageTexts = await RD.host.getPageTexts(); } catch (e) { pageTexts = null; }
+  try { full = RD.host.getFullText() || ""; } catch (e) { full = ""; }
+  if (!full && pageTexts && pageTexts.length) full = pageTexts.join("\n");
+
+  if (info && info.text){
+    out += "\n【我在第 " + (info.page || "?") + " 页选中的原文】\n" + info.text + "\n";
+    var ap = (info.page && pageTexts) ? (pageTexts[(info.page | 0) - 1] || "") : "";
+    if (ap) out += "\n【该页完整内容（优先参考）】\n" + rdCap(ap, 8000) + "\n";
+  }
+  if (full) out += "\n【文献全文】\n" + rdCap(full, RD_CTX_MAX);
+  return out;
+}
+
+async function rdAsk(q, info){
+  if (RD.sending) return;
+  if (!RD.ready || !RD.host){
+    rdAddMsg("ai", "阅读器尚未就绪，请稍候重试。");
+    return;
+  }
+  RD.sending = true;
+  rdRenderPanelHead();
+  var idx = rdAddMsg("ai", "…");
+  var acc = "";
+  try {
+    var ctx = await rdBuildContext(info);
+    var msgs = [
+      { role: "system", content: RD_SYS },
+      { role: "user", content: ctx + "\n\n【问题】" + q }
+    ];
+    await rdStreamChat(msgs, function(d){
+      acc += d;
+      rdSetMsg(idx, acc);
+    });
+    if (!acc) acc = "（模型未返回内容，请检查模型连通性）";
+    rdSetMsg(idx, acc);
+  } catch (e){
+    var m = (e && e.message) ? e.message : String(e);
+    rdSetMsg(idx, acc ? (acc + "\n\n[中断] " + m) : ("请求失败：" + m));
+  } finally {
+    RD.sending = false;
+    rdRenderPanelHead();
+  }
+}
+
+/* 统一 OpenAI SSE 帧解析（后端已归一化） */
+async function rdStreamChat(messages, onDelta){
+  var payload = { messages: messages, stream: true };
+  var res = await fetch(API_BASE + "/api/llm/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok){
+    var txt = "";
+    try { txt = await res.text(); } catch (e) {}
+    throw new Error("模型接口 HTTP " + res.status + (txt ? "：" + txt.slice(0, 180) : ""));
+  }
+  if (!res.body) throw new Error("当前环境不支持流式响应");
+  var reader = res.body.getReader();
+  var dec = new TextDecoder("utf-8");
+  var buf = "";
+  for (;;){
+    var r = await reader.read();
+    if (r.done) break;
+    buf += dec.decode(r.value, { stream: true });
+    var lines = buf.split("\n");
+    buf = lines.pop() || "";
+    for (var i = 0; i < lines.length; i++){
+      var L = lines[i].trim();
+      if (!L || L.indexOf("data:") !== 0) continue;
+      var pl = L.slice(5).trim();
+      if (pl === "[DONE]") return;
+      var o = null;
+      try { o = JSON.parse(pl); } catch (e) { continue; }
+      if (o && o.error) throw new Error(o.error.message || "模型返回错误");
+      var d = o && o.choices && o.choices[0] && o.choices[0].delta && o.choices[0].delta.content;
+      if (d) onDelta(d);
+    }
+  }
+}
+
+/* ------------------------------------------------------------ AI 面板渲染 */
+function renderAIRead(b){
+  b.classList.add("rd");
+  b.innerHTML = ''
+    + '<div class="rd-top">'
+    +   '<div class="rd-title"><span class="rd-dot"></span><span id="rdDocName">未打开文献</span></div>'
+    +   '<div class="rd-tools">'
+    +     '<button class="mini-btn" id="rdNewChat" title="清空会话上下文，开始新对话">新建对话</button>'
+    +     '<button class="mini-btn" id="rdModelBtn" title="模型与连通性设置">模型</button>'
+    +   '</div>'
+    + '</div>'
+    + '<div class="rd-model-line"><span id="rdModelName">读取模型配置…</span></div>'
+    + '<div class="rd-msgs" id="rdMsgs"></div>'
+    + '<div class="rd-input">'
+    +   '<textarea id="rdInput" rows="2" placeholder="就当前文献提问；或在左侧选中文字后点「划词提问」"></textarea>'
+    +   '<button class="rd-send" id="rdSend">提问</button>'
+    + '</div>';
+
+  var q = function(id){ return document.getElementById(id); };
+  if (q("rdNewChat")) q("rdNewChat").onclick = rdClearChat;
+  if (q("rdModelBtn")) q("rdModelBtn").onclick = rdOpenModelPanel;
+  if (q("rdSend")) q("rdSend").onclick = rdSendFromInput;
+  if (q("rdInput")) q("rdInput").addEventListener("keydown", function(e){
+    if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); rdSendFromInput(); }
+  });
+  rdRenderMsgs();
+  rdRenderPanelHead();
+  rdRefreshModelName();
+}
+
+function rdRenderPanelHead(){
+  var n = rdEl("rdDocName");
+  if (n) n.textContent = RD.name ? (RD.title ? short(RD.title, 30) : RD.name) : "未打开文献";
+  var s = rdEl("rdSend");
+  if (s){ s.disabled = !!RD.sending; s.textContent = RD.sending ? "回答中…" : "提问"; }
+}
+
+/* -------------------------------------------------------------- 模型设置 */
+async function rdRefreshModelName(){
+  var el = rdEl("rdModelName");
+  if (!el) return;
+  try {
+    if (!RD_CFG) RD_CFG = await API.get("/api/llm/config");
+    if (!RD_CFG || !RD_CFG.ok) throw new Error("配置读取失败");
+    var k = RD_CFG.active, p = (RD_CFG.profiles || {})[k] || {};
+    el.textContent = (k === "local" ? "本地 · " : "云 · ") + (p.model || "未指定模型");
+    el.title = "配置来源：" + (RD_CFG.config_path || "llm_config.json");
+  } catch (e){
+    el.textContent = "模型配置不可用";
+  }
+}
+
+async function rdOpenModelPanel(){
+  try { RD_CFG = await API.get("/api/llm/config"); } catch (e) { RD_CFG = null; }
+  if (!RD_CFG || !RD_CFG.ok){ rdToast("无法读取模型配置，请确认后端已启动"); return; }
+
+  var mask = rdEl("rdModelMask");
+  if (!mask){
+    mask = document.createElement("div");
+    mask.id = "rdModelMask";
+    mask.className = "rd-mask";
+    mask.innerHTML = '<div class="rd-modal" id="rdModalBox"></div>';
+    document.body.appendChild(mask);
+    mask.addEventListener("click", function(e){ if (e.target === mask) rdCloseModelPanel(); });
+  }
+  rdDrawModelPanel(mask);
+  mask.classList.add("on");
+}
+
+function rdCloseModelPanel(){
+  var m = rdEl("rdModelMask");
+  if (m) m.classList.remove("on");
+}
+
+function rdDrawModelPanel(mask){
+  var cfg = RD_CFG, act = cfg.active;
+  var box = rdEl("rdModalBox");
+  var h = '<div class="rd-m-head"><b>模型设置</b><button class="x" id="rdMClose">×</button></div>';
+  h += '<div class="rd-m-sub">所有模型调用经后端 9173 代理，前端不保存 API Key。</div>';
+  h += '<div class="rd-m-tabs">'
+    + '<button class="rd-m-tab' + (act === "local" ? " on" : "") + '" data-k="local">本地模型（Ollama）</button>'
+    + '<button class="rd-m-tab' + (act === "cloud" ? " on" : "") + '" data-k="cloud">云模型（OpenAI 兼容）</button>'
+    + '</div>';
+
+  ["local", "cloud"].forEach(function(k){
+    var p = (cfg.profiles || {})[k] || {};
+    h += '<div class="rd-m-form' + (k === act ? "" : " hidden") + '" data-form="' + k + '">';
+    h += '<label>接口地址 Base URL<input id="rdP_' + k + '_base" value="' + esc(p.base_url || "") + '" placeholder="'
+       + (k === "local" ? "http://127.0.0.1:11434/v1" : "https://api.openai.com/v1") + '"></label>';
+    h += '<label>模型名<input id="rdP_' + k + '_model" value="' + esc(p.model || "") + '" placeholder="'
+       + (k === "local" ? "qwen3:8b" : "gpt-4o-mini") + '"></label>';
+    h += '<label>API Key<input id="rdP_' + k + '_key" type="password" placeholder="'
+       + (p.api_key_set ? ("已设置（" + esc(p.api_key_masked || "") + "），留空则不变") : "未设置") + '"></label>';
+    h += '<div class="rd-m-row">'
+       + '<label>num_ctx<input id="rdP_' + k + '_ctx" value="' + esc(p.num_ctx === undefined ? "" : p.num_ctx) + '" placeholder="32768"></label>'
+       + '<label>temperature<input id="rdP_' + k + '_temp" value="' + esc(p.temperature === undefined ? "" : p.temperature) + '"></label>'
+       + '<label>max_tokens<input id="rdP_' + k + '_mt" value="' + esc(p.max_tokens === undefined ? "" : p.max_tokens) + '"></label>'
+       + '</div>';
+    h += '<div class="rd-m-acts">'
+       + '<button class="mini-btn" id="rdP_' + k + '_models">列出模型</button>'
+       + '<button class="mini-btn" id="rdP_' + k + '_test">测试连通</button>'
+       + '<button class="mini-btn primary" id="rdP_' + k + '_save">保存并启用</button>'
+       + '</div>';
+    h += '<div class="rd-m-out" id="rdP_' + k + '_out"></div>';
+    h += '</div>';
+  });
+  h += '<div class="rd-m-foot">配置文件：' + esc(cfg.config_path || "llm_config.json") + '</div>';
+  box.innerHTML = h;
+
+  var q = function(id){ return document.getElementById(id); };
+  q("rdMClose").onclick = rdCloseModelPanel;
+  box.querySelectorAll(".rd-m-tab").forEach(function(b){
+    b.onclick = function(){
+      var k = b.getAttribute("data-k");
+      box.querySelectorAll(".rd-m-tab").forEach(function(x){ x.classList.toggle("on", x === b); });
+      box.querySelectorAll(".rd-m-form").forEach(function(f){ f.classList.toggle("hidden", f.getAttribute("data-form") !== k); });
+    };
+  });
+
+  ["local", "cloud"].forEach(function(k){
+    var out = q("rdP_" + k + "_out");
+    q("rdP_" + k + "_models").onclick = async function(){
+      out.textContent = "正在拉取模型列表…";
+      try {
+        var r = await API._fetch(API_BASE + "/api/llm/models?kind=" + k, {headers:{"Accept":"application/json"}}, 180000);
+        var names = (r && (r.models || r.data || [])) || [];
+        names = names.map(function(x){ return typeof x === "string" ? x : (x.id || x.name || ""); }).filter(Boolean);
+        out.textContent = names.length ? ("可用模型：" + names.join("、")) : ((r && (r.error || r.note)) || "未获取到模型列表");
+      } catch (e){ out.textContent = "拉取失败：" + (e.message || e); }
+    };
+    q("rdP_" + k + "_test").onclick = async function(){
+      out.textContent = "正在测试连通性（本地模型首次加载可能较慢）…";
+      try {
+        var r = await API._fetch(API_BASE + "/api/llm/test?kind=" + k + "&model=" + encodeURIComponent(q("rdP_" + k + "_model").value || ""), {headers:{"Accept":"application/json"}}, 300000);
+        out.textContent = (r && r.ok)
+          ? ("连通正常 · " + (r.model || "") + " · 延迟 " + (r.latency_ms ? (r.latency_ms / 1000).toFixed(1) + "s" : "?")
+             + (r.num_ctx ? (" · num_ctx " + r.num_ctx) : "") + (r.reply ? (" · 回复：" + r.reply) : ""))
+          : ("连通失败：" + ((r && (r.error || r.reason)) || "未知原因"));
+      } catch (e){ out.textContent = "测试失败：" + (e.message || e); }
+    };
+    q("rdP_" + k + "_save").onclick = async function(){
+      var profile = {
+        base_url: q("rdP_" + k + "_base").value.trim(),
+        model: q("rdP_" + k + "_model").value.trim()
+      };
+      var kv = q("rdP_" + k + "_key").value;
+      if (kv) profile.api_key = kv;
+      var ctxv = q("rdP_" + k + "_ctx").value.trim();
+      if (ctxv !== "") profile.num_ctx = Number(ctxv);
+      var tv = q("rdP_" + k + "_temp").value.trim();
+      if (tv !== "") profile.temperature = Number(tv);
+      var mv = q("rdP_" + k + "_mt").value.trim();
+      if (mv !== "") profile.max_tokens = Number(mv);
+      out.textContent = "正在保存…";
+      try {
+        var r = await API.post("/api/llm/config", { kind: k, active: k, profile: profile });
+        if (!r || !r.ok) throw new Error((r && r.reason) || "保存失败");
+        RD_CFG = r;
+        out.textContent = "已保存并切换为「" + (k === "local" ? "本地" : "云") + "」模型。";
+        rdRefreshModelName();
+        rdToast("模型配置已更新");
+      } catch (e){ out.textContent = "保存失败：" + (e.message || e); }
+    };
+  });
+}
+
+/* ---------------------------------------------------------------- 启动 */
+function rdBoot(){
+  if (RD.booted) return;
+  RD.booted = true;
+  rdBindBar();
+  rdRefreshModelName();
+}
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", rdBoot);
+else rdBoot();
+
+</script>
+</body>
+</html>

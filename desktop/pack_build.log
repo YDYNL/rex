@@ -1,0 +1,19 @@
+
+> scholar-ontology-workbench@0.2.0 dist
+> electron-builder --mac dmg
+
+  • electron-builder  version=26.15.3 os=25.2.0
+  • loaded configuration  file=package.json ("build" field)
+  • executing @electron/rebuild  electronVersion=44.4.1 arch=arm64 buildFromSource=false workspaceRoot=/Users/lolilosorb/AI_APP/marvis/output/Ontology/desktop projectDir=./ appDir=./
+  • installing native dependencies  arch=arm64
+  • completed installing native dependencies
+  • packaging       platform=darwin arch=arm64 electron=44.4.1 appOutDir=dist/mac-arm64
+  • downloaded      label=electron progress=100%
+  • downloaded electron zip extracted successfully  output=/Users/lolilosorb/AI_APP/marvis/output/Ontology/desktop/dist/mac-arm64
+  • searching for node modules  pm=npm searchDir=/Users/lolilosorb/AI_APP/marvis/output/Ontology/desktop
+  • searching for node modules  pm=traversal searchDir=/Users/lolilosorb/AI_APP/marvis/output/Ontology/desktop
+  • using manual traversal of node_modules to build dependency tree
+  • no node modules returned while searching directories  searchDirectories=[""]
+  • skipped macOS code signing  reason=identity explicitly is set to null
+  • building        target=DMG arch=arm64 file=dist/科研学术本体工作台-0.2.0-arm64.dmg
+  • building block map  blockMapFile=dist/科研学术本体工作台-0.2.0-arm64.dmg.blockmap

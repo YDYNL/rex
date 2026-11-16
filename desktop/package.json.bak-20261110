@@ -1,0 +1,103 @@
+{
+  "name": "scholar-ontology-workbench",
+  "productName": "Another",
+  "version": "0.2.0",
+  "description": "科研学术 Ontology 工作台桌面端：Electron 外壳 + web/ 六大区前端 + Python 后端（tools/serve_workbench.py）；品牌名 Another，副文案「我们都有另一个自己」",
+  "main": "main.js",
+  "private": true,
+  "author": "lolilosorb",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --mac pkg --arm64",
+    "dist:app": "electron-builder --mac dir --arm64"
+  },
+  "devDependencies": {
+    "electron": "^44.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.lolilosorb.scholar-ontology-workbench",
+    "productName": "Another",
+    "copyright": "Copyright © 2026",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../web",
+        "to": "seed/web"
+      },
+      {
+        "from": "../tools",
+        "to": "seed/tools",
+        "filter": [
+          "**/*",
+          "!another_license.py",
+          "!license.json",
+          "!__pycache__/**"
+        ]
+      },
+      {
+        "from": "../scholar_literature_graph_v2_4.json",
+        "to": "seed/scholar_literature_graph_v2_4.json"
+      },
+      {
+        "from": "../scholar_data_v2_4.ttl",
+        "to": "seed/scholar_data_v2_4.ttl"
+      },
+      {
+        "from": "../edu_scholar_ontology.ttl",
+        "to": "seed/edu_scholar_ontology.ttl"
+      },
+      {
+        "from": "../edu_scholar_shapes.ttl",
+        "to": "seed/edu_scholar_shapes.ttl"
+      },
+      {
+        "from": "../versions",
+        "to": "seed/versions"
+      },
+      {
+        "from": "vendor/runtime",
+        "to": "runtime"
+      },
+      {
+        "from": "vendor/models",
+        "to": "models"
+      }
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "**/*.node"
+    ],
+    "mac": {
+      "target": [
+        {
+          "target": "pkg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.icns",
+      "darkModeSupport": true,
+      "identity": null,
+      "extendInfo": {
+        "NSHumanReadableCopyright": "Another"
+      }
+    },
+    "artifactName": "Another-${version}-${arch}.${ext}"
+  },
+  "another": {
+    "updateFeed": "",
+    "feedNote": "填 update.json 的公网地址即可启用「检查更新」"
+  }
+}

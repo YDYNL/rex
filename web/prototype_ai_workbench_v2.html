@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>科研文献工作台 · 原型 v2</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f6f7fb;--panel:#fff;--ink:#1f2430;--muted:#6b7280;--line:#e6e9f2;--accent:#4c6ef5;--accent2:#12b886;--warn:#f59f00;--danger:#e03131;--radius:12px;--shadow:0 2px 14px rgba(30,41,80,.07)}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column}
+/* ===== 顶部横向导航 ===== */
+#topbar{height:56px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;gap:18px;position:relative;z-index:50}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;white-space:nowrap}
+.brand .logo{width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tabs{display:flex;gap:4px;flex:1;justify-content:center}
+.tab{padding:8px 20px;border-radius:9px;font-size:14px;color:var(--muted);cursor:pointer;border:none;background:transparent;transition:all .15s}
+.tab:hover{background:#eef1fb;color:var(--ink)}
+.tab.active{background:var(--accent);color:#fff;font-weight:600}
+.top-right{display:flex;align-items:center;gap:10px}
+#btnUpload{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+#btnUpload:hover{filter:brightness(1.08)}
+#btnAI{background:#fff;color:var(--accent);border:1px solid #c5d0f5;border-radius:9px;padding:9px 14px;font-size:13px;cursor:pointer}
+#btnAI.on{background:#eef2ff;border-color:var(--accent)}
+/* ===== 主体 ===== */
+#main{flex:1;display:flex;overflow:hidden}
+#content{flex:1;overflow:auto;padding:20px 24px}
+#aiPanel{width:320px;background:var(--panel);border-left:1px solid var(--line);display:none;flex-direction:column;overflow:hidden}
+#aiPanel.on{display:flex}
+/* ===== 统计条 ===== */
+.statbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;border-top:3px solid var(--accent)}
+.stat b{display:block;font-size:24px}
+.stat span{font-size:12px;color:var(--muted)}
+/* ===== 搜索+聚类开关 ===== */
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+#search{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px;outline:none}
+#search:focus{border-color:var(--accent)}
+.switch-btn{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 14px;font-size:13px;color:var(--muted);cursor:pointer}
+.switch-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* ===== 布局：筛选+列表 ===== */
+.lib{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start}
+.filters{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;position:sticky;top:0}
+.filters h4{font-size:13px;margin:14px 0 8px;color:var(--muted)}
+.filters h4:first-child{margin-top:0}
+.fgroup{display:flex;flex-wrap:wrap;gap:6px}
+.fchip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:4px 11px;font-size:12px;color:var(--ink);cursor:pointer;transition:all .12s}
+.fchip:hover{border-color:var(--accent)}
+.fchip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.paperlist{display:flex;flex-direction:column;gap:10px}
+.pcard{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;cursor:pointer;transition:all .15s;border:2px solid transparent}
+.pcard:hover{border-color:#c5d0f5}
+.pcard.sel{border-color:var(--accent);background:#fafbff}
+.pcard .t{font-size:14.5px;font-weight:600;margin-bottom:5px}
+.pcard .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+.pcard .kw{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.kwtag{background:#eef2ff;color:var(--accent);border-radius:20px;padding:2px 9px;font-size:11px}
+.pcard .sum{font-size:12.5px;color:#495057;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pcard .ai{font-size:11px;color:var(--accent2);margin-top:5px}
+/* ===== 聚类视图 ===== */
+.cluster{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.cluster-box{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.cluster-box h5{font-size:14px;margin-bottom:4px}
+.cluster-box .cnt{font-size:12px;color:var(--muted);margin-bottom:10px}
+.cluster-box .pp{font-size:12px;padding:5px 8px;border-radius:6px;background:#f4f6fb;margin:3px 0;cursor:pointer}
+.cluster-box .pp:hover{background:#eef2ff}
+/* ===== 关联面板 ===== */
+#relPanel{position:fixed;right:0;top:56px;bottom:0;width:340px;background:var(--panel);box-shadow:-4px 0 24px rgba(30,41,80,.12);padding:20px;overflow:auto;z-index:40;transform:translateX(105%);transition:transform .25s}
+#relPanel.open{transform:translateX(0)}
+#relPanel .close{float:right;border:none;background:#f1f3f9;border-radius:7px;padding:4px 10px;cursor:pointer;font-size:12px}
+#relPanel h3{font-size:15px;margin:8px 0 4px}
+#relPanel .sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.rel-sec{font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+.rel-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;background:#f8f9fc;margin:4px 0;font-size:12.5px}
+.rel-item .tag{font-size:11px;color:var(--accent);background:#eef2ff;border-radius:14px;padding:1px 8px}
+/* ===== AI 伴随栏 ===== */
+.ai-head{padding:16px 16px 10px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.ai-body{flex:1;overflow:auto;padding:14px 16px}
+.ai-card{background:#f7f9ff;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.6}
+.ai-card .hd{font-weight:600;color:var(--accent);font-size:12.5px;margin-bottom:5px}
+.ai-card.insight{background:#fffdf0;border:1px solid #f3e6b0}
+.ai-card.insight .hd{color:#b07800}
+.ai-q{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13px}
+.ai-q input{width:100%;border:none;outline:none;font-size:13px;font-family:inherit;padding:4px 0}
+.ai-q .send{margin-top:8px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;cursor:pointer}
+.ai-msg{font-size:12.5px;background:#f1f3f9;border-radius:9px;padding:10px;margin-bottom:10px;line-height:1.6}
+.ai-msg b{color:var(--accent)}
+/* ===== 上传弹窗 ===== */
+#modal{position:fixed;inset:0;background:rgba(20,24,40,.45);z-index:100;display:none;align-items:center;justify-content:center}
+#modal.open{display:flex}
+.modal-box{width:640px;max-width:94vw;max-height:88vh;background:var(--panel);border-radius:16px;box-shadow:0 20px 60px rgba(20,24,40,.3);overflow:auto;padding:24px 26px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-head h3{font-size:17px}
+.modal-head .x{border:none;background:#f1f3f9;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px}
+.drop{border:2px dashed #c5d0f5;border-radius:14px;padding:36px 20px;text-align:center;color:var(--muted);font-size:13.5px;cursor:pointer;transition:all .15s;background:#fafbff}
+.drop:hover{border-color:var(--accent);background:#f0f4ff}
+.drop b{color:var(--accent);font-size:15px}
+.pipe{margin-top:16px}
+.pstep{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;background:#f8f9fc;margin:6px 0;font-size:13px;color:var(--muted)}
+.pstep .st{width:20px;height:20px;border-radius:50%;background:#e9ecf5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.pstep.done .st{background:var(--accent2)}
+.pstep.doing .st{background:var(--accent)}
+.pstep.fail .st{background:var(--danger)}
+.pstep .nm{flex:1}
+.pstep .sts{font-size:12px}
+.result-group{margin-top:16px}
+.result-group h5{font-size:13px;margin-bottom:8px}
+.result-group .row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:#f8f9fc;margin:4px 0;font-size:12.5px}
+.result-group .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.result-group .ok .dot{background:var(--accent2)} .result-group .warn .dot{background:var(--warn)} .result-group .bad .dot{background:var(--danger)}
+.result-group .row .nm{flex:1}
+.result-group .row .act{font-size:11.5px;color:var(--accent);cursor:pointer}
+/* ===== 占位页 ===== */
+.placeholder{max-width:720px;margin:60px auto;text-align:center}
+.placeholder .big{font-size:46px;margin-bottom:16px}
+.placeholder h2{font-size:20px;margin-bottom:10px}
+.placeholder p{color:var(--muted);font-size:14px;line-height:1.8}
+.placeholder .plan{display:inline-block;background:#eef2ff;color:var(--accent);border-radius:8px;padding:6px 14px;font-size:12.5px;margin-top:12px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<!-- 顶部横向导航 -->
+<div id="topbar">
+  <div class="brand"><span class="logo">◆</span>科研文献库</div>
+  <div class="tabs">
+    <button class="tab active" data-tab="lib">📚 文献库</button>
+    <button class="tab" data-tab="read">📖 阅读</button>
+    <button class="tab" data-tab="onto">🧩 本体模型</button>
+  </div>
+  <div class="top-right">
+    <button id="btnUpload">⬆ 上传文献</button>
+    <button id="btnAI" class="on">🤖 AI 伴随</button>
+  </div>
+</div>
+
+<div id="main">
+  <!-- 主内容 -->
+  <div id="content">
+    <!-- ===== 文献库 ===== -->
+    <div id="view-lib">
+      <div class="statbar" id="statbar"></div>
+      <div class="toolbar">
+        <input id="search" placeholder="搜索标题 / 作者 / 关键词…（自然语言示例：找 2020 年后 FRP 约束混凝土的综述）">
+        <button class="switch-btn active" id="viewList">卡片列表</button>
+        <button class="switch-btn" id="viewCluster">聚类视图</button>
+      </div>
+      <div class="lib">
+        <aside class="filters" id="filters"></aside>
+        <div id="paperArea"></div>
+      </div>
+    </div>
+    <!-- ===== 阅读 ===== -->
+    <div id="view-read" class="placeholder hidden">
+      <div class="big">📖</div>
+      <h2>AI 伴随沉浸式阅读</h2>
+      <p>点击文献库中任意一篇文献，即可进入此阅读视图。<br>左侧全文阅读，右侧 AI 伴随：本文摘要、库内定位摘要、划词提问、提问锚点记录。<br><br>当前为原型占位，后续将接入已开发的阅读工具。</p>
+      <div class="plan">规划中 · P4 阶段接入</div>
+    </div>
+    <!-- ===== 本体模型 ===== -->
+    <div id="view-onto" class="placeholder hidden">
+      <div class="big">🧩</div>
+      <h2>本体模型可视化</h2>
+      <p>顶部可视化画布：类（方框）+ 关系（连线）拖拽布局，点类看属性与实例数。<br>下方实例纠错：字段平民化编辑（数据属性→字段、对象关系→关联、diff→改动预览）。<br>支持新增/编辑类、属性、关系（Schema 拖拽）。</p>
+      <div class="plan">规划中 · P3 阶段实施</div>
+    </div>
+  </div>
+
+  <!-- AI 伴随栏 -->
+  <div id="aiPanel" class="on">
+    <div class="ai-head"><span>🤖 AI 伴随</span><button class="x" onclick="toggleAI()">×</button></div>
+    <div class="ai-body" id="aiBody"></div>
+  </div>
+</div>
+
+<!-- 关联面板 -->
+<div id="relPanel"></div>
+
+<!-- 上传弹窗 -->
+<div id="modal">
+  <div class="modal-box">
+    <div class="modal-head"><h3>上传文献</h3><button class="x" onclick="closeModal()">×</button></div>
+    <div id="uploadStep">
+      <div class="drop" id="dropZone">
+        <b>拖拽文件到这里，或点击选择</b><br><br>
+        支持多文件（PDF）与压缩包（.zip，自动批量解压）<br>上传后 AI 将自动解析元数据、补全摘要关键词、校验并入库
+      </div>
+      <input type="file" id="fileInput" multiple accept=".pdf,.zip" class="hidden">
+    </div>
+    <div id="pipeStep" class="hidden">
+      <h4 style="margin:6px 0 12px">AI 解析治理中…</h4>
+      <div class="pipe" id="pipe"></div>
+      <div class="result-group hidden" id="uploadResult"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= 模拟数据 ================= */
+var PAPERS = [
+  {id:1,title:"Effects of confining stiffness and rupture strain on performance of FRP confined concrete",authors:"Xiao Y, Wu H",year:2020,journal:"Engineering Structures",kw:["FRP","confined concrete","concrete"],dir:"FRP约束混凝土",conf:0.65,sum:"系统研究了约束刚度与断裂应变对 FRP 约束混凝土性能的影响规律，提出了考虑约束效率的承载力修正模型。"},
+  {id:2,title:"Axial compressive behavior of confined steel fiber reinforced high strength concrete",authors:"Li J, Wang Q",year:2021,journal:"Construction and Building Materials",kw:["steel fiber","high strength concrete","axial"],dir:"FRP约束混凝土",conf:0.6,sum:"通过 36 个试件试验揭示钢纤维高强混凝土约束受压机理，建立峰值应力与约束刚度关系式。"},
+  {id:3,title:"Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders",authors:"ASCE 1090",year:2008,journal:"Journal of Composites for Construction",kw:["CFRP","confinement","cylinders"],dir:"FRP约束混凝土",conf:0.8,sum:"评估 CFRP 离散约束系统对混凝土圆柱的约束效率，对比连续与离散缠绕方式的强度提升差异。"},
+  {id:4,title:"Compressive behavior of concrete cylinder fully and partially confined",authors:"Chen Z, Liu Y",year:2019,journal:"Engineering Structures",kw:["concrete","confinement"],dir:"FRP约束混凝土",conf:0.75,sum:"对比完全约束与部分约束混凝土圆柱的受压行为，给出部分约束下的有效约束系数建议。"},
+  {id:5,title:"钢筋混凝土连续梁在集中荷载下的挠度计算",authors:"高丹盈, 房栋, 祝玉斌",year:2018,journal:"土木工程学报",kw:["钢筋混凝土","连续梁","挠度"],dir:"混凝土结构",conf:0.9,sum:"基于虚功原理推导集中荷载下连续梁挠度计算公式，与有限元结果误差在 5% 以内。"},
+  {id:6,title:"体外预应力 FRP 筋加固混凝土单向板抗裂及刚度计算方法",authors:"朱超宇, 高丹盈",year:2020,journal:"工程力学",kw:["FRP筋","预应力","单向板","抗裂"],dir:"混凝土结构",conf:0.85,sum:"提出体外预应力 FRP 筋加固单向板的抗裂验算与刚度折减方法，通过 12 块板试验验证。"},
+  {id:7,title:"Behavior in compression of concrete cylinders externally wrapped with FRP",authors:"Zhang W",year:2017,journal:"Composite Structures",kw:["FRP","wrap","compression"],dir:"FRP约束混凝土",conf:0.7,sum:"总结 FRP 外贴约束混凝土圆柱受压行为的试验数据，评估现有本构模型的适用边界。"},
+  {id:8,title:"Seismic performance of RC frames with FRP retrofitting",authors:"Kim S, Park J",year:2022,journal:"Earthquake Engineering & Structural Dynamics",kw:["seismic","RC frame","retrofit"],dir:"抗震与加固",conf:0.78,sum:"通过振动台试验研究 FRP 加固 RC 框架的抗震性能，延性与耗能能力提升显著。"},
+  {id:9,title:"Durability of GFRP bars in alkaline concrete environment",authors:"Ahmed M",year:2021,journal:"Materials and Structures",kw:["GFRP","durability","alkaline"],dir:"耐久性",conf:0.72,sum:"开展 GFRP 筋在碱环境下的长期浸泡试验，建立拉伸强度保留率与暴露时间的退化模型。"},
+  {id:10,title:"Fiber-reinforced polymer composites in bridge engineering: A review",authors:"Teng JG, Chen JF",year:2016,journal:"Advances in Structural Engineering",kw:["FRP","bridge","review"],dir:"FRP约束混凝土",conf:0.88,sum:"系统综述 FRP 复合材料在桥梁工程中的加固、组合与新建应用，梳理关键研究与工程案例。"},
+  {id:11,title:"Machine learning prediction of FRP-confined concrete strength",authors:"Naderpour H, Kheyroddin A",year:2023,journal:"Journal of Composites for Construction",kw:["machine learning","FRP","strength prediction"],dir:"智能方法",conf:0.82,sum:"基于 700+ 试验数据训练机器学习模型预测 FRP 约束混凝土强度，精度优于传统回归公式。"},
+  {id:12,title:"Stress-strain model for FRP-confined concrete under eccentric loading",authors:"Jiang T, Ozbakkaloglu T",year:2024,journal:"Composite Structures",kw:["stress-strain","eccentric","FRP"],dir:"FRP约束混凝土",conf:0.79,sum:"提出偏压荷载下 FRP 约束混凝土的应力-应变模型，涵盖应变梯度影响系数。"}
+];
+
+var state = { tab:"lib", sel:null, filters:{dir:[],kw:[]}, cluster:false, ai:"lib" };
+
+/* ================= 顶部导航 ================= */
+document.querySelectorAll(".tab").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active")});
+    b.classList.add("active");
+    switchTab(b.getAttribute("data-tab"));
+  });
+});
+function switchTab(t){
+  state.tab = t;
+  ["lib","read","onto"].forEach(function(v){
+    document.getElementById("view-"+v).classList.toggle("hidden", v!==t);
+  });
+  closeRel();
+  if(t==="lib") renderLib();
+  else if(t==="read") renderAI("read");
+  else renderAI("onto");
+}
+
+/* ================= AI 伴随 ================= */
+function toggleAI(){ var p=document.getElementById("aiPanel"); p.classList.toggle("on"); document.getElementById("btnAI").classList.toggle("on"); }
+function renderAI(ctx){
+  var b=document.getElementById("aiBody");
+  if(ctx==="read"){
+    b.innerHTML = aiCard("阅读伴随","此处将显示：本文内容摘要、库内定位摘要、划词提问入口。", "insight") +
+      aiAsk();
+    return;
+  }
+  if(ctx==="onto"){
+    b.innerHTML = aiCard("模型建议","当前 7 类实体、10 个关联、13 个字段，符合国标 GB/T 48000.3-2026。", "insight") +
+      aiCard("可优化方向","1. Paper 与 Author 建议补充 ORCID 字段\n2. 可为 Keyword 增加层级关系 hasSubTopic");
+    return;
+  }
+  var n = PAPERS.length, d = {};
+  PAPERS.forEach(function(p){ d[p.dir]=(d[p.dir]||0)+1 });
+  var top = Object.keys(d).sort(function(a,b){return d[b]-d[a]})[0];
+  b.innerHTML =
+    aiCard("库洞察","共 "+n+" 篇文献，"+(Object.keys(d).length)+" 个研究方向。"+(state.sel? "当前选中："+state.sel.title.slice(0,28)+"…" : "最活跃方向：「"+top+"」"+d[top]+" 篇。"), "insight") +
+    aiCard("数据体检","低置信度（<0.7）建议复核："+PAPERS.filter(function(p){return p.conf<0.7}).length+" 篇，可去「本体模型」区修正。") +
+    aiAsk();
+}
+function aiCard(hd, body, cls){
+  return '<div class="ai-card '+(cls||"")+'"><div class="hd">'+hd+'</div>'+body.replace(/\n/g,"<br>")+'</div>';
+}
+function aiAsk(){
+  return '<div class="ai-q"><input id="aiInput" placeholder="问问你的文献库…"><button class="send" onclick="aiSend()">提问</button></div><div id="aiMsgs"></div>';
+}
+function aiSend(){
+  var inp=document.getElementById("aiInput"); if(!inp) return;
+  var q=inp.value.trim(); if(!q) return;
+  var box=document.getElementById("aiMsgs");
+  var msg=document.createElement("div"); msg.className="ai-msg";
+  msg.innerHTML="<b>回答：</b>"+mockAnswer(q);
+  box.appendChild(msg); inp.value="";
+  box.scrollTop=box.scrollHeight;
+}
+function mockAnswer(q){
+  var s="", hits=PAPERS.filter(function(p){return (p.title+p.authors+p.kw.join(" ")).toLowerCase().indexOf(q.toLowerCase())>=0});
+  if(hits.length){ s="在文献库中找到 <b>"+hits.length+"</b> 篇相关："; hits.slice(0,3).forEach(function(p){ s+="<br>· "+p.title.slice(0,40)+"（"+p.year+"）"; }); }
+  else { s="暂未找到与「"+q+"」直接匹配的文献，可以换个说法，或到上传页导入更多文献。"; }
+  return s;
+}
+
+/* ================= 文献库 ================= */
+function renderStat(){
+  var n=PAPERS.length, dirs={}, yrs={};
+  PAPERS.forEach(function(p){ dirs[p.dir]=(dirs[p.dir]||0)+1; yrs[p.year]=(yrs[p.year]||0)+1; });
+  var ny=Object.keys(yrs).sort().slice(-1)[0];
+  document.getElementById("statbar").innerHTML =
+    stat(n,"文献总数")+stat(Object.keys(dirs).length,"研究方向")+stat(yrs[ny]||0,ny+" 年新增")+stat(PAPERS.filter(function(p){return p.conf<0.7}).length,"待复核");
+}
+function stat(n,t){ return '<div class="stat"><b>'+n+'</b><span>'+t+'</span></div>'; }
+
+function renderFilters(){
+  var f=document.getElementById("filters"), dirs={}, kws={};
+  PAPERS.forEach(function(p){ dirs[p.dir]=(dirs[p.dir]||0)+1; p.kw.forEach(function(k){kws[k]=(kws[k]||0)+1}); });
+  var h='<h4>研究方向</h4><div class="fgroup">';
+  Object.keys(dirs).forEach(function(d){ h+=chip("dir",d,d+" ("+dirs[d]+")"); });
+  h+='</div><h4>关键词</h4><div class="fgroup">';
+  Object.keys(kws).sort(function(a,b){return kws[b]-kws[a]}).slice(0,14).forEach(function(k){ h+=chip("kw",k,k); });
+  h+='</div>';
+  f.innerHTML=h;
+  f.querySelectorAll(".fchip").forEach(function(c){
+    c.addEventListener("click",function(){ c.classList.toggle("on"); applyFilter(); });
+  });
+}
+function chip(group,val,label){ return '<button class="fchip" data-g="'+group+'" data-v="'+val+'">'+label+'</button>'; }
+
+function applyFilter(){
+  var dirs=[],kws=[];
+  document.querySelectorAll(".fchip.on").forEach(function(c){
+    if(c.getAttribute("data-g")==="dir") dirs.push(c.getAttribute("data-v"));
+    if(c.getAttribute("data-g")==="kw") kws.push(c.getAttribute("data-v"));
+  });
+  var q=(document.getElementById("search").value||"").toLowerCase();
+  var list=PAPERS.filter(function(p){
+    if(dirs.length && dirs.indexOf(p.dir)<0) return false;
+    if(kws.length){ var hit=p.kw.some(function(k){return kws.indexOf(k)>=0}); if(!hit) return false; }
+    if(q){ var blob=(p.title+p.authors+p.kw.join(" ")+p.sum).toLowerCase(); if(blob.indexOf(q)<0) return false; }
+    return true;
+  });
+  renderPapers(list);
+}
+document.getElementById("search").addEventListener("input", applyFilter);
+document.getElementById("viewList").addEventListener("click",function(){ state.cluster=false; syncSwitch(); });
+document.getElementById("viewCluster").addEventListener("click",function(){ state.cluster=true; syncSwitch(); });
+function syncSwitch(){
+  document.getElementById("viewList").classList.toggle("active",!state.cluster);
+  document.getElementById("viewCluster").classList.toggle("active",state.cluster);
+  applyFilter();
+}
+
+function renderPapers(list){
+  var box=document.getElementById("paperArea");
+  if(state.cluster){
+    var dirs={}; list.forEach(function(p){ (dirs[p.dir]=dirs[p.dir]||[]).push(p); });
+    var h='<div class="cluster">';
+    Object.keys(dirs).forEach(function(d){
+      h+='<div class="cluster-box"><h5>'+d+'</h5><div class="cnt">'+dirs[d].length+' 篇</div>';
+      dirs[d].forEach(function(p){ h+='<div class="pp" data-id="'+p.id+'">'+p.title.slice(0,34)+'</div>'; });
+      h+='</div>';
+    });
+    h+='</div>';
+    box.innerHTML=h;
+    box.querySelectorAll(".pp").forEach(function(e){ e.addEventListener("click",function(){ var p=findP(e.getAttribute("data-id")); openRel(p); }); });
+    return;
+  }
+  if(!list.length){ box.innerHTML='<div class="pcard" style="text-align:center;color:var(--muted)">没有匹配的文献，试试放宽筛选条件</div>'; return; }
+  var h='<div class="paperlist">';
+  list.forEach(function(p){
+    h+='<div class="pcard'+(state.sel&&state.sel.id===p.id?" sel":"")+'" data-id="'+p.id+'">'
+      +'<div class="t">'+p.title+'</div>'
+      +'<div class="meta">'+p.authors+' · '+p.year+' · '+p.journal+' · <span class="tag" style="color:var(--accent2)">'+p.dir+'</span></div>'
+      +'<div class="kw">'+p.kw.map(function(k){return '<span class="kwtag">'+k+'</span>'}).join("")+'</div>'
+      +'<div class="sum">'+p.sum+'</div>'
+      +'<div class="ai">🤖 AI 摘要 · 置信度 '+p.conf+'</div></div>';
+  });
+  h+='</div>';
+  box.innerHTML=h;
+  box.querySelectorAll(".pcard").forEach(function(c){
+    c.addEventListener("click",function(){
+      var p=findP(c.getAttribute("data-id"));
+      state.sel=p;
+      box.querySelectorAll(".pcard").forEach(function(x){x.classList.remove("sel")});
+      c.classList.add("sel");
+      openRel(p);
+      renderAI("lib");
+    });
+  });
+}
+
+function findP(id){ for(var i=0;i<PAPERS.length;i++) if(String(PAPERS[i].id)===String(id)) return PAPERS[i]; return null; }
+
+/* ================= 关联面板 ================= */
+function openRel(p){
+  var r=document.getElementById("relPanel");
+  var related=PAPERS.filter(function(x){ return x.id!==p.id && (x.dir===p.dir || x.kw.some(function(k){return p.kw.indexOf(k)>=0})); });
+  var h='<button class="close" onclick="closeRel()">× 关闭</button>';
+  h+='<h3>'+p.title.slice(0,46)+'</h3><div class="sub">'+p.authors+' · '+p.year+' · '+p.journal+'</div>';
+  h+='<div class="kw">'+p.kw.map(function(k){return '<span class="kwtag">'+k+'</span>'}).join("")+'</div>';
+  h+='<div class="rel-sec">研究方向 · '+p.dir+'</div><div class="rel-sec">关联文献（'+related.length+'）</div>';
+  related.slice(0,6).forEach(function(x){
+    h+='<div class="rel-item"><span>'+x.title.slice(0,30)+'</span><span class="tag">'+x.year+'</span></div>';
+  });
+  h+='<div class="rel-sec">快捷操作</div>';
+  h+='<div class="rel-item"><span>📖 进入阅读</span><span class="act" onclick="switchTab(\'read\')">去阅读 →</span></div>';
+  h+='<div class="rel-item"><span>🧩 修正字段</span><span class="act" onclick="switchTab(\'onto\')">去编辑 →</span></div>';
+  r.innerHTML=h; r.classList.add("open");
+}
+function closeRel(){ document.getElementById("relPanel").classList.remove("open"); }
+
+/* ================= 上传弹窗 ================= */
+document.getElementById("btnUpload").addEventListener("click", openModal);
+document.getElementById("dropZone").addEventListener("click", function(){ document.getElementById("fileInput").click(); });
+document.getElementById("fileInput").addEventListener("change", function(){ startPipe(); });
+document.getElementById("dropZone").addEventListener("dragover", function(e){ e.preventDefault(); this.style.borderColor="var(--accent)"; });
+document.getElementById("dropZone").addEventListener("dragleave", function(){ this.style.borderColor="#c5d0f5"; });
+document.getElementById("dropZone").addEventListener("drop", function(e){ e.preventDefault(); startPipe(); });
+function openModal(){ document.getElementById("modal").classList.add("open"); }
+function closeModal(){ document.getElementById("modal").classList.remove("open"); setTimeout(resetModal,300); }
+function resetModal(){
+  document.getElementById("uploadStep").classList.remove("hidden");
+  document.getElementById("pipeStep").classList.add("hidden");
+  document.getElementById("uploadResult").classList.add("hidden");
+}
+function startPipe(){
+  document.getElementById("uploadStep").classList.add("hidden");
+  document.getElementById("pipeStep").classList.remove("hidden");
+  var steps=[
+    {nm:"解压 / 读取文件（3 个 PDF + 1 个 zip）",st:"done",sts:"完成"},
+    {nm:"识别元数据（标题 / 作者 / 年份 / 期刊）",st:"done",sts:"完成"},
+    {nm:"AI 补全摘要与关键词（Ollama qwen3:8b）",st:"doing",sts:"进行中…"},
+    {nm:"SHACL 数据校验（必填字段 / 类型约束）",st:"",sts:""},
+    {nm:"写入图谱并派生 TTL（经 /api/commit 闸门）",st:"",sts:""}
+  ];
+  var pipe=document.getElementById("pipe"); pipe.innerHTML="";
+  steps.forEach(function(s,i){
+    pipe.innerHTML+='<div class="pstep '+(s.st==="done"?"done":s.st==="doing"?"doing":"")+'" id="step'+i+'"><span class="st">'+(s.st==="done"?"✓":s.st==="doing"?"…":i+1)+'</span><span class="nm">'+s.nm+'</span><span class="sts">'+(s.sts||"")+'</span></div>';
+  });
+  var i=2;
+  var timer=setInterval(function(){
+    if(i>=steps.length){ clearInterval(timer); showResult(); return; }
+    document.getElementById("step"+i).className="pstep doing";
+    document.getElementById("step"+i).querySelector(".st").textContent="…";
+    document.getElementById("step"+i).querySelector(".sts").textContent="进行中…";
+    setTimeout(function(){
+      document.getElementById("step"+i).className="pstep done";
+      document.getElementById("step"+i).querySelector(".st").textContent="✓";
+      document.getElementById("step"+i).querySelector(".sts").textContent="完成";
+    },600);
+    i++;
+  },700);
+}
+function showResult(){
+  var r=document.getElementById("uploadResult"); r.classList.remove("hidden");
+  r.innerHTML='<h5>✅ 解析完成 · 入库结果</h5>'
+    +'<div class="row ok"><span class="dot"></span><span class="nm">FRP加固混凝土梁试验研究.pdf</span><span class="act">已入库</span></div>'
+    +'<div class="row ok"><span class="dot"></span><span class="nm">GFRP筋耐久性综述.pdf</span><span class="act">已入库</span></div>'
+    +'<div class="row warn"><span class="dot"></span><span class="nm">部分约束圆柱.pdf</span><span class="act">需复核（缺作者）</span></div>'
+    +'<div class="row bad"><span class="dot"></span><span class="nm">扫描版_会议论文.pdf</span><span class="act">解析失败（OCR 暂未支持）</span></div>'
+    +'<p class="hint" style="margin-top:10px;font-size:12px;color:var(--muted)">⚠ 表示建议人工复核，✅ 已自动入库并在文献库可见。</p>';
+}
+
+/* ================= 初始化 ================= */
+renderStat(); renderFilters(); renderPapers(PAPERS); renderAI("lib");
+</script>
+</body>
+</html>

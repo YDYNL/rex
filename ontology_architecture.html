@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ontology 总体架构图</title>
+<style>
+:root{
+  --bg0:#070c18;
+  --bg1:#0d1730;
+  --bg2:#142040;
+  --line:rgba(148,163,184,.18);
+  --txt:#e8edf6;
+  --txt-dim:#8b96ad;
+  --indigo:#818cf8;
+  --violet:#a78bfa;
+  --cyan:#22d3ee;
+  --emerald:#34d399;
+  --amber:#fbbf24;
+  --blue:#60a5fa;
+  --pink:#e879f9;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  background:
+    radial-gradient(1200px 620px at 80% -8%, rgba(99,102,241,.20), transparent 60%),
+    radial-gradient(1000px 520px at 8% 0%, rgba(34,211,238,.12), transparent 55%),
+    linear-gradient(180deg,var(--bg1),var(--bg0) 62%);
+  color:var(--txt);
+  min-height:100vh;
+  padding:52px 24px 80px;
+}
+.wrap{max-width:1180px;margin:0 auto}
+header{text-align:center;margin-bottom:40px}
+header .kicker{
+  display:inline-block;font-size:12px;letter-spacing:4px;color:var(--indigo);
+  border:1px solid rgba(129,140,248,.4);border-radius:999px;padding:5px 16px;margin-bottom:18px;
+  background:rgba(129,140,248,.09);
+}
+h1{
+  font-size:40px;font-weight:800;letter-spacing:1px;
+  background:linear-gradient(90deg,#e0e7ff,#a5b4fc 48%,#67e8f9);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+header .sub{margin-top:14px;color:var(--txt-dim);font-size:15px;letter-spacing:.5px}
+section{margin-bottom:40px}
+
+/* 架构主容器 */
+.arch{
+  position:relative;border-radius:20px;padding:24px 26px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  border:1px solid var(--line);
+}
+
+/* 上下衔接层（应用层 / 数据层） */
+.band{
+  border:1px solid var(--line);border-radius:14px;padding:16px 20px;
+  background:rgba(255,255,255,.035);
+}
+.band .bhead{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.band .bhead .bname{font-size:16px;font-weight:700}
+.band .bhead .bdesc{font-size:12px;color:var(--txt-dim);margin-left:auto;text-align:right}
+.bmods{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.mod{
+  position:relative;cursor:default;text-align:center;min-width:128px;
+  padding:14px 18px;border-radius:12px;font-size:14px;font-weight:600;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.mod:hover{transform:translateY(-3px)}
+.b-app .mod{border-color:rgba(96,165,250,.4)}
+.b-app .mod:hover{box-shadow:0 12px 28px rgba(96,165,250,.22)}
+.b-data .mod{border-color:rgba(34,211,238,.4)}
+.b-data .mod:hover{box-shadow:0 12px 28px rgba(34,211,238,.20)}
+
+/* Ontology 核心区 */
+.onto-core{
+  border-radius:16px;padding:22px;margin:6px 0;
+  background:linear-gradient(180deg,rgba(129,140,248,.14),rgba(129,140,248,.05));
+  border:1px solid rgba(129,140,248,.55);
+  box-shadow:0 0 0 1px rgba(129,140,248,.22),0 14px 44px rgba(99,102,241,.20);
+  position:relative;
+}
+.onto-core .badge{
+  position:absolute;right:18px;top:-12px;font-size:11px;font-weight:700;letter-spacing:2px;
+  color:#0b1120;background:linear-gradient(90deg,#a5b4fc,#818cf8);padding:3px 14px;border-radius:999px;
+}
+.onto-core .chead{text-align:center;margin-bottom:18px}
+.onto-core .chead .cname{font-size:21px;font-weight:800;color:#e0e7ff}
+.onto-core .chead .cdesc{font-size:13px;color:#a5b4fc;margin-top:5px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.core-item{
+  border-radius:12px;padding:16px;text-align:center;
+  background:rgba(255,255,255,.06);border:1px solid rgba(129,140,248,.4);
+  transition:transform .2s ease,box-shadow .2s ease;cursor:default;
+}
+.core-item:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(129,140,248,.26)}
+.core-item .icon{font-size:22px;font-weight:800;color:#c7d2fe;margin-bottom:6px}
+.core-item .iname{font-size:15px;font-weight:700;margin-bottom:5px}
+.core-item .idesc{font-size:12px;color:var(--txt-dim);line-height:1.6}
+
+/* 动力与安全 */
+.dyn-sec{display:grid;grid-template-columns:2fr 1.2fr;gap:14px;margin:16px 0}
+.box{
+  border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:rgba(255,255,255,.035);
+}
+.box .bhead{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.box .bhead .bname{font-size:15px;font-weight:700}
+.box .bhead .bdesc{font-size:11.5px;color:var(--txt-dim);margin-left:auto;text-align:right}
+.box .bmods{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.b-dyn .mod{border-color:rgba(251,191,36,.42);min-width:150px}
+.b-dyn .mod:hover{box-shadow:0 12px 28px rgba(251,191,36,.20)}
+.b-sec .mod{border-color:rgba(52,211,153,.4);min-width:140px}
+.b-sec .mod:hover{box-shadow:0 12px 28px rgba(52,211,153,.18)}
+
+/* 箭头 */
+.arrow{display:flex;justify-content:center;align-items:center;height:34px;position:relative;margin:2px 0}
+.arrow::before{content:"";width:100%;max-width:600px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--txt-dim),transparent)}
+.arrow::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:0;height:0;
+  border-top:7px solid var(--txt-dim);border-left:5px solid transparent;border-right:5px solid transparent}
+.arrow .alabel{
+  position:absolute;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:2px;
+  color:var(--txt-dim);background:var(--bg1);padding:0 10px;
+}
+.arrow.up .alabel{top:4px}
+.arrow.down .alabel{top:6px}
+
+/* 底部 */
+.base-note{margin-top:22px;text-align:center;color:var(--txt-dim);font-size:13px;line-height:1.9}
+.base-note b{color:#c7d2fe}
+.badges{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.badges span{font-size:12px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.04);color:var(--txt-dim)}
+
+#tip{position:fixed;z-index:99;max-width:300px;pointer-events:none;opacity:0;
+  transform:translateY(4px);transition:opacity .18s ease,transform .18s ease;
+  background:#101827;border:1px solid rgba(148,163,184,.35);color:#e2e8f0;
+  font-size:12.5px;line-height:1.7;padding:10px 14px;border-radius:10px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+#tip.on{opacity:1;transform:translateY(0)}
+
+@media(max-width:860px){
+  .grid4{grid-template-columns:repeat(2,1fr)}
+  .dyn-sec{grid-template-columns:1fr}
+  h1{font-size:30px}
+}
+@media(max-width:520px){.grid4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="kicker">ONTOLOGY</span>
+    <h1>Ontology 总体架构图</h1>
+    <div class="sub">用「对象 / 属性 / 链接 / 动作」代替「表 / 字段 / join」—— 一张会说话的活地图，贯穿数据层与应用层</div>
+  </header>
+
+  <section class="arch">
+
+    <!-- 应用层 -->
+    <div class="band b-app">
+      <div class="bhead">
+        <span class="bname" style="color:#93c5fd">应用层 · 消费与操作</span>
+        <span class="bdesc">业务人员与 AI 通过统一本体读写数据、执行操作</span>
+      </div>
+      <div class="bmods">
+        <div class="mod" data-tip="低代码应用搭建：拖拽式构建可操作的业务界面">Workshop</div>
+        <div class="mod" data-tip="可视化数据分析与图表">Quiver</div>
+        <div class="mod" data-tip="专业仪表盘与大屏">Slate</div>
+        <div class="mod" data-tip="AI Agent 直接读写本体对象、调用动作函数">AIP Agent</div>
+        <div class="mod" data-tip="API 对外输出本体能力">External API</div>
+      </div>
+    </div>
+
+    <div class="arrow down"><span class="alabel">读写对象 · 触发动作</span></div>
+
+    <!-- Ontology 核心 -->
+    <div class="onto-core">
+      <span class="badge">★ ONTOLOGY 核心</span>
+      <div class="chead">
+        <div class="cname">语义层 · 数字孪生</div>
+        <div class="cdesc">把数据还原成现实世界中的「东西」，Palantir 与普通数据平台的分水岭</div>
+      </div>
+      <div class="grid4">
+        <div class="core-item" data-tip="对象 Object：现实世界里的「东西」——客户、设备、订单，对应数据库表的一行">
+          <div class="icon">OBJ</div>
+          <div class="iname">对象</div>
+          <div class="idesc">Object · 现实世界的实体</div>
+        </div>
+        <div class="core-item" data-tip="属性 Property：对象的特征——温度、状态、金额，对应表中的一列">
+          <div class="icon">PRP</div>
+          <div class="iname">属性</div>
+          <div class="idesc">Property · 实体的特征</div>
+        </div>
+        <div class="core-item" data-tip="链接 Link：对象间的关系，替代数据库 join —— 看到客户即看到其全部订单与设备">
+          <div class="icon">LNK</div>
+          <div class="iname">链接</div>
+          <div class="idesc">Link · 对象间的关系</div>
+        </div>
+        <div class="core-item" data-tip="接口 Interface：多种对象类型的「共同形状」，一套工具管所有类型资产（多态）">
+          <div class="icon">INT</div>
+          <div class="iname">接口</div>
+          <div class="idesc">Interface · 共同形状</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 动力层 + 安全 -->
+    <div class="dyn-sec">
+      <div class="box b-dyn">
+        <div class="bhead">
+          <span class="bname" style="color:#fcd34d">动力层 · 让本体「动起来」</span>
+          <span class="bdesc">从只读报表到真实执行业务</span>
+        </div>
+        <div class="bmods">
+          <div class="mod" data-tip="动作类型（Action Type）：一键执行业务——改属性、建链接、发通知、按权限鉴权">
+            <div style="font-size:14px;font-weight:700">动作 Action</div>
+            <div style="font-size:11px;color:var(--txt-dim);margin-top:3px">业务人员的「按钮」</div>
+          </div>
+          <div class="mod" data-tip="函数（Function）：低延迟计算的业务逻辑大脑——信用额度、匹配度、风险评分">
+            <div style="font-size:14px;font-weight:700">函数 Function</div>
+            <div style="font-size:11px;color:var(--txt-dim);margin-top:3px">业务逻辑的「引擎」</div>
+          </div>
+        </div>
+      </div>
+      <div class="box b-sec">
+        <div class="bhead">
+          <span class="bname" style="color:#6ee7b7">安全与治理</span>
+          <span class="bdesc">谁可以看 · 谁可以动</span>
+        </div>
+        <div class="bmods">
+          <div class="mod" data-tip="两层权限模型：数据权限 + 操作权限，读写动作均受控">
+            <div style="font-size:14px;font-weight:700">权限模型</div>
+          </div>
+          <div class="mod" data-tip="Markings 标记：按密级 / 部门对对象与属性打标，细粒度隔离">
+            <div style="font-size:14px;font-weight:700">Markings</div>
+          </div>
+          <div class="mod" data-tip="全程审计：谁在何时对哪个对象执行了什么动作">
+            <div style="font-size:14px;font-weight:700">审计追踪</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 数据层 -->
+    <div class="band b-data">
+      <div class="bhead">
+        <span class="bname" style="color:#67e8f9">数据层 · 接入与映射</span>
+        <span class="bdesc">本体对象由数据层供给，动作写回数据层</span>
+      </div>
+      <div class="bmods">
+        <div class="mod" data-tip="连接器：对接数据库 / API / 文件 / 物联网等数据源">连接器</div>
+        <div class="mod" data-tip="数据集 / 流水线：清洗、转换、组织的原始数据">数据集 / 流水线</div>
+        <div class="mod" data-tip="虚拟表：按需逻辑视图，不复制物理数据">虚拟表</div>
+        <div class="mod" data-tip="数据模型：统一口径的语义模型与指标">模型</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="base-note">
+    <div><b>一句话</b>：数据层往上喂 → Ontology 建模成对象 → 动力层让它能被操作 → 安全层守护边界 → 应用层与 AI 消费这一切。</div>
+    <div class="badges">
+      <span>理论根基：语义网 RDF / OWL / SHACL</span>
+      <span>模式层 TBox · 数据层 ABox</span>
+      <span>知识复合：一次建模，处处复用</span>
+    </div>
+  </div>
+</div>
+
+<div id="tip"></div>
+<script>
+(function(){
+  var tip=document.getElementById('tip');
+  var mods=document.querySelectorAll('.mod, .core-item');
+  function move(e){tip.style.left=(e.clientX+16)+'px';tip.style.top=(e.clientY+14)+'px';}
+  mods.forEach(function(m){
+    m.addEventListener('mouseenter',function(e){
+      var t=m.getAttribute('data-tip');
+      if(!t)return;
+      tip.textContent=t;tip.classList.add('on');move(e);
+    });
+    m.addEventListener('mousemove',move);
+    m.addEventListener('mouseleave',function(){tip.classList.remove('on');});
+  });
+})();
+</script>
+</body>
+</html>

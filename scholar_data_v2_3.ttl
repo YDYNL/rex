@@ -1,0 +1,1013 @@
+@prefix es: <http://edu-scholar.org/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf> a es:Paper ;
+    es:aiSummary "该文献研究了约束刚度和断裂应变对FRP约束混凝土性能的影响。通过实验分析不同约束参数对混凝土力学性能的作用机制，发现这两个参数显著影响约束混凝土的抗压强度和延性表现。"^^xsd:string ;
+    es:autoKeywords "confining stiffness, rupture strain, frp confined concrete, mechanical properties, concrete confinement"^^xsd:string ;
+    es:cites <http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf> ;
+    es:confidence 0.65 ;
+    es:doi "10.1016/j.engstruct.2015.03.037"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:A.K.H._Kwan>,
+        <http://edu-scholar.org/ontology#Author:C.X._Dong>,
+        <http://edu-scholar.org/ontology#Author:J.C.M._Ho> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:confining>,
+        <http://edu-scholar.org/ontology#Keyword:effects>,
+        <http://edu-scholar.org/ontology#Keyword:performance>,
+        <http://edu-scholar.org/ontology#Keyword:rupture>,
+        <http://edu-scholar.org/ontology#Keyword:stiffness>,
+        <http://edu-scholar.org/ontology#Keyword:strain> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Engineering_Structures> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0141029615001819-main.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0141029615001819-main.pdf> ;
+    es:title "Effects of confining stiffness and rupture strain on performance of FRP confined concrete"^^xsd:string ;
+    es:year "2015"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf> a es:Paper ;
+    es:aiSummary "该文献研究了约束条件下钢纤维增强高强度混凝土的轴向压缩行为。通过实验测试分析了材料在受压状态下的力学性能表现。研究发现约束条件显著提升了混凝土的抗压强度和延性。"^^xsd:string ;
+    es:autoKeywords "axial compression, confined concrete, steel fibers, high strength concrete, compressive behavior"^^xsd:string ;
+    es:cites <http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf> ;
+    es:confidence 0.6 ;
+    es:doi "10.1016/j.conbuildmat.2019.117043"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:Asad_Hanifb>,
+        <http://edu-scholar.org/ontology#Author:Mohammad_Umaira>,
+        <http://edu-scholar.org/ontology#Author:Muhammad_Usmana>,
+        <http://edu-scholar.org/ontology#Author:Syed_Hassan_Farooqa> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:high>,
+        <http://edu-scholar.org/ontology#Keyword:reinforced>,
+        <http://edu-scholar.org/ontology#Keyword:steel>,
+        <http://edu-scholar.org/ontology#Keyword:strength> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Construction_and_Building_Materials> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0950061819324857-main.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0950061819324857-main.pdf> ;
+    es:title "Axial compressive behavior of confined steel fiber reinforced high strength concrete"^^xsd:string ;
+    es:year "2020"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf> a es:Paper ;
+    es:aiSummary "该文献研究了玄武岩纤维外包裹混凝土圆柱体在压缩载荷下的力学行为。通过实验分析纤维包裹对混凝土抗压性能的影响，发现纤维层能有效提升试件的延性和承载能力。"^^xsd:string ;
+    es:autoKeywords "concrete cylinders, basalt fibers, compression behavior, fiber-reinforced concrete, mechanical properties"^^xsd:string ;
+    es:cites <http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf>,
+        <http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf> ;
+    es:confidence 0.75 ;
+    es:doi "10.1016/j.compositesb.2014.10.008"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:A._Monaco>,
+        <http://edu-scholar.org/ontology#Author:A._Valenza>,
+        <http://edu-scholar.org/ontology#Author:G._Campione>,
+        <http://edu-scholar.org/ontology#Author:L._La_Mendola>,
+        <http://edu-scholar.org/ontology#Author:V._Fiore> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:basalt>,
+        <http://edu-scholar.org/ontology#Keyword:compression>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:fibers>,
+        <http://edu-scholar.org/ontology#Keyword:wrapped> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Composites_Part_B__Engineering> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S1359836814004521-main.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S1359836814004521-main.pdf> ;
+    es:title "Behavior in compression of concrete cylinders externally wrapped with basalt fibers"^^xsd:string ;
+    es:year "2015"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Paper:pc.23761.pdf> a es:Paper ;
+    es:aiSummary "该文献研究了sisal纤维混凝土圆柱体外部包裹jute FRP后的力学行为。通过实验分析不同包裹条件下材料的力学性能变化，结论表明jute FRP能有效提升混凝土圆柱体的抗压和抗弯性能。"^^xsd:string ;
+    es:autoKeywords "sisal fiber concrete, jute frp, mechanical behavior, composite materials, structural performance"^^xsd:string ;
+    es:confidence 0.7 ;
+    es:doi "10.1002/pc.23761"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:Hang_Li>,
+        <http://edu-scholar.org/ontology#Author:Haozhi_Tan>,
+        <http://edu-scholar.org/ontology#Author:Jia_yi_Chen>,
+        <http://edu-scholar.org/ontology#Author:Liang_Huang>,
+        <http://edu-scholar.org/ontology#Author:Libo_Yan>,
+        <http://edu-scholar.org/ontology#Author:Ying_Wang> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:jute>,
+        <http://edu-scholar.org/ontology#Keyword:sisal>,
+        <http://edu-scholar.org/ontology#Keyword:wrapped> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Polymer_Composites> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:pc.23761.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:pc.23761.pdf> ;
+    es:title "Behavior of Sisal Fiber Concrete Cylinders Externally Wrapped With Jute FRP"^^xsd:string ;
+    es:year "2017"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Author:A.K.H._Kwan> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:confining>,
+        <http://edu-scholar.org/ontology#Keyword:effects>,
+        <http://edu-scholar.org/ontology#Keyword:rupture>,
+        <http://edu-scholar.org/ontology#Keyword:stiffness>,
+        <http://edu-scholar.org/ontology#Keyword:strain> ;
+    es:name "A.K.H. Kwan"^^xsd:string ;
+    es:researchArea "effects, confining, stiffness, rupture, strain, performance, confined, concrete（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:A._Monaco> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compression>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:wrapped> ;
+    es:name "A. Monaco"^^xsd:string ;
+    es:researchArea "compression, concrete, cylinders, externally, wrapped, basalt, fibers（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:A._Valenza> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compression>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:wrapped> ;
+    es:name "A. Valenza"^^xsd:string ;
+    es:researchArea "compression, concrete, cylinders, externally, wrapped, basalt, fibers（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Asad_Hanifb> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:steel> ;
+    es:name "Asad Hanifb"^^xsd:string ;
+    es:researchArea "axial, compressive, confined, steel, fiber, reinforced, high, strength, concrete（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:C.X._Dong> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:confining>,
+        <http://edu-scholar.org/ontology#Keyword:effects>,
+        <http://edu-scholar.org/ontology#Keyword:rupture>,
+        <http://edu-scholar.org/ontology#Keyword:stiffness>,
+        <http://edu-scholar.org/ontology#Keyword:strain> ;
+    es:name "C.X. Dong"^^xsd:string ;
+    es:researchArea "effects, confining, stiffness, rupture, strain, performance, confined, concrete（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:D_bora_R._Ferreira> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:University_of_Minho> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:assessing>,
+        <http://edu-scholar.org/ontology#Keyword:cfrp>,
+        <http://edu-scholar.org/ontology#Keyword:confinement>,
+        <http://edu-scholar.org/ontology#Keyword:discrete>,
+        <http://edu-scholar.org/ontology#Keyword:efficiency> ;
+    es:name "Débora R. Ferreira"^^xsd:string ;
+    es:researchArea "assessing, efficiency, cfrp, discrete, confinement, systems, concrete, cylinders（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Deju_Zhu> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:Hunan_University> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:gfrp>,
+        <http://edu-scholar.org/ontology#Keyword:tubes> ;
+    es:name "Deju Zhu"^^xsd:string ;
+    es:researchArea "compressive, concrete, confined, gfrp, tubes, steel, spirals（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Eunsoo_Choi> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:modeling> ;
+    es:name "Eunsoo Choi"^^xsd:string ;
+    es:researchArea "modeling, confined, concrete, cylinders, axial, compression, rings（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Farzad_Hejazi> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinder>,
+        <http://edu-scholar.org/ontology#Keyword:fully>,
+        <http://edu-scholar.org/ontology#Keyword:partially> ;
+    es:name "Farzad Hejazi"^^xsd:string ;
+    es:researchArea "compressive, concrete, cylinder, fully, partially, confined（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Feng_Xing> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:cement>,
+        <http://edu-scholar.org/ontology#Keyword:frp-con>,
+        <http://edu-scholar.org/ontology#Keyword:modeling>,
+        <http://edu-scholar.org/ontology#Keyword:ultra-lightweight> ;
+    es:name "Feng Xing"^^xsd:string ;
+    es:researchArea "modeling, frp-con, ultra-lightweight, cement（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Fumin_Yi> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:columns>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:deteriorated>,
+        <http://edu-scholar.org/ontology#Keyword:partially>,
+        <http://edu-scholar.org/ontology#Keyword:strength> ;
+    es:name "Fumin Yi"^^xsd:string ;
+    es:researchArea "partially, deteriorated, strength, concrete, columns, confined, cfrp（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:G._Campione> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compression>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:wrapped> ;
+    es:name "G. Campione"^^xsd:string ;
+    es:researchArea "compression, concrete, cylinders, externally, wrapped, basalt, fibers（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:G._Wu> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:ductility>,
+        <http://edu-scholar.org/ontology#Keyword:strength> ;
+    es:name "G. Wu"^^xsd:string ;
+    es:researchArea "strength, ductility, concrete, cylinders, confined, composites（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Hang_Li> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:Hunan_University> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:sisal> ;
+    es:name "Hang Li"^^xsd:string ;
+    es:researchArea "sisal, fiber, concrete, cylinders, externally, wrapped, jute（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Haozhi_Tan> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:Hunan_University> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:sisal> ;
+    es:name "Haozhi Tan"^^xsd:string ;
+    es:researchArea "sisal, fiber, concrete, cylinders, externally, wrapped, jute（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Hua_Wei> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:columns>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:deteriorated>,
+        <http://edu-scholar.org/ontology#Keyword:partially>,
+        <http://edu-scholar.org/ontology#Keyword:strength> ;
+    es:name "Hua Wei"^^xsd:string ;
+    es:researchArea "partially, deteriorated, strength, concrete, columns, confined, cfrp（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Inkyu_Rhee> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:modeling> ;
+    es:name "Inkyu Rhee"^^xsd:string ;
+    es:researchArea "modeling, confined, concrete, cylinders, axial, compression, rings（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:J.C.M._Ho> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:confining>,
+        <http://edu-scholar.org/ontology#Keyword:effects>,
+        <http://edu-scholar.org/ontology#Keyword:rupture>,
+        <http://edu-scholar.org/ontology#Keyword:stiffness>,
+        <http://edu-scholar.org/ontology#Keyword:strain> ;
+    es:name "J.C.M. Ho"^^xsd:string ;
+    es:researchArea "effects, confining, stiffness, rupture, strain, performance, confined, concrete（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Jia_yi_Chen> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:Tianjin_University> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:sisal> ;
+    es:name "Jia‐yi Chen"^^xsd:string ;
+    es:researchArea "sisal, fiber, concrete, cylinders, externally, wrapped, jute（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Jim_Youssef> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:University_of_Wollongong> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:circular>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:optimized>,
+        <http://edu-scholar.org/ontology#Keyword:schemes>,
+        <http://edu-scholar.org/ontology#Keyword:wrapping> ;
+    es:name "Jim Youssef"^^xsd:string ;
+    es:researchArea "optimized, wrapping, schemes, circular, concrete, columns, axial, compression（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Jingjing_Hu> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:cement>,
+        <http://edu-scholar.org/ontology#Keyword:frp-con>,
+        <http://edu-scholar.org/ontology#Keyword:modeling>,
+        <http://edu-scholar.org/ontology#Keyword:ultra-lightweight> ;
+    es:name "Jingjing Hu"^^xsd:string ;
+    es:researchArea "modeling, frp-con, ultra-lightweight, cement（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Joaquim_A._Barros> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:University_of_Minho> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:assessing>,
+        <http://edu-scholar.org/ontology#Keyword:cfrp>,
+        <http://edu-scholar.org/ontology#Keyword:confinement>,
+        <http://edu-scholar.org/ontology#Keyword:discrete>,
+        <http://edu-scholar.org/ontology#Keyword:efficiency> ;
+    es:name "Joaquim A. Barros"^^xsd:string ;
+    es:researchArea "assessing, efficiency, cfrp, discrete, confinement, systems, concrete, cylinders（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Joo-Won_Kang> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:modeling> ;
+    es:name "Joo-Won Kang"^^xsd:string ;
+    es:researchArea "modeling, confined, concrete, cylinders, axial, compression, rings（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Joo-Woo_Kim> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:modeling> ;
+    es:name "Joo-Woo Kim"^^xsd:string ;
+    es:researchArea "modeling, confined, concrete, cylinders, axial, compression, rings（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:L._La_Mendola> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compression>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:wrapped> ;
+    es:name "L. La Mendola"^^xsd:string ;
+    es:researchArea "compression, concrete, cylinders, externally, wrapped, basalt, fibers（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Lili_Sui> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:cement>,
+        <http://edu-scholar.org/ontology#Keyword:frp-con>,
+        <http://edu-scholar.org/ontology#Keyword:modeling>,
+        <http://edu-scholar.org/ontology#Keyword:ultra-lightweight> ;
+    es:name "Lili Sui"^^xsd:string ;
+    es:researchArea "modeling, frp-con, ultra-lightweight, cement（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Mohammad_Umaira> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:steel> ;
+    es:name "Mohammad Umaira"^^xsd:string ;
+    es:researchArea "axial, compressive, confined, steel, fiber, reinforced, high, strength, concrete（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Mohd_Saleh_Jaafar> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinder>,
+        <http://edu-scholar.org/ontology#Keyword:fully>,
+        <http://edu-scholar.org/ontology#Keyword:partially> ;
+    es:name "Mohd Saleh Jaafar"^^xsd:string ;
+    es:researchArea "compressive, concrete, cylinder, fully, partially, confined（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Muhammad_N._S._Hadi> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:University_of_Wollongong> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:circular>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:optimized>,
+        <http://edu-scholar.org/ontology#Keyword:schemes>,
+        <http://edu-scholar.org/ontology#Keyword:wrapping> ;
+    es:name "Muhammad N. S. Hadi"^^xsd:string ;
+    es:researchArea "optimized, wrapping, schemes, circular, concrete, columns, axial, compression（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Muhammad_Usmana> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:steel> ;
+    es:name "Muhammad Usmana"^^xsd:string ;
+    es:researchArea "axial, compressive, confined, steel, fiber, reinforced, high, strength, concrete（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Pengda_Li> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:cement>,
+        <http://edu-scholar.org/ontology#Keyword:frp-con>,
+        <http://edu-scholar.org/ontology#Keyword:modeling>,
+        <http://edu-scholar.org/ontology#Keyword:ultra-lightweight> ;
+    es:name "Pengda Li"^^xsd:string ;
+    es:researchArea "modeling, frp-con, ultra-lightweight, cement（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Raizal_S.M._Rashid> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinder>,
+        <http://edu-scholar.org/ontology#Keyword:fully>,
+        <http://edu-scholar.org/ontology#Keyword:partially> ;
+    es:name "Raizal S.M. Rashid"^^xsd:string ;
+    es:researchArea "compressive, concrete, cylinder, fully, partially, confined（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Ruqayyah_Ismail> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinder>,
+        <http://edu-scholar.org/ontology#Keyword:fully>,
+        <http://edu-scholar.org/ontology#Keyword:partially> ;
+    es:name "Ruqayyah Ismail"^^xsd:string ;
+    es:researchArea "compressive, concrete, cylinder, fully, partially, confined（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Shamim_A._Sheikh> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:Ontario_Hydro> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:columns>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:ductility>,
+        <http://edu-scholar.org/ontology#Keyword:strength>,
+        <http://edu-scholar.org/ontology#Keyword:tied> ;
+    es:name "Shamim A. Sheikh"^^xsd:string ;
+    es:researchArea "strength, ductility, tied, concrete, columns（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Suzru_M._Uzumeri> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:University_of_Toronto> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:columns>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:ductility>,
+        <http://edu-scholar.org/ontology#Keyword:strength>,
+        <http://edu-scholar.org/ontology#Keyword:tied> ;
+    es:name "Suzru M. Uzumeri"^^xsd:string ;
+    es:researchArea "strength, ductility, tied, concrete, columns（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Syed_Hassan_Farooqa> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:steel> ;
+    es:name "Syed Hassan Farooqa"^^xsd:string ;
+    es:researchArea "axial, compressive, confined, steel, fiber, reinforced, high, strength, concrete（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Thong_M._Pham> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:Curtin_University> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:circular>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:optimized>,
+        <http://edu-scholar.org/ontology#Keyword:schemes>,
+        <http://edu-scholar.org/ontology#Keyword:wrapping> ;
+    es:name "Thong M. Pham"^^xsd:string ;
+    es:researchArea "optimized, wrapping, schemes, circular, concrete, columns, axial, compression（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:V._Fiore> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compression>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:wrapped> ;
+    es:name "V. Fiore"^^xsd:string ;
+    es:researchArea "compression, concrete, cylinders, externally, wrapped, basalt, fibers（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Wong_Chien_Chan> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinder>,
+        <http://edu-scholar.org/ontology#Keyword:fully>,
+        <http://edu-scholar.org/ontology#Keyword:partially> ;
+    es:name "Wong Chien Chan"^^xsd:string ;
+    es:researchArea "compressive, concrete, cylinder, fully, partially, confined（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Xia_Guo> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:columns>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:deteriorated>,
+        <http://edu-scholar.org/ontology#Keyword:partially>,
+        <http://edu-scholar.org/ontology#Keyword:strength> ;
+    es:name "Xia Guo"^^xsd:string ;
+    es:researchArea "partially, deteriorated, strength, concrete, columns, confined, cfrp（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Xiaoxun_Sun> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:Hunan_University> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:gfrp>,
+        <http://edu-scholar.org/ontology#Keyword:tubes> ;
+    es:name "Xiaoxun Sun"^^xsd:string ;
+    es:researchArea "compressive, concrete, confined, gfrp, tubes, steel, spirals（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Yaowei_Zheng> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:cement>,
+        <http://edu-scholar.org/ontology#Keyword:frp-con>,
+        <http://edu-scholar.org/ontology#Keyword:modeling>,
+        <http://edu-scholar.org/ontology#Keyword:ultra-lightweight> ;
+    es:name "Yaowei Zheng"^^xsd:string ;
+    es:researchArea "modeling, frp-con, ultra-lightweight, cement（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Ying_Wang> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:China_Machinery_International_Engineering_Design___Research_Institute_Co.__Ltd> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:sisal> ;
+    es:name "Ying Wang"^^xsd:string ;
+    es:researchArea "sisal, fiber, concrete, cylinders, externally, wrapped, jute（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Yingwu_Zhou> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:cement>,
+        <http://edu-scholar.org/ontology#Keyword:frp-con>,
+        <http://edu-scholar.org/ontology#Keyword:modeling>,
+        <http://edu-scholar.org/ontology#Keyword:ultra-lightweight> ;
+    es:name "Yingwu Zhou"^^xsd:string ;
+    es:researchArea "modeling, frp-con, ultra-lightweight, cement（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Z.S._Wu> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:ductility>,
+        <http://edu-scholar.org/ontology#Keyword:strength> ;
+    es:name "Z.S. Wu"^^xsd:string ;
+    es:researchArea "strength, ductility, concrete, cylinders, confined, composites（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Z.T._L_> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:ductility>,
+        <http://edu-scholar.org/ontology#Keyword:strength> ;
+    es:name "Z.T. Lü"^^xsd:string ;
+    es:researchArea "strength, ductility, concrete, cylinders, confined, composites（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Zhimin_Wu> a es:Author ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:columns>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:deteriorated>,
+        <http://edu-scholar.org/ontology#Keyword:partially>,
+        <http://edu-scholar.org/ontology#Keyword:strength> ;
+    es:name "Zhimin Wu"^^xsd:string ;
+    es:researchArea "partially, deteriorated, strength, concrete, columns, confined, cfrp（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:basalt> a es:Keyword ;
+    es:name "basalt"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:composites> a es:Keyword ;
+    es:name "composites"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:fibers> a es:Keyword ;
+    es:name "fibers"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:high> a es:Keyword ;
+    es:name "high"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:jute> a es:Keyword ;
+    es:name "jute"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:performance> a es:Keyword ;
+    es:name "performance"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:reinforced> a es:Keyword ;
+    es:name "reinforced"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:rings> a es:Keyword ;
+    es:name "rings"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:spirals> a es:Keyword ;
+    es:name "spirals"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:systems> a es:Keyword ;
+    es:name "systems"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf> a es:LocalFile ;
+    es:filePath "Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Organization:China_Machinery_International_Engineering_Design___Research_Institute_Co.__Ltd> a es:Organization ;
+    es:name "China Machinery International Engineering Design & Research Institute Co., Ltd"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Organization:Curtin_University> a es:Organization ;
+    es:name "Curtin University"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Organization:Ontario_Hydro> a es:Organization ;
+    es:name "Ontario Hydro"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Organization:Technical_University_of_Braunschweig> a es:Organization ;
+    es:name "Technical University of Braunschweig"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Organization:Tianjin_University> a es:Organization ;
+    es:name "Tianjin University"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Organization:University_of_Toronto> a es:Organization ;
+    es:name "University of Toronto"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf> a es:Paper ;
+    es:aiSummary "该文献研究FRP约束对超轻混凝土力学行为的影响，并建立相应的力学模型。研究通过实验与数值模拟分析材料性能，揭示了约束效应与材料响应之间的关系。"^^xsd:string ;
+    es:autoKeywords "frp-confinement, ultra-lightweight cement, behavior modeling, material modeling, concrete mechanics"^^xsd:string ;
+    es:cites <http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf> ;
+    es:confidence 0.5 ;
+    es:doi "10.1016/J.COMPOSITESB.2018.10.087"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:Feng_Xing>,
+        <http://edu-scholar.org/ontology#Author:Jingjing_Hu>,
+        <http://edu-scholar.org/ontology#Author:Lili_Sui>,
+        <http://edu-scholar.org/ontology#Author:Pengda_Li>,
+        <http://edu-scholar.org/ontology#Author:Yaowei_Zheng>,
+        <http://edu-scholar.org/ontology#Author:Yingwu_Zhou> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:cement>,
+        <http://edu-scholar.org/ontology#Keyword:frp-con>,
+        <http://edu-scholar.org/ontology#Keyword:modeling>,
+        <http://edu-scholar.org/ontology#Keyword:ultra-lightweight> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Composites_Part_B__Engineering> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S135983681831374X-main.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S135983681831374X-main.pdf> ;
+    es:title "Behavior and modeling of FRP-con ned ultra-lightweight cement"^^xsd:string ;
+    es:year "2019"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Venue:Journal_of_the_Structural_Division> a es:Venue ;
+    es:name "Journal of the Structural Division"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Venue:Polymer_Composites> a es:Venue ;
+    es:name "Polymer Composites"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Venue:Polymers> a es:Venue ;
+    es:name "Polymers"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Liang_Huang> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:Hunan_University> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:sisal> ;
+    es:name "Liang Huang"^^xsd:string ;
+    es:researchArea "concrete, sisal, fiber, cylinders, externally, wrapped, jute, compressive, confined, gfrp, tubes, steel, spirals（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Author:Libo_Yan> a es:Author ;
+    es:hasAffiliation <http://edu-scholar.org/ontology#Organization:Technical_University_of_Braunschweig> ;
+    es:hasResearchTopic <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:externally>,
+        <http://edu-scholar.org/ontology#Keyword:fiber>,
+        <http://edu-scholar.org/ontology#Keyword:sisal> ;
+    es:name "Libo Yan"^^xsd:string ;
+    es:researchArea "concrete, sisal, fiber, cylinders, externally, wrapped, jute, compressive, confined, gfrp, tubes, steel, spirals（由关键词聚合生成）"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0141029609001771-main.pdf> a es:LocalFile ;
+    es:filePath "1-s2.0-S0141029609001771-main.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0141029615001819-main.pdf> a es:LocalFile ;
+    es:filePath "1-s2.0-S0141029615001819-main.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:1-s2.0-S095006180500053X-main.pdf> a es:LocalFile ;
+    es:filePath "1-s2.0-S095006180500053X-main.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0950061818330757-main.pdf> a es:LocalFile ;
+    es:filePath "1-s2.0-S0950061818330757-main.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0950061819324857-main.pdf> a es:LocalFile ;
+    es:filePath "1-s2.0-S0950061819324857-main.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:1-s2.0-S1359836813006069-main.pdf> a es:LocalFile ;
+    es:filePath "1-s2.0-S1359836813006069-main.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:1-s2.0-S1359836814004521-main.pdf> a es:LocalFile ;
+    es:filePath "1-s2.0-S1359836814004521-main.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:1-s2.0-S135983681831374X-main.pdf> a es:LocalFile ;
+    es:filePath "1-s2.0-S135983681831374X-main.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf> a es:LocalFile ;
+    es:filePath "STRENGTH AND DUCTILITY OF TIED CONCRETE COLUMNS.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:_ASCE_1090-0268_2008_12_2_134_.pdf> a es:LocalFile ;
+    es:filePath "(ASCE)1090-0268(2008)12_2(134).pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:_ASCE_CC.1943-5614.0000571.pdf> a es:LocalFile ;
+    es:filePath "(ASCE)CC.1943-5614.0000571.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:pc.23761.pdf> a es:LocalFile ;
+    es:filePath "pc.23761.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#LocalFile:polymers-07-00851.pdf> a es:LocalFile ;
+    es:filePath "polymers-07-00851.pdf"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Organization:University_of_Minho> a es:Organization ;
+    es:name "University of Minho"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Organization:University_of_Wollongong> a es:Organization ;
+    es:name "University of Wollongong"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf> a es:Paper ;
+    es:aiSummary "该文献通过实验研究部分强度退化混凝土柱在CFRP约束下的性能。研究聚焦于退化混凝土柱的力学行为，采用CFRP材料进行加固处理，旨在评估其对结构性能的影响。实验结果揭示了CFRP约束对退化混凝土柱承载能力和变形能力的提升效果。"^^xsd:string ;
+    es:autoKeywords "experimental study, partially deteriorated concrete, CFRP confinement, concrete columns, mechanical behavior"^^xsd:string ;
+    es:confidence 0.85 ;
+    es:doi "10.1016/j.engstruct.2009.05.006"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:Fumin_Yi>,
+        <http://edu-scholar.org/ontology#Author:Hua_Wei>,
+        <http://edu-scholar.org/ontology#Author:Xia_Guo>,
+        <http://edu-scholar.org/ontology#Author:Zhimin_Wu> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:cfrp>,
+        <http://edu-scholar.org/ontology#Keyword:columns>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:deteriorated>,
+        <http://edu-scholar.org/ontology#Keyword:partially>,
+        <http://edu-scholar.org/ontology#Keyword:strength> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Engineering_Structures> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0141029609001771-main.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0141029609001771-main.pdf> ;
+    es:title "Experimental study on partially deteriorated strength concrete columns confined with CFRP"^^xsd:string ;
+    es:year "2009"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf> a es:Paper ;
+    es:aiSummary "该文献研究了混凝土圆柱体在全围压和部分围压条件下的抗压行为。通过对比不同约束条件下的力学性能，分析了约束程度对混凝土抗压强度和变形特性的影响。研究结果揭示了部分约束条件下混凝土的破坏模式与全约束情况的差异。"^^xsd:string ;
+    es:autoKeywords "compressive behavior, concrete cylinder, confined concrete, full confinement, partial confinement"^^xsd:string ;
+    es:cites <http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf>,
+        <http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf>,
+        <http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf>,
+        <http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf> ;
+    es:confidence 0.5 ;
+    es:doi "10.1016/j.conbuildmat.2018.12.095"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:Farzad_Hejazi>,
+        <http://edu-scholar.org/ontology#Author:Mohd_Saleh_Jaafar>,
+        <http://edu-scholar.org/ontology#Author:Raizal_S.M._Rashid>,
+        <http://edu-scholar.org/ontology#Author:Ruqayyah_Ismail>,
+        <http://edu-scholar.org/ontology#Author:Wong_Chien_Chan> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:cylinder>,
+        <http://edu-scholar.org/ontology#Keyword:fully>,
+        <http://edu-scholar.org/ontology#Keyword:partially> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Construction_and_Building_Materials> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0950061818330757-main.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0950061818330757-main.pdf> ;
+    es:title "Compressive behavior of concrete cylinder fully and partially confined"^^xsd:string ;
+    es:year "2019"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf> a es:Paper ;
+    es:aiSummary "该文献评估了CFRP离散约束系统对混凝土圆柱体的加固效果。研究通过实验分析CFRP系统对混凝土的约束效率，探讨其在结构加固中的应用潜力。结果表明CFRP离散约束能有效提升混凝土圆柱体的承载能力和延性。"^^xsd:string ;
+    es:autoKeywords "cfrp, discrete confinement system, concrete cylinders, structural reinforcement, material efficiency"^^xsd:string ;
+    es:confidence 0.6 ;
+    es:doi "10.1061/(asce)1090-0268(2008)12:2(134)"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:D_bora_R._Ferreira>,
+        <http://edu-scholar.org/ontology#Author:Joaquim_A._Barros> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:assessing>,
+        <http://edu-scholar.org/ontology#Keyword:cfrp>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confinement>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:discrete>,
+        <http://edu-scholar.org/ontology#Keyword:efficiency>,
+        <http://edu-scholar.org/ontology#Keyword:systems> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Journal_of_Composites_for_Construction> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf>,
+        <http://edu-scholar.org/ontology#LocalFile:_ASCE_1090-0268_2008_12_2_134_.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:_ASCE_1090-0268_2008_12_2_134_.pdf> ;
+    es:title "Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders"^^xsd:string ;
+    es:year "2008"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf> a es:Paper ;
+    es:aiSummary "该文献研究了圆形混凝土柱在轴向压缩下的优化FRP缠绕方案。通过分析不同FRP缠绕配置对柱体承载性能的影响，提出了改进的加固方法。研究结果表明优化方案能有效提升结构的延性和承载能力。"^^xsd:string ;
+    es:autoKeywords "frp wrapping, circular concrete columns, axial compression"^^xsd:string ;
+    es:cites <http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf> ;
+    es:confidence 0.6 ;
+    es:doi "10.1061/(asce)cc.1943-5614.0000571"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:Jim_Youssef>,
+        <http://edu-scholar.org/ontology#Author:Muhammad_N._S._Hadi>,
+        <http://edu-scholar.org/ontology#Author:Thong_M._Pham> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:circular>,
+        <http://edu-scholar.org/ontology#Keyword:columns>,
+        <http://edu-scholar.org/ontology#Keyword:compression>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:optimized>,
+        <http://edu-scholar.org/ontology#Keyword:schemes>,
+        <http://edu-scholar.org/ontology#Keyword:wrapping> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Journal_of_Composites_for_Construction> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:_ASCE_CC.1943-5614.0000571.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:_ASCE_CC.1943-5614.0000571.pdf> ;
+    es:title "Optimized FRP Wrapping Schemes for Circular Concrete Columns under Axial Compression"^^xsd:string ;
+    es:year "2008"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Venue:Engineering_Structures> a es:Venue ;
+    es:name "Engineering Structures"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Venue:Journal_of_Composites_for_Construction> a es:Venue ;
+    es:name "Journal of Composites for Construction"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:assessing> a es:Keyword ;
+    es:name "assessing"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:confinement> a es:Keyword ;
+    es:name "confinement"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:discrete> a es:Keyword ;
+    es:name "discrete"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:efficiency> a es:Keyword ;
+    es:name "efficiency"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:gfrp> a es:Keyword ;
+    es:name "gfrp"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:tied> a es:Keyword ;
+    es:name "tied"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:tubes> a es:Keyword ;
+    es:name "tubes"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf> a es:Paper ;
+    es:aiSummary "该文献研究了使用FRP环约束混凝土圆柱体在轴向压缩下的行为，通过实验和数值建模方法分析其力学性能，结果表明FRP环能有效提高混凝土的抗压强度和延性。"^^xsd:string ;
+    es:autoKeywords "confined concrete, frp rings, axial compression, mechanical behavior, numerical modeling"^^xsd:string ;
+    es:confidence 0.7 ;
+    es:doi "10.1016/j.compositesb.2013.10.031"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:Eunsoo_Choi>,
+        <http://edu-scholar.org/ontology#Author:Inkyu_Rhee>,
+        <http://edu-scholar.org/ontology#Author:Joo-Won_Kang>,
+        <http://edu-scholar.org/ontology#Author:Joo-Woo_Kim> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:axial>,
+        <http://edu-scholar.org/ontology#Keyword:compression>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:modeling>,
+        <http://edu-scholar.org/ontology#Keyword:rings> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Composites_Part_B__Engineering> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S1359836813006069-main.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S1359836813006069-main.pdf> ;
+    es:title "Behavior and modeling of confined concrete cylinders in axial compression using FRP rings"^^xsd:string ;
+    es:year "2014"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf> a es:Paper ;
+    es:aiSummary "该文献研究了GFRP管和钢螺旋约束混凝土的压缩行为，通过实验和数值模拟分析其力学性能。研究揭示了不同约束条件下混凝土的应力-应变关系及承载能力变化规律。"^^xsd:string ;
+    es:autoKeywords "gfrp, steel spirals, confined concrete, compressive behavior, mechanical properties"^^xsd:string ;
+    es:cites <http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf>,
+        <http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf>,
+        <http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf> ;
+    es:confidence 0.85 ;
+    es:doi "10.3390/polym7050851"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:Deju_Zhu>,
+        <http://edu-scholar.org/ontology#Author:Liang_Huang>,
+        <http://edu-scholar.org/ontology#Author:Libo_Yan>,
+        <http://edu-scholar.org/ontology#Author:Xiaoxun_Sun> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:compressive>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:gfrp>,
+        <http://edu-scholar.org/ontology#Keyword:spirals>,
+        <http://edu-scholar.org/ontology#Keyword:steel>,
+        <http://edu-scholar.org/ontology#Keyword:tubes> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Polymers> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:polymers-07-00851.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:polymers-07-00851.pdf> ;
+    es:title "Compressive Behavior of Concrete Confined with GFRP Tubes and Steel Spirals"^^xsd:string ;
+    es:year "2015"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Venue:Composites_Part_B__Engineering> a es:Venue ;
+    es:name "Composites Part B: Engineering"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Venue:Construction_and_Building_Materials> a es:Venue ;
+    es:name "Construction and Building Materials"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:cfrp> a es:Keyword ;
+    es:name "cfrp"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:circular> a es:Keyword ;
+    es:name "circular"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:confining> a es:Keyword ;
+    es:name "confining"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:effects> a es:Keyword ;
+    es:name "effects"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:optimized> a es:Keyword ;
+    es:name "optimized"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:rupture> a es:Keyword ;
+    es:name "rupture"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:schemes> a es:Keyword ;
+    es:name "schemes"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:stiffness> a es:Keyword ;
+    es:name "stiffness"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:strain> a es:Keyword ;
+    es:name "strain"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:wrapping> a es:Keyword ;
+    es:name "wrapping"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:deteriorated> a es:Keyword ;
+    es:name "deteriorated"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Organization:Hunan_University> a es:Organization ;
+    es:name "Hunan University"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf> a es:Paper ;
+    es:aiSummary "该文献研究了FRP复合材料约束下混凝土圆柱体的强度和延性特性。通过实验分析不同约束条件下混凝土的力学性能变化，揭示了FRP加固对混凝土抗压强度和变形能力的影响规律。"^^xsd:string ;
+    es:autoKeywords "frp confinement, concrete strength, ductility, composite materials"^^xsd:string ;
+    es:cites <http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf> ;
+    es:confidence 0.6 ;
+    es:doi "10.1016/j.conbuildmat.2005.01.022"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:G._Wu>,
+        <http://edu-scholar.org/ontology#Author:Z.S._Wu>,
+        <http://edu-scholar.org/ontology#Author:Z.T._L_> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:composites>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:confined>,
+        <http://edu-scholar.org/ontology#Keyword:cylinders>,
+        <http://edu-scholar.org/ontology#Keyword:ductility>,
+        <http://edu-scholar.org/ontology#Keyword:strength> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Construction_and_Building_Materials> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S095006180500053X-main.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:1-s2.0-S095006180500053X-main.pdf> ;
+    es:title "Strength and ductility of concrete cylinders confined with FRP composites"^^xsd:string ;
+    es:year "2006"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Keyword:cylinder> a es:Keyword ;
+    es:name "cylinder"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:fully> a es:Keyword ;
+    es:name "fully"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:steel> a es:Keyword ;
+    es:name "steel"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf> a es:Paper ;
+    es:aiSummary "该文献研究绑扎混凝土柱的强度与延展性特性。通过实验分析不同配筋方案对柱体承载能力及变形能力的影响，结果表明优化配筋设计可有效提升结构延性性能。"^^xsd:string ;
+    es:autoKeywords "tied concrete columns, strength, ductility, structural engineering, reinforced concrete"^^xsd:string ;
+    es:confidence 0.6 ;
+    es:doi "10.1061/jsdeag.0005416"^^xsd:string ;
+    es:hasAuthor <http://edu-scholar.org/ontology#Author:Shamim_A._Sheikh>,
+        <http://edu-scholar.org/ontology#Author:Suzru_M._Uzumeri> ;
+    es:hasKeyword <http://edu-scholar.org/ontology#Keyword:columns>,
+        <http://edu-scholar.org/ontology#Keyword:concrete>,
+        <http://edu-scholar.org/ontology#Keyword:ductility>,
+        <http://edu-scholar.org/ontology#Keyword:strength>,
+        <http://edu-scholar.org/ontology#Keyword:tied> ;
+    es:paperType "期刊论文" ;
+    es:publishedIn <http://edu-scholar.org/ontology#Venue:Journal_of_the_Structural_Division> ;
+    es:related_to <http://edu-scholar.org/ontology#LocalFile:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf> ;
+    es:sourcedFrom <http://edu-scholar.org/ontology#LocalFile:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf> ;
+    es:title "STRENGTH AND DUCTILITY OF TIED CONCRETE COLUMNS"^^xsd:string ;
+    es:year "1980"^^xsd:gYear .
+
+<http://edu-scholar.org/ontology#Keyword:cement> a es:Keyword ;
+    es:name "cement"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:ductility> a es:Keyword ;
+    es:name "ductility"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:frp-con> a es:Keyword ;
+    es:name "frp-con"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:sisal> a es:Keyword ;
+    es:name "sisal"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:ultra-lightweight> a es:Keyword ;
+    es:name "ultra-lightweight"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:wrapped> a es:Keyword ;
+    es:name "wrapped"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:compression> a es:Keyword ;
+    es:name "compression"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:columns> a es:Keyword ;
+    es:name "columns"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:axial> a es:Keyword ;
+    es:name "axial"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:partially> a es:Keyword ;
+    es:name "partially"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:fiber> a es:Keyword ;
+    es:name "fiber"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:modeling> a es:Keyword ;
+    es:name "modeling"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:externally> a es:Keyword ;
+    es:name "externally"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:strength> a es:Keyword ;
+    es:name "strength"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:compressive> a es:Keyword ;
+    es:name "compressive"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:confined> a es:Keyword ;
+    es:name "confined"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:cylinders> a es:Keyword ;
+    es:name "cylinders"^^xsd:string .
+
+<http://edu-scholar.org/ontology#Keyword:concrete> a es:Keyword ;
+    es:name "concrete"^^xsd:string .
+

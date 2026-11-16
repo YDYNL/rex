@@ -1,0 +1,2937 @@
+{
+  "graph_id": "997528f8-3d74-4f85-9ce6-9a97ab808c12",
+  "nodes": [
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders",
+        "year": "2008",
+        "venue": "Journal of Composites for Construction",
+        "doi": "",
+        "file": "(ASCE)1090-0268(2008)12_2(134).pdf",
+        "content": "Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "(ASCE)1090-0268(2008)12_2(134).pdf",
+        "content": "(ASCE)1090-0268(2008)12_2(134).pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Venue:Journal_of_Composites_for_Construction",
+      "type": "Venue",
+      "properties": {
+        "name": "Journal of Composites for Construction",
+        "content": "Journal of Composites for Construction"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Joaquim_A._O._Barros",
+      "type": "Author",
+      "properties": {
+        "name": "Joaquim A. O. Barros",
+        "content": "Joaquim A. O. Barros"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:R._S._M._Ferreira",
+      "type": "Author",
+      "properties": {
+        "name": "R. S. M. Ferreira",
+        "content": "R. S. M. Ferreira"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:assessing",
+      "type": "Keyword",
+      "properties": {
+        "name": "assessing",
+        "content": "assessing"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:efficiency",
+      "type": "Keyword",
+      "properties": {
+        "name": "efficiency",
+        "content": "efficiency"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:cfrp",
+      "type": "Keyword",
+      "properties": {
+        "name": "cfrp",
+        "content": "cfrp"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:discrete",
+      "type": "Keyword",
+      "properties": {
+        "name": "discrete",
+        "content": "discrete"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:confinement",
+      "type": "Keyword",
+      "properties": {
+        "name": "confinement",
+        "content": "confinement"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:systems",
+      "type": "Keyword",
+      "properties": {
+        "name": "systems",
+        "content": "systems"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "Keyword",
+      "properties": {
+        "name": "concrete",
+        "content": "concrete"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:cylinders",
+      "type": "Keyword",
+      "properties": {
+        "name": "cylinders",
+        "content": "cylinders"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Optimized FRP Wrapping Schemes for Circular Concrete Columns under Axial Compression",
+        "year": "2008",
+        "venue": "",
+        "doi": "",
+        "file": "(ASCE)CC.1943-5614.0000571.pdf",
+        "content": "Optimized FRP Wrapping Schemes for Circular Concrete Columns under Axial Compression"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:ASCE_CC.1943-5614.0000571.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "(ASCE)CC.1943-5614.0000571.pdf",
+        "content": "(ASCE)CC.1943-5614.0000571.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Thong_M._Pham",
+      "type": "Author",
+      "properties": {
+        "name": "Thong M. Pham",
+        "content": "Thong M. Pham"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Muhammad_N._S._Hadi",
+      "type": "Author",
+      "properties": {
+        "name": "Muhammad N. S. Hadi",
+        "content": "Muhammad N. S. Hadi"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Jim_Youssef",
+      "type": "Author",
+      "properties": {
+        "name": "Jim Youssef",
+        "content": "Jim Youssef"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:optimized",
+      "type": "Keyword",
+      "properties": {
+        "name": "optimized",
+        "content": "optimized"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:wrapping",
+      "type": "Keyword",
+      "properties": {
+        "name": "wrapping",
+        "content": "wrapping"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:schemes",
+      "type": "Keyword",
+      "properties": {
+        "name": "schemes",
+        "content": "schemes"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:circular",
+      "type": "Keyword",
+      "properties": {
+        "name": "circular",
+        "content": "circular"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:columns",
+      "type": "Keyword",
+      "properties": {
+        "name": "columns",
+        "content": "columns"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:axial",
+      "type": "Keyword",
+      "properties": {
+        "name": "axial",
+        "content": "axial"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:compression",
+      "type": "Keyword",
+      "properties": {
+        "name": "compression",
+        "content": "compression"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Experimental study on partially deteriorated strength concrete columns confined with CFRP",
+        "year": "2009",
+        "venue": "Engineering Structures",
+        "doi": "10.1016/j.engstruct.2009.05.006",
+        "file": "1-s2.0-S0141029609001771-main.pdf",
+        "content": "Experimental study on partially deteriorated strength concrete columns confined with CFRP"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0141029609001771-main.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "1-s2.0-S0141029609001771-main.pdf",
+        "content": "1-s2.0-S0141029609001771-main.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Venue:Engineering_Structures",
+      "type": "Venue",
+      "properties": {
+        "name": "Engineering Structures",
+        "content": "Engineering Structures"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Hua_Weia",
+      "type": "Author",
+      "properties": {
+        "name": "Hua Weia",
+        "content": "Hua Weia"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Zhimin_Wua",
+      "type": "Author",
+      "properties": {
+        "name": "Zhimin Wua",
+        "content": "Zhimin Wua"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Xia_Guoa",
+      "type": "Author",
+      "properties": {
+        "name": "Xia Guoa",
+        "content": "Xia Guoa"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Fumin_Yia",
+      "type": "Author",
+      "properties": {
+        "name": "Fumin Yia",
+        "content": "Fumin Yia"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:partially",
+      "type": "Keyword",
+      "properties": {
+        "name": "partially",
+        "content": "partially"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:deteriorated",
+      "type": "Keyword",
+      "properties": {
+        "name": "deteriorated",
+        "content": "deteriorated"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:strength",
+      "type": "Keyword",
+      "properties": {
+        "name": "strength",
+        "content": "strength"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:confined",
+      "type": "Keyword",
+      "properties": {
+        "name": "confined",
+        "content": "confined"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Effects of confining stiffness and rupture strain on performance of FRP confined concrete",
+        "year": "2015",
+        "venue": "Engineering Structures",
+        "doi": "",
+        "file": "1-s2.0-S0141029615001819-main.pdf",
+        "content": "Effects of confining stiffness and rupture strain on performance of FRP confined concrete"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0141029615001819-main.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "1-s2.0-S0141029615001819-main.pdf",
+        "content": "1-s2.0-S0141029615001819-main.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:C.X._Donga",
+      "type": "Author",
+      "properties": {
+        "name": "C.X. Donga",
+        "content": "C.X. Donga"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:A.K.H._Kwana",
+      "type": "Author",
+      "properties": {
+        "name": "A.K.H. Kwana",
+        "content": "A.K.H. Kwana"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:J.C.M._Hob",
+      "type": "Author",
+      "properties": {
+        "name": "J.C.M. Hob",
+        "content": "J.C.M. Hob"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:effects",
+      "type": "Keyword",
+      "properties": {
+        "name": "effects",
+        "content": "effects"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:confining",
+      "type": "Keyword",
+      "properties": {
+        "name": "confining",
+        "content": "confining"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:stiffness",
+      "type": "Keyword",
+      "properties": {
+        "name": "stiffness",
+        "content": "stiffness"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:rupture",
+      "type": "Keyword",
+      "properties": {
+        "name": "rupture",
+        "content": "rupture"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:strain",
+      "type": "Keyword",
+      "properties": {
+        "name": "strain",
+        "content": "strain"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:performance",
+      "type": "Keyword",
+      "properties": {
+        "name": "performance",
+        "content": "performance"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Strength and ductility of concrete cylinders confined with FRP composites",
+        "year": "2006",
+        "venue": "Construction and Building Materials",
+        "doi": "10.1016/j.conbuildmat.2005.01.022",
+        "file": "1-s2.0-S095006180500053X-main.pdf",
+        "content": "Strength and ductility of concrete cylinders confined with FRP composites"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S095006180500053X-main.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "1-s2.0-S095006180500053X-main.pdf",
+        "content": "1-s2.0-S095006180500053X-main.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Venue:Construction_and_Building_Materials",
+      "type": "Venue",
+      "properties": {
+        "name": "Construction and Building Materials",
+        "content": "Construction and Building Materials"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:G._Wu",
+      "type": "Author",
+      "properties": {
+        "name": "G. Wu",
+        "content": "G. Wu"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Z.T._Lu",
+      "type": "Author",
+      "properties": {
+        "name": "Z.T. Lu",
+        "content": "Z.T. Lu"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Z.S._Wu",
+      "type": "Author",
+      "properties": {
+        "name": "Z.S. Wu",
+        "content": "Z.S. Wu"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:ductility",
+      "type": "Keyword",
+      "properties": {
+        "name": "ductility",
+        "content": "ductility"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:composites",
+      "type": "Keyword",
+      "properties": {
+        "name": "composites",
+        "content": "composites"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Compressive behavior of concrete cylinder fully and partially confined",
+        "year": "2019",
+        "venue": "Construction and Building Materials",
+        "doi": "",
+        "file": "1-s2.0-S0950061818330757-main.pdf",
+        "content": "Compressive behavior of concrete cylinder fully and partially confined"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0950061818330757-main.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "1-s2.0-S0950061818330757-main.pdf",
+        "content": "1-s2.0-S0950061818330757-main.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Ruqayyah_Ismaila",
+      "type": "Author",
+      "properties": {
+        "name": "Ruqayyah Ismaila",
+        "content": "Ruqayyah Ismaila"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Raizal_S.M._Rashida",
+      "type": "Author",
+      "properties": {
+        "name": "Raizal S.M. Rashida",
+        "content": "Raizal S.M. Rashida"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Wong_Chien_Chana",
+      "type": "Author",
+      "properties": {
+        "name": "Wong Chien Chana",
+        "content": "Wong Chien Chana"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Mohd_Saleh_Jaafara",
+      "type": "Author",
+      "properties": {
+        "name": "Mohd Saleh Jaafara",
+        "content": "Mohd Saleh Jaafara"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Farzad_Hejazia",
+      "type": "Author",
+      "properties": {
+        "name": "Farzad Hejazia",
+        "content": "Farzad Hejazia"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:compressive",
+      "type": "Keyword",
+      "properties": {
+        "name": "compressive",
+        "content": "compressive"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:cylinder",
+      "type": "Keyword",
+      "properties": {
+        "name": "cylinder",
+        "content": "cylinder"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:fully",
+      "type": "Keyword",
+      "properties": {
+        "name": "fully",
+        "content": "fully"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Axial compressive behavior of confined steel fiber reinforced high strength concrete",
+        "year": "2020",
+        "venue": "Construction and Building Materials",
+        "doi": "",
+        "file": "1-s2.0-S0950061819324857-main.pdf",
+        "content": "Axial compressive behavior of confined steel fiber reinforced high strength concrete"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0950061819324857-main.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "1-s2.0-S0950061819324857-main.pdf",
+        "content": "1-s2.0-S0950061819324857-main.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Muhammad_Usmana",
+      "type": "Author",
+      "properties": {
+        "name": "Muhammad Usmana",
+        "content": "Muhammad Usmana"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Syed_Hassan_Farooqa",
+      "type": "Author",
+      "properties": {
+        "name": "Syed Hassan Farooqa",
+        "content": "Syed Hassan Farooqa"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Mohammad_Umaira",
+      "type": "Author",
+      "properties": {
+        "name": "Mohammad Umaira",
+        "content": "Mohammad Umaira"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Asad_Hanifb",
+      "type": "Author",
+      "properties": {
+        "name": "Asad Hanifb",
+        "content": "Asad Hanifb"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:steel",
+      "type": "Keyword",
+      "properties": {
+        "name": "steel",
+        "content": "steel"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:fiber",
+      "type": "Keyword",
+      "properties": {
+        "name": "fiber",
+        "content": "fiber"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:reinforced",
+      "type": "Keyword",
+      "properties": {
+        "name": "reinforced",
+        "content": "reinforced"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:high",
+      "type": "Keyword",
+      "properties": {
+        "name": "high",
+        "content": "high"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Behavior and modeling of confined concrete cylinders in axial compression using FRP rings",
+        "year": "2014",
+        "venue": "Composites: Part B",
+        "doi": "",
+        "file": "1-s2.0-S1359836813006069-main.pdf",
+        "content": "Behavior and modeling of confined concrete cylinders in axial compression using FRP rings"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S1359836813006069-main.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "1-s2.0-S1359836813006069-main.pdf",
+        "content": "1-s2.0-S1359836813006069-main.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Venue:Composites_Part_B",
+      "type": "Venue",
+      "properties": {
+        "name": "Composites Part B",
+        "content": "Composites Part B"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Eunsoo_Choia",
+      "type": "Author",
+      "properties": {
+        "name": "Eunsoo Choia",
+        "content": "Eunsoo Choia"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Joo-Woo_Kimb",
+      "type": "Author",
+      "properties": {
+        "name": "Joo-Woo Kimb",
+        "content": "Joo-Woo Kimb"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Inkyu_Rheec",
+      "type": "Author",
+      "properties": {
+        "name": "Inkyu Rheec",
+        "content": "Inkyu Rheec"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Joo-Won_Kangd",
+      "type": "Author",
+      "properties": {
+        "name": "Joo-Won Kangd",
+        "content": "Joo-Won Kangd"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:modeling",
+      "type": "Keyword",
+      "properties": {
+        "name": "modeling",
+        "content": "modeling"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:rings",
+      "type": "Keyword",
+      "properties": {
+        "name": "rings",
+        "content": "rings"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Behavior in compression of concrete cylinders externally wrapped with basalt fibers",
+        "year": "2015",
+        "venue": "Composites: Part B",
+        "doi": "",
+        "file": "1-s2.0-S1359836814004521-main.pdf",
+        "content": "Behavior in compression of concrete cylinders externally wrapped with basalt fibers"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S1359836814004521-main.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "1-s2.0-S1359836814004521-main.pdf",
+        "content": "1-s2.0-S1359836814004521-main.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:G._Campione",
+      "type": "Author",
+      "properties": {
+        "name": "G. Campione",
+        "content": "G. Campione"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:L._La_Mendola",
+      "type": "Author",
+      "properties": {
+        "name": "L. La Mendola",
+        "content": "L. La Mendola"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:A._Monaco",
+      "type": "Author",
+      "properties": {
+        "name": "A. Monaco",
+        "content": "A. Monaco"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:A._Valenza",
+      "type": "Author",
+      "properties": {
+        "name": "A. Valenza",
+        "content": "A. Valenza"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:V._Fiore",
+      "type": "Author",
+      "properties": {
+        "name": "V. Fiore",
+        "content": "V. Fiore"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:externally",
+      "type": "Keyword",
+      "properties": {
+        "name": "externally",
+        "content": "externally"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:wrapped",
+      "type": "Keyword",
+      "properties": {
+        "name": "wrapped",
+        "content": "wrapped"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:basalt",
+      "type": "Keyword",
+      "properties": {
+        "name": "basalt",
+        "content": "basalt"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:fibers",
+      "type": "Keyword",
+      "properties": {
+        "name": "fibers",
+        "content": "fibers"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Behavior and modeling of FRP-con ned ultra-lightweight cement",
+        "year": "2019",
+        "venue": "Composites Part B",
+        "doi": "",
+        "file": "1-s2.0-S135983681831374X-main.pdf",
+        "content": "Behavior and modeling of FRP-con ned ultra-lightweight cement"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S135983681831374X-main.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "1-s2.0-S135983681831374X-main.pdf",
+        "content": "1-s2.0-S135983681831374X-main.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Yingwu_Zhou",
+      "type": "Author",
+      "properties": {
+        "name": "Yingwu Zhou",
+        "content": "Yingwu Zhou"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Yaowei_Zheng",
+      "type": "Author",
+      "properties": {
+        "name": "Yaowei Zheng",
+        "content": "Yaowei Zheng"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Lili_Sui",
+      "type": "Author",
+      "properties": {
+        "name": "Lili Sui",
+        "content": "Lili Sui"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Feng_Xing",
+      "type": "Author",
+      "properties": {
+        "name": "Feng Xing",
+        "content": "Feng Xing"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Jingjing_Hu",
+      "type": "Author",
+      "properties": {
+        "name": "Jingjing Hu",
+        "content": "Jingjing Hu"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Pengda_Li",
+      "type": "Author",
+      "properties": {
+        "name": "Pengda Li",
+        "content": "Pengda Li"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:frp-con",
+      "type": "Keyword",
+      "properties": {
+        "name": "frp-con",
+        "content": "frp-con"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:ultra-lightweight",
+      "type": "Keyword",
+      "properties": {
+        "name": "ultra-lightweight",
+        "content": "ultra-lightweight"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:cement",
+      "type": "Keyword",
+      "properties": {
+        "name": "cement",
+        "content": "cement"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders",
+        "year": "2008",
+        "venue": "Journal of Composites for Construction",
+        "doi": "",
+        "file": "Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders.pdf",
+        "content": "Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders.pdf",
+        "content": "Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "STRENGTH AND DUCTILITY OF TIED CONCRETE COLUMNS",
+        "year": "1980",
+        "venue": "Journal of the Structural Division",
+        "doi": "",
+        "file": "STRENGTH AND DUCTILITY OF TIED CONCRETE COLUMNS.pdf",
+        "content": "STRENGTH AND DUCTILITY OF TIED CONCRETE COLUMNS"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "STRENGTH AND DUCTILITY OF TIED CONCRETE COLUMNS.pdf",
+        "content": "STRENGTH AND DUCTILITY OF TIED CONCRETE COLUMNS.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Venue:Journal_of_the_Structural_Division",
+      "type": "Venue",
+      "properties": {
+        "name": "Journal of the Structural Division",
+        "content": "Journal of the Structural Division"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Shamim_A._Sheikh",
+      "type": "Author",
+      "properties": {
+        "name": "Shamim A. Sheikh",
+        "content": "Shamim A. Sheikh"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:S._M._Uzumeri",
+      "type": "Author",
+      "properties": {
+        "name": "S. M. Uzumeri",
+        "content": "S. M. Uzumeri"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:tied",
+      "type": "Keyword",
+      "properties": {
+        "name": "tied",
+        "content": "tied"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Behavior of Sisal Fiber Concrete Cylinders Externally Wrapped With Jute FRP",
+        "year": "2017",
+        "venue": "",
+        "doi": "10.1002/pc.23761",
+        "file": "pc.23761.pdf",
+        "content": "Behavior of Sisal Fiber Concrete Cylinders Externally Wrapped With Jute FRP"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:pc.23761.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "pc.23761.pdf",
+        "content": "pc.23761.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Haozhi_Tan",
+      "type": "Author",
+      "properties": {
+        "name": "Haozhi Tan",
+        "content": "Haozhi Tan"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Libo_Yan",
+      "type": "Author",
+      "properties": {
+        "name": "Libo Yan",
+        "content": "Libo Yan"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Liang_Huang",
+      "type": "Author",
+      "properties": {
+        "name": "Liang Huang",
+        "content": "Liang Huang"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Ying_Wang",
+      "type": "Author",
+      "properties": {
+        "name": "Ying Wang",
+        "content": "Ying Wang"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Hang_Li",
+      "type": "Author",
+      "properties": {
+        "name": "Hang Li",
+        "content": "Hang Li"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Jia-yi_Chen",
+      "type": "Author",
+      "properties": {
+        "name": "Jia-yi Chen",
+        "content": "Jia-yi Chen"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:sisal",
+      "type": "Keyword",
+      "properties": {
+        "name": "sisal",
+        "content": "sisal"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:jute",
+      "type": "Keyword",
+      "properties": {
+        "name": "jute",
+        "content": "jute"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "type": "Paper",
+      "properties": {
+        "title": "Compressive Behavior of Concrete Confined with GFRP Tubes and Steel Spirals",
+        "year": "2015",
+        "venue": "Polymers",
+        "doi": "10.3390/polym7050851",
+        "file": "polymers-07-00851.pdf",
+        "content": "Compressive Behavior of Concrete Confined with GFRP Tubes and Steel Spirals"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#LocalFile:polymers-07-00851.pdf",
+      "type": "LocalFile",
+      "properties": {
+        "file": "polymers-07-00851.pdf",
+        "content": "polymers-07-00851.pdf"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Venue:Polymers",
+      "type": "Venue",
+      "properties": {
+        "name": "Polymers",
+        "content": "Polymers"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Xiaoxun_Sun",
+      "type": "Author",
+      "properties": {
+        "name": "Xiaoxun Sun",
+        "content": "Xiaoxun Sun"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Author:Deju_Zhu",
+      "type": "Author",
+      "properties": {
+        "name": "Deju Zhu",
+        "content": "Deju Zhu"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:gfrp",
+      "type": "Keyword",
+      "properties": {
+        "name": "gfrp",
+        "content": "gfrp"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:tubes",
+      "type": "Keyword",
+      "properties": {
+        "name": "tubes",
+        "content": "tubes"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Keyword:spirals",
+      "type": "Keyword",
+      "properties": {
+        "name": "spirals",
+        "content": "spirals"
+      }
+    },
+    {
+      "id": "http://edu-scholar.org/ontology#Venue:Polymer_Composites",
+      "type": "Venue",
+      "properties": {
+        "name": "Polymer Composites",
+        "content": "Polymer Composites"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "efdfc138-03f4-5c3b-8222-bbcc3ef4cf1a",
+      "familyId": "efdfc138-03f4-5c3b-8222-bbcc3ef4cf1a",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "652b593e-40c5-56e9-addd-93254cbdfda2",
+      "familyId": "652b593e-40c5-56e9-addd-93254cbdfda2",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Joaquim_A._O._Barros",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "3dcdfb3d-11fe-55ed-96c3-1d9c6c3c3aa6",
+      "familyId": "3dcdfb3d-11fe-55ed-96c3-1d9c6c3c3aa6",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:R._S._M._Ferreira",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "1ce44c5f-8cab-545f-a3c9-fe2ed8343a90",
+      "familyId": "1ce44c5f-8cab-545f-a3c9-fe2ed8343a90",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:assessing",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "834b3753-1908-5466-b083-37e5cefa5388",
+      "familyId": "834b3753-1908-5466-b083-37e5cefa5388",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:efficiency",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "0a9b2cc3-944b-520f-b978-31e200deefbe",
+      "familyId": "0a9b2cc3-944b-520f-b978-31e200deefbe",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cfrp",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "dd62f52d-3e10-515d-a91a-8e63e8ed4747",
+      "familyId": "dd62f52d-3e10-515d-a91a-8e63e8ed4747",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:discrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "6be85430-c428-553b-bfc5-1ad5bc401472",
+      "familyId": "6be85430-c428-553b-bfc5-1ad5bc401472",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:confinement",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "ceba240e-aee1-5d70-b58d-4665d3cc9c57",
+      "familyId": "ceba240e-aee1-5d70-b58d-4665d3cc9c57",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:systems",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "649e2bbf-44db-53bb-b695-83089398c03c",
+      "familyId": "649e2bbf-44db-53bb-b695-83089398c03c",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d232d853-1589-5cda-98c3-af30a7dfcb9a",
+      "familyId": "d232d853-1589-5cda-98c3-af30a7dfcb9a",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cylinders",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f9a0bc39-9758-520e-b88c-8bf4161f9d9f",
+      "familyId": "f9a0bc39-9758-520e-b88c-8bf4161f9d9f",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:ASCE_CC.1943-5614.0000571.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "4ae06861-61ad-5262-803b-4d4de4ac49b4",
+      "familyId": "4ae06861-61ad-5262-803b-4d4de4ac49b4",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Thong_M._Pham",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f601f90e-f49d-5035-9465-6cb1ab7b352d",
+      "familyId": "f601f90e-f49d-5035-9465-6cb1ab7b352d",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Muhammad_N._S._Hadi",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d1649623-e4a1-5dd3-a558-1ac188325daf",
+      "familyId": "d1649623-e4a1-5dd3-a558-1ac188325daf",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Jim_Youssef",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "990398dd-5ffa-5f8d-9be6-6e43a5ff9656",
+      "familyId": "990398dd-5ffa-5f8d-9be6-6e43a5ff9656",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:optimized",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f184c1c1-af6f-505c-aed8-e47ff8d8be58",
+      "familyId": "f184c1c1-af6f-505c-aed8-e47ff8d8be58",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:wrapping",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "863e5dbe-427a-5c94-abf4-e1d73be3f555",
+      "familyId": "863e5dbe-427a-5c94-abf4-e1d73be3f555",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:schemes",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "824638cc-47a7-5504-ac8d-069695aca73a",
+      "familyId": "824638cc-47a7-5504-ac8d-069695aca73a",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:circular",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "7cc8b6ed-0d1e-5d12-b739-ebad3ce9bb51",
+      "familyId": "7cc8b6ed-0d1e-5d12-b739-ebad3ce9bb51",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "e29aa006-19f2-5f5b-9b29-d48769a880c2",
+      "familyId": "e29aa006-19f2-5f5b-9b29-d48769a880c2",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:columns",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "27627048-ddf4-5d77-8c87-ffb56162ae09",
+      "familyId": "27627048-ddf4-5d77-8c87-ffb56162ae09",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:axial",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "a83c6f85-70c8-5bb9-85c5-ec5466dfc725",
+      "familyId": "a83c6f85-70c8-5bb9-85c5-ec5466dfc725",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:compression",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d2d8cbc6-20c4-5325-b6ec-253f2e577dcd",
+      "familyId": "d2d8cbc6-20c4-5325-b6ec-253f2e577dcd",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0141029609001771-main.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f62ee6ac-79f3-5dce-8c47-e0fe673d1c23",
+      "familyId": "f62ee6ac-79f3-5dce-8c47-e0fe673d1c23",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Hua_Weia",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "19ff2328-a335-5b1c-9b6c-9bb270ec9806",
+      "familyId": "19ff2328-a335-5b1c-9b6c-9bb270ec9806",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Zhimin_Wua",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "67d69265-2e4f-564f-bf17-9dce438519d1",
+      "familyId": "67d69265-2e4f-564f-bf17-9dce438519d1",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Xia_Guoa",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "3405b5ac-970c-5637-a0f6-78001ec5a32e",
+      "familyId": "3405b5ac-970c-5637-a0f6-78001ec5a32e",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Fumin_Yia",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "220e92fd-9890-5658-9c02-d7e62c2b9392",
+      "familyId": "220e92fd-9890-5658-9c02-d7e62c2b9392",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:partially",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "43732dd0-91c4-5eb4-ab48-a8e6abbf33f3",
+      "familyId": "43732dd0-91c4-5eb4-ab48-a8e6abbf33f3",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:deteriorated",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "bf55dd78-f970-5597-97b8-ed3c410d0444",
+      "familyId": "bf55dd78-f970-5597-97b8-ed3c410d0444",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:strength",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "34dcfd6a-c3be-50b2-9fdb-eb6e1b1718ce",
+      "familyId": "34dcfd6a-c3be-50b2-9fdb-eb6e1b1718ce",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "a7f1e97d-486f-5fec-a1dd-8440890ed956",
+      "familyId": "a7f1e97d-486f-5fec-a1dd-8440890ed956",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:columns",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "23ae4bb8-2f73-55b7-aad8-e88c272d46c9",
+      "familyId": "23ae4bb8-2f73-55b7-aad8-e88c272d46c9",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:confined",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "e2011e04-575e-56db-b789-4ad3ed119f44",
+      "familyId": "e2011e04-575e-56db-b789-4ad3ed119f44",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cfrp",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c02a9646-3dc4-58d5-8988-6414d1f3b3a4",
+      "familyId": "c02a9646-3dc4-58d5-8988-6414d1f3b3a4",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0141029615001819-main.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "b3a39ed2-d865-5494-8e89-6abe4c52a277",
+      "familyId": "b3a39ed2-d865-5494-8e89-6abe4c52a277",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:C.X._Donga",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "86c9b679-4cb6-5a07-820e-9cd31ebbd2c9",
+      "familyId": "86c9b679-4cb6-5a07-820e-9cd31ebbd2c9",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:A.K.H._Kwana",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c987811a-91c7-5f52-9f1e-91eecef2d35d",
+      "familyId": "c987811a-91c7-5f52-9f1e-91eecef2d35d",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:J.C.M._Hob",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f95478e7-3774-5d59-b9bb-6bff3efa4baf",
+      "familyId": "f95478e7-3774-5d59-b9bb-6bff3efa4baf",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:effects",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c1fb7a18-1321-5b6f-8df0-a7d6db393b6a",
+      "familyId": "c1fb7a18-1321-5b6f-8df0-a7d6db393b6a",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:confining",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "dd104ba9-b562-5f80-bd00-48e74b86b539",
+      "familyId": "dd104ba9-b562-5f80-bd00-48e74b86b539",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:stiffness",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "a77366dc-26e1-56b1-ad79-cfaf22970cf0",
+      "familyId": "a77366dc-26e1-56b1-ad79-cfaf22970cf0",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:rupture",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d58b5d86-8eb5-57df-ac15-b52406a2c655",
+      "familyId": "d58b5d86-8eb5-57df-ac15-b52406a2c655",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:strain",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d921da63-dc2f-5a9c-b730-0e2835d9ca7d",
+      "familyId": "d921da63-dc2f-5a9c-b730-0e2835d9ca7d",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:performance",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "872965a7-942e-565f-b554-b7028a2ba3b5",
+      "familyId": "872965a7-942e-565f-b554-b7028a2ba3b5",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:confined",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "0f19877e-e66d-5100-ba1c-0acd5016f2bc",
+      "familyId": "0f19877e-e66d-5100-ba1c-0acd5016f2bc",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "edef353a-015d-5b8b-866a-8babda072e23",
+      "familyId": "edef353a-015d-5b8b-866a-8babda072e23",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S095006180500053X-main.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "56d35f8c-357b-5c05-85ce-7215765efe6f",
+      "familyId": "56d35f8c-357b-5c05-85ce-7215765efe6f",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:G._Wu",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "ae9a6c3e-6e5b-5c12-826b-e8a5055f99b4",
+      "familyId": "ae9a6c3e-6e5b-5c12-826b-e8a5055f99b4",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Z.T._Lu",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f8a2b95f-232e-580c-88c8-dc39d5e03cca",
+      "familyId": "f8a2b95f-232e-580c-88c8-dc39d5e03cca",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Z.S._Wu",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "8cebb421-a654-5f33-9d8f-661f649e8b50",
+      "familyId": "8cebb421-a654-5f33-9d8f-661f649e8b50",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:strength",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "4985472d-7642-54f1-b887-cd446e32518c",
+      "familyId": "4985472d-7642-54f1-b887-cd446e32518c",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:ductility",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "ee25acad-aac8-5d3d-93b3-6a8a844be3d2",
+      "familyId": "ee25acad-aac8-5d3d-93b3-6a8a844be3d2",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "bb22ac0a-49d5-546a-8821-00396a0881e2",
+      "familyId": "bb22ac0a-49d5-546a-8821-00396a0881e2",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cylinders",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f1b5229a-7035-53e2-ba95-9f55d59205b9",
+      "familyId": "f1b5229a-7035-53e2-ba95-9f55d59205b9",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:confined",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "b00afdd4-eaee-579c-ba58-3fbb6457dd45",
+      "familyId": "b00afdd4-eaee-579c-ba58-3fbb6457dd45",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:composites",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "2514cd38-92b8-59c3-a265-fd67e31639d8",
+      "familyId": "2514cd38-92b8-59c3-a265-fd67e31639d8",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0950061818330757-main.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d4918fe9-daf0-5099-9fc3-f3d23b658143",
+      "familyId": "d4918fe9-daf0-5099-9fc3-f3d23b658143",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Ruqayyah_Ismaila",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "7886dfa6-6af4-52cd-9029-033bd383c09b",
+      "familyId": "7886dfa6-6af4-52cd-9029-033bd383c09b",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Raizal_S.M._Rashida",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "9a15a4f5-ce1d-524d-b20c-2bef8a586238",
+      "familyId": "9a15a4f5-ce1d-524d-b20c-2bef8a586238",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Wong_Chien_Chana",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "e496149d-a48d-5617-85c9-77085ddbcaf5",
+      "familyId": "e496149d-a48d-5617-85c9-77085ddbcaf5",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Mohd_Saleh_Jaafara",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "3077d7d7-4d1a-5180-9659-f9af6d98ffda",
+      "familyId": "3077d7d7-4d1a-5180-9659-f9af6d98ffda",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Farzad_Hejazia",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "59a5515b-fe2d-5a1a-95d3-6613a21d9455",
+      "familyId": "59a5515b-fe2d-5a1a-95d3-6613a21d9455",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:compressive",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f46f13a1-1ad8-5e38-bcc6-b7df9a702dc6",
+      "familyId": "f46f13a1-1ad8-5e38-bcc6-b7df9a702dc6",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "99082ce1-ab7d-569c-b1c3-77618e0e3841",
+      "familyId": "99082ce1-ab7d-569c-b1c3-77618e0e3841",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cylinder",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "4781b1ea-3086-5eda-acb6-148ee3724cc9",
+      "familyId": "4781b1ea-3086-5eda-acb6-148ee3724cc9",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:fully",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "64f18dda-978e-574e-8435-e8b3e122bd30",
+      "familyId": "64f18dda-978e-574e-8435-e8b3e122bd30",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:partially",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "6be8d9ed-dba7-5892-b6fc-01fefbc2cb44",
+      "familyId": "6be8d9ed-dba7-5892-b6fc-01fefbc2cb44",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:confined",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "54dd3af3-c0d9-5d34-a4e6-597f5f44b0ab",
+      "familyId": "54dd3af3-c0d9-5d34-a4e6-597f5f44b0ab",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S0950061819324857-main.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "99eafaf2-0b55-508e-b9c4-2ff4cb455458",
+      "familyId": "99eafaf2-0b55-508e-b9c4-2ff4cb455458",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Muhammad_Usmana",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "627ad8c1-ffec-57d7-857f-408114c32e59",
+      "familyId": "627ad8c1-ffec-57d7-857f-408114c32e59",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Syed_Hassan_Farooqa",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "02a36aee-1bb5-50bf-a953-e2cace59e989",
+      "familyId": "02a36aee-1bb5-50bf-a953-e2cace59e989",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Mohammad_Umaira",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "ede9664d-1d73-50a4-9be9-c07c9a07d29d",
+      "familyId": "ede9664d-1d73-50a4-9be9-c07c9a07d29d",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Asad_Hanifb",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "b42afac9-f4af-58eb-b289-1cd9d35b313b",
+      "familyId": "b42afac9-f4af-58eb-b289-1cd9d35b313b",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:axial",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "a1eed5f4-b865-552e-9eb2-642d74904e5e",
+      "familyId": "a1eed5f4-b865-552e-9eb2-642d74904e5e",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:compressive",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c2b28c31-eb9d-5e39-b965-ad6841e2832e",
+      "familyId": "c2b28c31-eb9d-5e39-b965-ad6841e2832e",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:confined",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "b5e127da-d937-5d23-a0ca-16ffe7cab77f",
+      "familyId": "b5e127da-d937-5d23-a0ca-16ffe7cab77f",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:steel",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "921fe265-921b-5fd1-b6cf-94df845392b0",
+      "familyId": "921fe265-921b-5fd1-b6cf-94df845392b0",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:fiber",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "31eb9c9d-58bc-5684-80af-c3bbf63a9ed0",
+      "familyId": "31eb9c9d-58bc-5684-80af-c3bbf63a9ed0",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:reinforced",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "32da079a-7ced-5589-822f-876c7696460d",
+      "familyId": "32da079a-7ced-5589-822f-876c7696460d",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:high",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f469403e-2f78-550b-992e-bb823637c2bd",
+      "familyId": "f469403e-2f78-550b-992e-bb823637c2bd",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:strength",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d912e567-45f8-51ef-b1c9-f1cf4dbef7ce",
+      "familyId": "d912e567-45f8-51ef-b1c9-f1cf4dbef7ce",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "81b3e765-e1d0-5258-9cbe-8766f49d5e4e",
+      "familyId": "81b3e765-e1d0-5258-9cbe-8766f49d5e4e",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S1359836813006069-main.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "9a030dc5-3505-533e-a820-b36444552735",
+      "familyId": "9a030dc5-3505-533e-a820-b36444552735",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Eunsoo_Choia",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "ecdfb655-1221-588b-b8d6-3a4c85682370",
+      "familyId": "ecdfb655-1221-588b-b8d6-3a4c85682370",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Joo-Woo_Kimb",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "a22dd3db-9e62-5bc1-b986-5bb8dfa438cf",
+      "familyId": "a22dd3db-9e62-5bc1-b986-5bb8dfa438cf",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Inkyu_Rheec",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "eb4ccdd5-a5bf-5576-bef0-1501ec5432ea",
+      "familyId": "eb4ccdd5-a5bf-5576-bef0-1501ec5432ea",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Joo-Won_Kangd",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "9c6f5f6d-5b81-5ed1-83c5-1b69f1455f96",
+      "familyId": "9c6f5f6d-5b81-5ed1-83c5-1b69f1455f96",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:modeling",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d9ff3784-5290-5ada-8b3e-61377f2f7bbd",
+      "familyId": "d9ff3784-5290-5ada-8b3e-61377f2f7bbd",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:confined",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "0ff2a693-e670-5bb7-bcd5-ded5dfcc84f5",
+      "familyId": "0ff2a693-e670-5bb7-bcd5-ded5dfcc84f5",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "4750292b-15dd-5d4b-8842-117a4bb64911",
+      "familyId": "4750292b-15dd-5d4b-8842-117a4bb64911",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cylinders",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "47965d29-ed11-527c-af4f-3a384863b4ec",
+      "familyId": "47965d29-ed11-527c-af4f-3a384863b4ec",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:axial",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "3a207fa0-4409-547d-98f3-3525068e45c8",
+      "familyId": "3a207fa0-4409-547d-98f3-3525068e45c8",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:compression",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "769fc561-4967-5fd5-a6d4-e08135cc5f56",
+      "familyId": "769fc561-4967-5fd5-a6d4-e08135cc5f56",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:rings",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d6a87b3c-b06d-51dd-8a46-b7d22b80dc3c",
+      "familyId": "d6a87b3c-b06d-51dd-8a46-b7d22b80dc3c",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S1359836814004521-main.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "25eee98c-c99e-5113-b0bf-2d3f141f8fdd",
+      "familyId": "25eee98c-c99e-5113-b0bf-2d3f141f8fdd",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:G._Campione",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f41a81d3-e684-5067-a15b-51385a115444",
+      "familyId": "f41a81d3-e684-5067-a15b-51385a115444",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:L._La_Mendola",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "91ad9ab7-4942-591b-addb-db538992fa2a",
+      "familyId": "91ad9ab7-4942-591b-addb-db538992fa2a",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:A._Monaco",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d9b8b196-0e97-5038-a4fe-caed2fb096ab",
+      "familyId": "d9b8b196-0e97-5038-a4fe-caed2fb096ab",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:A._Valenza",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "26f0872d-d9d2-536d-8797-c7f2dab998b7",
+      "familyId": "26f0872d-d9d2-536d-8797-c7f2dab998b7",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:V._Fiore",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "31f9a713-da64-51d6-8694-c16381b5da13",
+      "familyId": "31f9a713-da64-51d6-8694-c16381b5da13",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:compression",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "721ec2f9-a6da-5041-8103-788a7b423fec",
+      "familyId": "721ec2f9-a6da-5041-8103-788a7b423fec",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "715f460f-8428-56b7-820a-b7d0403c1b06",
+      "familyId": "715f460f-8428-56b7-820a-b7d0403c1b06",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cylinders",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c829b34c-9105-5619-9c47-5361cef6d3b0",
+      "familyId": "c829b34c-9105-5619-9c47-5361cef6d3b0",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:externally",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "104b2e44-f392-5e0e-95ca-c62f0bf07579",
+      "familyId": "104b2e44-f392-5e0e-95ca-c62f0bf07579",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:wrapped",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d9fe916a-ba28-55a8-901b-6ae7ddc4d8be",
+      "familyId": "d9fe916a-ba28-55a8-901b-6ae7ddc4d8be",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:basalt",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "8400055d-34df-5b1a-b33d-24ecd50f317c",
+      "familyId": "8400055d-34df-5b1a-b33d-24ecd50f317c",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:fibers",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "8f5cebd3-cc35-5862-a643-7594e6a7b778",
+      "familyId": "8f5cebd3-cc35-5862-a643-7594e6a7b778",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:1-s2.0-S135983681831374X-main.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "399201e8-53b8-5b5f-a938-ee42db11bce0",
+      "familyId": "399201e8-53b8-5b5f-a938-ee42db11bce0",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Yingwu_Zhou",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "46a73d09-6fb9-5ae3-85fe-ec163eb164e4",
+      "familyId": "46a73d09-6fb9-5ae3-85fe-ec163eb164e4",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Yaowei_Zheng",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "05309894-f13d-506c-8fb2-5aeef2cdcfa9",
+      "familyId": "05309894-f13d-506c-8fb2-5aeef2cdcfa9",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Lili_Sui",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d28ad1d5-93aa-5269-88d6-66adf419f4be",
+      "familyId": "d28ad1d5-93aa-5269-88d6-66adf419f4be",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Feng_Xing",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "bad50df7-21e6-562e-8474-5ef701e7ac89",
+      "familyId": "bad50df7-21e6-562e-8474-5ef701e7ac89",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Jingjing_Hu",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d35a9aa7-f97b-589e-a7f4-b83d8f2f65b8",
+      "familyId": "d35a9aa7-f97b-589e-a7f4-b83d8f2f65b8",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Pengda_Li",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "0f2171b5-1dba-53c1-a6ad-81580119315c",
+      "familyId": "0f2171b5-1dba-53c1-a6ad-81580119315c",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:modeling",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "380b7a75-e157-5399-9818-e05dbfd2c708",
+      "familyId": "380b7a75-e157-5399-9818-e05dbfd2c708",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:frp-con",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "e956d9e5-9ad2-5ee8-84f3-5977331f65c0",
+      "familyId": "e956d9e5-9ad2-5ee8-84f3-5977331f65c0",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:ultra-lightweight",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "7b4eef74-2d12-5a5a-8916-b1dcfa866c13",
+      "familyId": "7b4eef74-2d12-5a5a-8916-b1dcfa866c13",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cement",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "18521bd3-7b1d-5d1e-ab36-659dbad7abb5",
+      "familyId": "18521bd3-7b1d-5d1e-ab36-659dbad7abb5",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c0e770af-7018-5977-93f7-1c6273bf8732",
+      "familyId": "c0e770af-7018-5977-93f7-1c6273bf8732",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Joaquim_A._O._Barros",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "31b4d60e-1c25-5670-b6d5-1c5663676235",
+      "familyId": "31b4d60e-1c25-5670-b6d5-1c5663676235",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:R._S._M._Ferreira",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "3fca0be0-d746-523d-8124-7adf30a59673",
+      "familyId": "3fca0be0-d746-523d-8124-7adf30a59673",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:assessing",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "775a19f8-0b84-5d26-a8c6-39d74340fee4",
+      "familyId": "775a19f8-0b84-5d26-a8c6-39d74340fee4",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:efficiency",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "07653c98-7c4d-5649-b134-f3eca77ca01e",
+      "familyId": "07653c98-7c4d-5649-b134-f3eca77ca01e",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cfrp",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c55b42a8-8399-5fe8-9197-e3fcdea32ab3",
+      "familyId": "c55b42a8-8399-5fe8-9197-e3fcdea32ab3",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:discrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "b7e333ae-d9d9-5b2f-b6ef-0a40f840e6e9",
+      "familyId": "b7e333ae-d9d9-5b2f-b6ef-0a40f840e6e9",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:confinement",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "09e737a1-02c2-59dc-b0d8-a7daec1bdbb9",
+      "familyId": "09e737a1-02c2-59dc-b0d8-a7daec1bdbb9",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:systems",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "9b06e6f6-1a12-5522-9163-4619a68b07e6",
+      "familyId": "9b06e6f6-1a12-5522-9163-4619a68b07e6",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "11955d50-b71c-5e2f-b277-2bfc473f10e4",
+      "familyId": "11955d50-b71c-5e2f-b277-2bfc473f10e4",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cylinders",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "5d0be33b-bef5-5df8-bbe1-787edc7cc5ea",
+      "familyId": "5d0be33b-bef5-5df8-bbe1-787edc7cc5ea",
+      "source_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "80096e93-52e6-5114-a0dd-a4e8461e8d71",
+      "familyId": "80096e93-52e6-5114-a0dd-a4e8461e8d71",
+      "source_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Shamim_A._Sheikh",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "3f3d1a5d-850f-5920-a302-24aa3ef3bcee",
+      "familyId": "3f3d1a5d-850f-5920-a302-24aa3ef3bcee",
+      "source_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:S._M._Uzumeri",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "8c7b85d7-d114-552a-95e2-9da2a9e63d5d",
+      "familyId": "8c7b85d7-d114-552a-95e2-9da2a9e63d5d",
+      "source_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:strength",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c4de9f6a-34c7-5b73-9b19-d414662c38ea",
+      "familyId": "c4de9f6a-34c7-5b73-9b19-d414662c38ea",
+      "source_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:ductility",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "6a604686-7167-526f-87ae-bcef7ca80470",
+      "familyId": "6a604686-7167-526f-87ae-bcef7ca80470",
+      "source_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:tied",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "a9dcbecb-d66d-5924-9e96-28b5de88a70b",
+      "familyId": "a9dcbecb-d66d-5924-9e96-28b5de88a70b",
+      "source_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "2ce99ac7-669a-54db-8f2e-9a69cc0559a7",
+      "familyId": "2ce99ac7-669a-54db-8f2e-9a69cc0559a7",
+      "source_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:columns",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "12795383-7f93-5861-8087-2eeed3676744",
+      "familyId": "12795383-7f93-5861-8087-2eeed3676744",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:pc.23761.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f429170a-da6b-56aa-a582-9644327845d7",
+      "familyId": "f429170a-da6b-56aa-a582-9644327845d7",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Haozhi_Tan",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "ff501375-2a69-5a0e-b2f6-383b9f53bb52",
+      "familyId": "ff501375-2a69-5a0e-b2f6-383b9f53bb52",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Libo_Yan",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d1d4640c-63ac-5ff6-9fb5-157480491b29",
+      "familyId": "d1d4640c-63ac-5ff6-9fb5-157480491b29",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Liang_Huang",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c94d875c-7f3d-585d-b9cd-d009fcd6ea80",
+      "familyId": "c94d875c-7f3d-585d-b9cd-d009fcd6ea80",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Ying_Wang",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "40a4b67f-5bee-5696-9792-d5ba7b5c6c80",
+      "familyId": "40a4b67f-5bee-5696-9792-d5ba7b5c6c80",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Hang_Li",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "31f01e1c-692d-5c33-8044-5c0273240676",
+      "familyId": "31f01e1c-692d-5c33-8044-5c0273240676",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Jia-yi_Chen",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "5121c176-3716-53c1-b66f-dc5537f8a8c1",
+      "familyId": "5121c176-3716-53c1-b66f-dc5537f8a8c1",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:sisal",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "a1e1c4b4-6d9e-5799-9cfb-4472578061eb",
+      "familyId": "a1e1c4b4-6d9e-5799-9cfb-4472578061eb",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:fiber",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "2b62b2d4-3e5f-5bd8-afe8-a3307c914dd7",
+      "familyId": "2b62b2d4-3e5f-5bd8-afe8-a3307c914dd7",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "dd285ae6-450c-5f53-a4cd-9ab40118c296",
+      "familyId": "dd285ae6-450c-5f53-a4cd-9ab40118c296",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:cylinders",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "2939d781-2ae4-5363-a359-03708f50ff22",
+      "familyId": "2939d781-2ae4-5363-a359-03708f50ff22",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:externally",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c67c9644-f749-5368-815b-7acb72c97360",
+      "familyId": "c67c9644-f749-5368-815b-7acb72c97360",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:wrapped",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "ed022234-3120-5260-bab1-b2aa12e77c97",
+      "familyId": "ed022234-3120-5260-bab1-b2aa12e77c97",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:jute",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d55328a6-c772-56db-bfbd-ce4716fa70d4",
+      "familyId": "d55328a6-c772-56db-bfbd-ce4716fa70d4",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#LocalFile:polymers-07-00851.pdf",
+      "type": "related_to",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f09a0529-21a7-5a55-80a9-1422355f09a1",
+      "familyId": "f09a0529-21a7-5a55-80a9-1422355f09a1",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Liang_Huang",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "0fda4a89-82ab-5aa9-8853-187238c07b93",
+      "familyId": "0fda4a89-82ab-5aa9-8853-187238c07b93",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Xiaoxun_Sun",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "4ec645ef-1b5b-5bf1-afa2-d126e56f1fc3",
+      "familyId": "4ec645ef-1b5b-5bf1-afa2-d126e56f1fc3",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Libo_Yan",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "aa41b694-3236-5b49-bb76-c3e8a2439107",
+      "familyId": "aa41b694-3236-5b49-bb76-c3e8a2439107",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Author:Deju_Zhu",
+      "type": "hasAuthor",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "4f6b3b3d-1aff-5f71-b6f3-6f2c316fb967",
+      "familyId": "4f6b3b3d-1aff-5f71-b6f3-6f2c316fb967",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:compressive",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "ff88832d-e710-5ff5-ae6c-f3b6e8ec0001",
+      "familyId": "ff88832d-e710-5ff5-ae6c-f3b6e8ec0001",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:concrete",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "a4160c93-a59e-54b4-96fe-d70f9f2846ef",
+      "familyId": "a4160c93-a59e-54b4-96fe-d70f9f2846ef",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:confined",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f97c4c8a-5c54-55aa-bc18-a7dc278ad786",
+      "familyId": "f97c4c8a-5c54-55aa-bc18-a7dc278ad786",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:gfrp",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "aa43168f-6a6c-55f5-8668-8b2ce05046a7",
+      "familyId": "aa43168f-6a6c-55f5-8668-8b2ce05046a7",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:tubes",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "5458c3ec-0c35-5cf7-87ba-df6b667723bc",
+      "familyId": "5458c3ec-0c35-5cf7-87ba-df6b667723bc",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:steel",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "5e8c34fe-c2de-5a66-9f43-1a297e349ffa",
+      "familyId": "5e8c34fe-c2de-5a66-9f43-1a297e349ffa",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Keyword:spirals",
+      "type": "hasKeyword",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "217a360f-8439-5746-88c7-9c87a3cf19cb",
+      "familyId": "217a360f-8439-5746-88c7-9c87a3cf19cb",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "bbdb5ef4-6c71-5b78-8e17-d96897ce72cf",
+      "familyId": "bbdb5ef4-6c71-5b78-8e17-d96897ce72cf",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "601262f1-465a-548f-a22e-ac2ade161ad1",
+      "familyId": "601262f1-465a-548f-a22e-ac2ade161ad1",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "9dc4d5f5-f31e-50d2-b8bd-a3948c0f0ab7",
+      "familyId": "9dc4d5f5-f31e-50d2-b8bd-a3948c0f0ab7",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "bb1dc297-175d-52d0-95a1-5485f5fabc85",
+      "familyId": "bb1dc297-175d-52d0-95a1-5485f5fabc85",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "806d6a0a-5943-51fb-8554-01cb23a45c75",
+      "familyId": "806d6a0a-5943-51fb-8554-01cb23a45c75",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "272bccc9-07fc-5419-ab9d-b793c55d5a24",
+      "familyId": "272bccc9-07fc-5419-ab9d-b793c55d5a24",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "ea4525f9-2477-56cb-b246-3b4f5edd2d9f",
+      "familyId": "ea4525f9-2477-56cb-b246-3b4f5edd2d9f",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "179ae23c-3e1e-5b7d-850f-a4ecb1aebd2e",
+      "familyId": "179ae23c-3e1e-5b7d-850f-a4ecb1aebd2e",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "8764100d-2519-534b-9a2f-1de7f6c138a4",
+      "familyId": "8764100d-2519-534b-9a2f-1de7f6c138a4",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "826cc6f6-6700-5afe-ba6e-1d67a1a03082",
+      "familyId": "826cc6f6-6700-5afe-ba6e-1d67a1a03082",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f02ea612-552d-53e0-b6ee-9999e22c59d6",
+      "familyId": "f02ea612-552d-53e0-b6ee-9999e22c59d6",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "aa328ff6-42ac-5a97-8e03-85444e026117",
+      "familyId": "aa328ff6-42ac-5a97-8e03-85444e026117",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "4f29853c-691c-5281-b3c1-dc1cfc73225d",
+      "familyId": "4f29853c-691c-5281-b3c1-dc1cfc73225d",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f527a0c4-3a66-5157-b35d-9f7c0996c50b",
+      "familyId": "f527a0c4-3a66-5157-b35d-9f7c0996c50b",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "6d4dad24-2b9f-588d-98cf-dd3f262a7ae7",
+      "familyId": "6d4dad24-2b9f-588d-98cf-dd3f262a7ae7",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "ce48cbab-3ea4-5f53-9947-b2384319f762",
+      "familyId": "ce48cbab-3ea4-5f53-9947-b2384319f762",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "4e0195c0-4b47-57f5-bc31-2823ef168400",
+      "familyId": "4e0195c0-4b47-57f5-bc31-2823ef168400",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "bac75f40-ba02-5691-b307-214a307736fc",
+      "familyId": "bac75f40-ba02-5691-b307-214a307736fc",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "dbeea29a-2373-5c85-9ba3-76453f526c63",
+      "familyId": "dbeea29a-2373-5c85-9ba3-76453f526c63",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "9f1cbbb7-dc1d-5636-bf22-8fde7d11c981",
+      "familyId": "9f1cbbb7-dc1d-5636-bf22-8fde7d11c981",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "2b57d7c7-48eb-5274-be03-7b467aaed301",
+      "familyId": "2b57d7c7-48eb-5274-be03-7b467aaed301",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "551d9a9e-8c44-5943-8ee9-dff7313aec9c",
+      "familyId": "551d9a9e-8c44-5943-8ee9-dff7313aec9c",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "type": "cites",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "d8a33e4f-69c9-5e1d-9458-6e56f34db6c6",
+      "familyId": "d8a33e4f-69c9-5e1d-9458-6e56f34db6c6",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_1090-0268_2008_12_2_134_.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Journal_of_Composites_for_Construction",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "0f2b8fd0-e974-5405-8f16-6aeef3edaf35",
+      "familyId": "0f2b8fd0-e974-5405-8f16-6aeef3edaf35",
+      "source_id": "http://edu-scholar.org/ontology#Paper:ASCE_CC.1943-5614.0000571.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Journal_of_Composites_for_Construction",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "bcb8bd9c-ac8a-54fa-93cf-9b226c5ae50b",
+      "familyId": "bcb8bd9c-ac8a-54fa-93cf-9b226c5ae50b",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029609001771-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Engineering_Structures",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "c4238be9-12eb-583d-9532-f8c1a8064abb",
+      "familyId": "c4238be9-12eb-583d-9532-f8c1a8064abb",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0141029615001819-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Engineering_Structures",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "dc4fd1ed-3e31-5cf5-9ede-9968decfe3df",
+      "familyId": "dc4fd1ed-3e31-5cf5-9ede-9968decfe3df",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S095006180500053X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Construction_and_Building_Materials",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "2b721c6e-0ba2-54de-9e90-b50561feca68",
+      "familyId": "2b721c6e-0ba2-54de-9e90-b50561feca68",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061818330757-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Construction_and_Building_Materials",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "f48aadbe-4f28-5813-b55c-8524f641d0f8",
+      "familyId": "f48aadbe-4f28-5813-b55c-8524f641d0f8",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S0950061819324857-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Construction_and_Building_Materials",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "994c9297-de19-5867-89cf-0d3c0b88be39",
+      "familyId": "994c9297-de19-5867-89cf-0d3c0b88be39",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836813006069-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Composites_Part_B",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "1eb0b496-1918-5dd3-b51e-f25fdff59c68",
+      "familyId": "1eb0b496-1918-5dd3-b51e-f25fdff59c68",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S1359836814004521-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Composites_Part_B",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "e937a963-4feb-53be-a16f-0252b248efa3",
+      "familyId": "e937a963-4feb-53be-a16f-0252b248efa3",
+      "source_id": "http://edu-scholar.org/ontology#Paper:1-s2.0-S135983681831374X-main.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Composites_Part_B",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "7794abfa-0a3a-5cad-a781-d1d8ead07274",
+      "familyId": "7794abfa-0a3a-5cad-a781-d1d8ead07274",
+      "source_id": "http://edu-scholar.org/ontology#Paper:Assessing_the_Efficiency_of_CFRP_Discrete_Confinement_Systems_for_Concrete_Cylinders.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Journal_of_Composites_for_Construction",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "0601e23c-b2c5-50e8-83e1-3db5e8fb640f",
+      "familyId": "0601e23c-b2c5-50e8-83e1-3db5e8fb640f",
+      "source_id": "http://edu-scholar.org/ontology#Paper:STRENGTH_AND_DUCTILITY_OF_TIED_CONCRETE_COLUMNS.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Journal_of_the_Structural_Division",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "3d17be86-cfca-57e4-84e9-5f6175c1ffc0",
+      "familyId": "3d17be86-cfca-57e4-84e9-5f6175c1ffc0",
+      "source_id": "http://edu-scholar.org/ontology#Paper:pc.23761.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Polymer_Composites",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    },
+    {
+      "id": "53c37eff-8501-5a02-9cbf-dc8778e0c625",
+      "familyId": "53c37eff-8501-5a02-9cbf-dc8778e0c625",
+      "source_id": "http://edu-scholar.org/ontology#Paper:polymers-07-00851.pdf",
+      "target_id": "http://edu-scholar.org/ontology#Venue:Polymers",
+      "type": "publishedIn",
+      "weight": 1.0,
+      "properties": {}
+    }
+  ],
+  "links": []
+}

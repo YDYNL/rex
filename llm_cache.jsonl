@@ -1,0 +1,1 @@
+{"k": "ffc8f95a9b248231bfc9f84cecf3c49f669f23dc", "v": ["该文献研究了基于知识图谱的学术文献语义检索方法，通过本体建模统一实体与关系语义，并结合向量检索实现跨库语义检索，实验表明在自建数据集上召回率提升了12%。", ["knowledge graph", "semantic retrieval", "academic literature", "ontology modeling", "vector retrieval"], ["信息检索", "知识图谱", "自然语言处理"], 0.95], "at": "2026-10-24T11:12:39"}

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>科研学术场景实施流程图 · Palantir 落地</title>
+<style>
+:root{
+  --bg0:#081018;
+  --bg1:#0e1a28;
+  --bg2:#152438;
+  --line:rgba(148,163,184,.18);
+  --txt:#e8edf6;
+  --txt-dim:#8b96ad;
+  --indigo:#818cf8;
+  --cyan:#22d3ee;
+  --emerald:#34d399;
+  --amber:#fbbf24;
+  --blue:#60a5fa;
+  --pink:#e879f9;
+  --teal:#2dd4bf;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  background:
+    radial-gradient(1200px 620px at 82% -8%, rgba(34,211,238,.14), transparent 60%),
+    radial-gradient(1000px 520px at 8% 0%, rgba(129,140,248,.14), transparent 55%),
+    linear-gradient(180deg,var(--bg1),var(--bg0) 62%);
+  color:var(--txt);
+  min-height:100vh;
+  padding:52px 24px 80px;
+}
+.wrap{max-width:1080px;margin:0 auto}
+header{text-align:center;margin-bottom:36px}
+header .kicker{
+  display:inline-block;font-size:12px;letter-spacing:4px;color:var(--teal);
+  border:1px solid rgba(45,212,191,.4);border-radius:999px;padding:5px 16px;margin-bottom:18px;
+  background:rgba(45,212,191,.08);
+}
+h1{
+  font-size:38px;font-weight:800;letter-spacing:1px;
+  background:linear-gradient(90deg,#ccfbf1,#a5b4fc 50%,#f5d0fe);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+header .sub{margin-top:14px;color:var(--txt-dim);font-size:15px;letter-spacing:.3px}
+
+/* 业务目标横幅 */
+.goal{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:26px 0 34px;
+}
+.goal .g{
+  border:1px solid var(--line);border-radius:14px;padding:16px 14px;text-align:center;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+}
+.goal .g .gn{font-size:15px;font-weight:700;color:#ccfbf1}
+.goal .g .gd{font-size:11.5px;color:var(--txt-dim);margin-top:5px;line-height:1.5}
+
+/* 阶段分组头 */
+.phase-gap{display:flex;align-items:center;gap:14px;margin:34px 0 16px}
+.phase-gap .pg-tag{
+  font-size:12px;font-weight:800;letter-spacing:2px;padding:6px 16px;border-radius:999px;white-space:nowrap;
+}
+.phase-gap .pg-line{flex:1;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--pgc),transparent)}
+.pg-a{--pgc:#60a5fa}.pg-a .pg-tag{color:#93c5fd;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.4)}
+.pg-b{--pgc:#a78bfa}.pg-b .pg-tag{color:#c4b5fd;background:rgba(167,139,250,.14);border:1px solid rgba(167,139,250,.4)}
+.pg-c{--pgc:#34d399}.pg-c .pg-tag{color:#6ee7b7;background:rgba(52,211,153,.14);border:1px solid rgba(52,211,153,.4)}
+.phase-gap .pg-txt{color:var(--txt-dim);font-size:12.5px;letter-spacing:1px}
+
+/* 阶段卡片 */
+.phase{
+  display:grid;grid-template-columns:64px 1fr;gap:18px;border-radius:16px;padding:20px 22px;
+  border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));
+  position:relative;transition:transform .2s ease,box-shadow .2s ease;
+}
+.phase:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.phase .p-num{
+  width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:800;color:#0b1120;background:linear-gradient(135deg,var(--pc1),var(--pc2));
+  box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+.p-a .p-num{--pc1:#60a5fa;--pc2:#818cf8}
+.p-b .p-num{--pc1:#a78bfa;--pc2:#e879f9}
+.p-c .p-num{--pc1:#34d399;--pc2:#22d3ee}
+.phase .p-body .p-title{font-size:19px;font-weight:800;margin-bottom:4px}
+.phase .p-body .p-sub{font-size:12px;color:var(--txt-dim);margin-bottom:12px;line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.05);color:#cbd5e1}
+.chip.hl{border-color:rgba(232,121,249,.45);color:#f0abfc;background:rgba(232,121,249,.10)}
+.deliv{
+  font-size:12px;line-height:1.7;padding:10px 14px;border-radius:10px;
+  background:rgba(255,255,255,.035);border:1px dashed var(--line);color:var(--txt-dim);
+}
+.deliv b{color:#c7d2fe}
+.mile{
+  display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;font-weight:700;
+  color:#0b1120;background:linear-gradient(90deg,#fbbf24,#fcd34d);padding:5px 14px;border-radius:999px;
+}
+.mile::before{content:"◆"}
+/* 阶段间箭头 */
+.arrow{display:flex;justify-content:center;align-items:center;height:30px;position:relative}
+.arrow::before{content:"";width:100%;max-width:420px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--txt-dim),transparent)}
+.arrow::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:0;height:0;
+  border-top:7px solid var(--txt-dim);border-left:5px solid transparent;border-right:5px solid transparent}
+
+/* 底部 */
+.footer-note{margin-top:30px;text-align:center;color:var(--txt-dim);font-size:13px;line-height:1.9}
+.footer-note b{color:#a7f3d0}
+
+@media(max-width:720px){
+  h1{font-size:28px}
+  .goal{grid-template-columns:repeat(2,1fr)}
+  .phase{grid-template-columns:1fr}
+  .phase .p-num{width:52px;height:52px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="kicker">USE CASE · RESEARCH INSTITUTION</span>
+    <h1>科研学术场景实施流程图</h1>
+    <div class="sub">研究型高等院校 · 基于 Palantir Foundry / Ontology 从需求到上线的端到端实施路径</div>
+  </header>
+
+  <!-- 业务目标 -->
+  <div class="goal">
+    <div class="g"><div class="gn">管理学术资产</div><div class="gd">论文、专利、项目、实验数据统一纳管</div></div>
+    <div class="g"><div class="gn">分析海量科研数据</div><div class="gd">跨来源整合、图谱关联、趋势洞察</div></div>
+    <div class="g"><div class="gn">提供高效科研工具</div><div class="gd">检索问答、文献图谱、智能推荐、Agent 助手</div></div>
+    <div class="g"><div class="gn">提升学术产出质量与效率</div><div class="gd">以数据驱动选题、协作与成果转化</div></div>
+  </div>
+
+  <!-- ============ Phase A ============ -->
+  <div class="phase-gap pg-a">
+    <span class="pg-tag">PHASE A · 规划与接入</span>
+    <span class="pg-txt">厘清目标、接入数据、设计本体</span>
+    <div class="pg-line"></div>
+  </div>
+
+  <!-- ① 调研与需求梳理 -->
+  <div class="phase p-a">
+    <div class="p-num">①</div>
+    <div class="p-body">
+      <div class="p-title">调研与需求梳理</div>
+      <div class="p-sub">理解科研学者真实痛点，把模糊诉求拆解为可执行、可度量的业务目标</div>
+      <div class="chips">
+        <span class="chip">科研学者痛点访谈</span>
+        <span class="chip">业务目标拆解</span>
+        <span class="chip">成功指标定义</span>
+      </div>
+      <div class="deliv"><b>关键交付物：</b>需求调研报告 · 业务蓝图 · 成功指标（KPI）体系</div>
+      <div class="mile">M1 需求与指标基线确认</div>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- ② 数据接入 -->
+  <div class="phase p-a">
+    <div class="p-num">②</div>
+    <div class="p-body">
+      <div class="p-title">数据接入</div>
+      <div class="p-sub">通过 Data Connection / Pipeline 将多源异构科研数据接入平台并统一组织</div>
+      <div class="chips">
+        <span class="chip hl">文献源：Zotero · arXiv · Web of Science · CNKI</span>
+        <span class="chip">实验数据</span>
+        <span class="chip">项目与经费</span>
+        <span class="chip">人员组织</span>
+      </div>
+      <div class="deliv"><b>关键交付物：</b>数据源清单 · 连接器与数据管道 · 数据字典</div>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- ③ 本体设计 -->
+  <div class="phase p-a">
+    <div class="p-num">③</div>
+    <div class="p-body">
+      <div class="p-title">本体设计</div>
+      <div class="p-sub">借鉴学术语义标准设计 Ontology 模式，定义对象、关系与消歧策略</div>
+      <div class="chips">
+        <span class="chip hl">复用学术本体词汇：SPAR · BIBO · CiTO</span>
+        <span class="chip">对象类型：学者 · 论文 · 项目 · 实验 · 设备 · 经费</span>
+        <span class="chip">链接类型：作者 · 引用 · 资助 · 产出</span>
+        <span class="chip hl">实体消歧方案（同名作者 / 机构归一）</span>
+      </div>
+      <div class="deliv"><b>关键交付物：</b>本体建模文档（类 / 属性 / 关系）· 命名与消歧规范</div>
+      <div class="mile">M2 本体模型评审通过</div>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- ============ Phase B ============ -->
+  <div class="phase-gap pg-b">
+    <span class="pg-tag">PHASE B · 建模与建设</span>
+    <span class="pg-txt">映射抽取、质量约束、构建数字孪生</span>
+    <div class="pg-line"></div>
+  </div>
+
+  <!-- ④ 数据映射与抽取 -->
+  <div class="phase p-b">
+    <div class="p-num">④</div>
+    <div class="p-body">
+      <div class="p-title">数据映射与抽取</div>
+      <div class="p-sub">把原始数据按本体模式抽取、清洗并映射为对象 / 属性 / 链接</div>
+      <div class="chips">
+        <span class="chip">ETL 数据管道</span>
+        <span class="chip">实体抽取（作者 / 标题 / 引用）</span>
+        <span class="chip">实体消歧与对齐</span>
+        <span class="chip">质检</span>
+      </div>
+      <div class="deliv"><b>关键交付物：</b>字段映射规则 · ETL 管道 · 清洗对齐后的数据集</div>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- ⑤ 约束与质量 -->
+  <div class="phase p-b">
+    <div class="p-num">⑤</div>
+    <div class="p-body">
+      <div class="p-title">约束与质量</div>
+      <div class="p-sub">用形状约束与质量规则保证本体数据可信、可溯源</div>
+      <div class="chips">
+        <span class="chip hl">SHACL 约束校验</span>
+        <span class="chip">数据质量规则</span>
+        <span class="chip">血缘溯源（Lineage）</span>
+      </div>
+      <div class="deliv"><b>关键交付物：</b>SHACL 形状 · 数据质量规则集 · 血缘图谱</div>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- ⑥ 语义层建设 -->
+  <div class="phase p-b">
+    <div class="p-num">⑥</div>
+    <div class="p-body">
+      <div class="p-title">语义层建设 · Ontology 数字孪生</div>
+      <div class="p-sub">构建可操作的语义层，让科研数据「看得见、动得起来」</div>
+      <div class="chips">
+        <span class="chip hl">构建 Ontology 数字孪生（对象 / 链接 / 接口）</span>
+        <span class="chip">动作 Action（如成果认领 · 经费申请）与函数 Function（如 H 指数 · 影响力计算）</span>
+        <span class="chip">权限模型（数据权限 + 操作权限 + 部门 / 密级标记）</span>
+      </div>
+      <div class="deliv"><b>关键交付物：</b>Ontology 对象 / 链接 / 接口 · Action / Function · 权限策略</div>
+      <div class="mile">M3 语义层就绪</div>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- ============ Phase C ============ -->
+  <div class="phase-gap pg-c">
+    <span class="pg-tag">PHASE C · 应用与上线</span>
+    <span class="pg-txt">构建工具、试点上线、持续运营</span>
+    <div class="pg-line"></div>
+  </div>
+
+  <!-- ⑦ 科研工具与应用构建 -->
+  <div class="phase p-c">
+    <div class="p-num">⑦</div>
+    <div class="p-body">
+      <div class="p-title">科研工具与应用构建</div>
+      <div class="p-sub">在语义层之上，为科研学者构建覆盖全生命周期的应用</div>
+      <div class="chips">
+        <span class="chip">学术资产管理</span>
+        <span class="chip">检索问答</span>
+        <span class="chip">文献图谱</span>
+        <span class="chip">数据分析看板</span>
+        <span class="chip">智能推荐</span>
+        <span class="chip hl">科研助手 Agent（AIP）</span>
+      </div>
+      <div class="deliv"><b>关键交付物：</b>Workshop 应用 · AIP 问答与 Agent · 可视化看板 · 对外 API</div>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- ⑧ 测试与上线 -->
+  <div class="phase p-c">
+    <div class="p-num">⑧</div>
+    <div class="p-body">
+      <div class="p-title">测试与上线</div>
+      <div class="p-sub">小范围验证、按标准验收、培训后推向全校</div>
+      <div class="chips">
+        <span class="chip">试点（1–2 个课题组）</span>
+        <span class="chip">验收</span>
+        <span class="chip">培训</span>
+        <span class="chip">上线</span>
+      </div>
+      <div class="deliv"><b>关键交付物：</b>试点报告 · 验收清单 · 培训材料</div>
+      <div class="mile">M4 正式上线</div>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- ⑨ 运营与迭代 -->
+  <div class="phase p-c">
+    <div class="p-num">⑨</div>
+    <div class="p-body">
+      <div class="p-title">运营与迭代</div>
+      <div class="p-sub">以数据度量效果，持续优化，让知识复合不断复用</div>
+      <div class="chips">
+        <span class="chip">效果度量（对标 KPI）</span>
+        <span class="chip">持续优化</span>
+        <span class="chip">知识复合复用</span>
+      </div>
+      <div class="deliv"><b>关键交付物：</b>运营看板 · 迭代计划 · 优化清单</div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <div><b>端到端闭环</b>：需求 → 数据 → 本体 → 语义 → 应用 → 运营，四个里程碑（M1–M4）逐级把关，最终形成可度量、可持续进化的院校科研数字底座。</div>
+  </div>
+</div>
+</body>
+</html>

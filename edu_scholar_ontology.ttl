@@ -1,0 +1,245 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix es:   <http://edu-scholar.org/ontology#> .
+
+# ============================================================
+# 科研学术本体 (Scholarly Literature Ontology)
+# 依据 GB/T 48000.3-2026《标准数字化 第3部分：本体建模要求》
+#   - 5.3  形式化要求：采用 RDF/RDFS/OWL，序列化为 Turtle
+#   - 第6章 实体类型：映射国标核心实体类型至科研学术领域
+#   - 第8章 公理规则：不相交性、全局唯一标识、关系功能性
+#   - 第9章 模块化扩展：新命名空间、不修改核心定义
+#   - 附录A 元数据描述项：rdfs:label / rdfs:comment / dcterms
+# 命名空间：http://edu-scholar.org/ontology#
+# IRI 模式：命名空间 + 本地标识符（如 #Paper）
+# ============================================================
+
+es: a owl:Ontology ;
+    rdfs:label "科研学术本体"@zh, "Scholarly Literature Ontology"@en ;
+    rdfs:comment "面向科研文献知识图谱的领域本体，定义文献、作者、机构、期刊/会议、关键词、本地文件与领域类别等核心实体及其关系，规范引文网络与文献元数据建模，符合 GB/T 48000.3-2026 本体建模要求。"@zh ;
+    dcterms:title "科研学术本体 (edu-scholar ontology)"@zh ;
+    dcterms:description "依据 GB/T 48000.3-2026 构建的科研学术领域本体，用于文献知识图谱的构建、交换与校验。"@zh ;
+    dcterms:creator "Marvis File Agent"@en ;
+    dcterms:created "2026-08-30"^^xsd:date ;
+    dcterms:modified "2026-09-08"^^xsd:date ;
+    dcterms:language "zh" ;
+    owl:versionIRI es:1.5 ;
+    owl:versionInfo "1.5" .
+
+# ============================================================
+# 1. 实体类型 (Classes) —— 对应国标第6章核心实体类型
+# ============================================================
+
+### 文献 Paper（映射国标"对象 Object / 标准实体"）
+es:Paper a owl:Class ;
+    rdfs:label "文献"@zh, "Paper"@en ;
+    rdfs:comment "一篇学术文献（期刊论文、会议论文、学位论文、技术报告或预印本等），是本知识图谱的核心实体。对应国标核心实体类型中的'对象'（被描述的研究成果载体）。"@zh ;
+    owl:disjointWith es:Author, es:Organization, es:Venue, es:Keyword, es:LocalFile, es:DomainCategory ;
+    # 全局唯一标识（国标8.2）：文献以标题为键，同一标题不可重复实例化
+    owl:hasKey ( es:title ) .
+
+### 作者 Author（映射国标"相关方-个人"）
+es:Author a owl:Class ;
+    rdfs:label "作者"@zh, "Author"@en ;
+    rdfs:comment "文献的作者（自然人），属于国标核心实体类型中的'相关方'（个人）。一个作者可写作多篇文献，也可隶属于一个或多个机构。"@zh ;
+    owl:disjointWith es:Paper, es:Organization, es:Venue, es:Keyword, es:LocalFile, es:DomainCategory .
+
+### 机构 Organization（映射国标"相关方-机构"）
+es:Organization a owl:Class ;
+    rdfs:label "机构"@zh, "Organization"@en ;
+    rdfs:comment "科研机构、高校、研究所、学会、出版社等组织实体，属于国标核心实体类型中的'相关方'（机构）。作者通过 hasAffiliation 归属机构。"@zh ;
+    owl:disjointWith es:Paper, es:Author, es:Venue, es:Keyword, es:LocalFile, es:DomainCategory .
+
+### 期刊/会议 Venue
+es:Venue a owl:Class ;
+    rdfs:label "期刊/会议"@zh, "Venue"@en ;
+    rdfs:comment "刊载文献的载体：期刊、会议论文集、图书等出版媒介。文献通过 publishedIn 发表于此。"@zh ;
+    owl:disjointWith es:Paper, es:Author, es:Organization, es:Keyword, es:LocalFile, es:DomainCategory .
+
+### 关键词 Keyword（映射国标"要素/信息单元"）
+es:Keyword a owl:Class ;
+    rdfs:label "关键词"@zh, "Keyword"@en ;
+    rdfs:comment "描述文献主题的关键词或受控主题词，属于国标核心实体类型中的'要素/信息单元'的语义标注。文献通过 hasKeyword 关联。"@zh ;
+    owl:disjointWith es:Paper, es:Author, es:Organization, es:Venue, es:LocalFile, es:DomainCategory .
+
+### 本地文件 LocalFile
+es:LocalFile a owl:Class ;
+    rdfs:label "本地文件"@zh, "LocalFile"@en ;
+    rdfs:comment "文献在本地文件系统中的物理载体（PDF 等），保存文件路径等元数据，是文献的物化呈现。"@zh ;
+    owl:disjointWith es:Paper, es:Author, es:Organization, es:Venue, es:Keyword, es:DomainCategory .
+
+### 领域类别 DomainCategory（映射国标"领域类别"，对应 ICS/CCS）
+es:DomainCategory a owl:Class ;
+    rdfs:label "领域类别"@zh, "DomainCategory"@en ;
+    rdfs:comment "文献所属的学科/研究领域类别，对应国标核心实体类型中的'领域类别'（如 ICS/CCS 分类）。文献通过 belongsTo 归属领域。"@zh ;
+    owl:disjointWith es:Paper, es:Author, es:Organization, es:Venue, es:Keyword, es:LocalFile .
+
+# ============================================================
+# 2. 对象属性 (Object Properties) —— 对应国标表1核心对象属性
+# ============================================================
+
+### hasAuthor —— 对应国标"起草于 draftedBy"，相关方参与关系
+es:hasAuthor a owl:ObjectProperty ;
+    rdfs:label "作者"@zh, "has author"@en ;
+    rdfs:comment "文献与其作者之间的归属关系（Paper → Author）。国标对应关系为'相关方参与/起草'，此处特指文献创作关系。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range es:Author .
+
+### cites —— 对应国标"引用 cites"
+es:cites a owl:ObjectProperty ;
+    rdfs:label "引用"@zh, "cites"@en ;
+    rdfs:comment "文献引用另一文献的引证关系（Paper → Paper），构成引文网络。国标核心对象属性'引用 cites'的直接映射。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range es:Paper .
+
+### publishedIn —— 对应国标"发布于 issuedBy"类发表关系
+es:publishedIn a owl:ObjectProperty ;
+    rdfs:label "发表于"@zh, "published in"@en ;
+    rdfs:comment "文献刊载于期刊/会议等载体（Paper → Venue）的发表关系。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range es:Venue .
+
+### hasKeyword —— 对应国标"包含要素/语义标注"
+es:hasKeyword a owl:ObjectProperty ;
+    rdfs:label "关键词"@zh, "has keyword"@en ;
+    rdfs:comment "文献与描述其主题的关键词之间的标注关系（Paper → Keyword）。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range es:Keyword .
+
+### belongsTo —— 对应国标"领域类别"归属
+es:belongsTo a owl:ObjectProperty ;
+    rdfs:label "所属领域"@zh, "belongs to"@en ;
+    rdfs:comment "文献归属于某学科领域类别（Paper → DomainCategory）的分类关系。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range es:DomainCategory .
+
+### hasAffiliation —— 对应国标"相关方归属/在职于"
+es:hasAffiliation a owl:ObjectProperty ;
+    rdfs:label "所属机构"@zh, "has affiliation"@en ;
+    rdfs:comment "作者隶属于某机构的任职关系（Author → Organization）。"@zh ;
+    rdfs:domain es:Author ;
+    rdfs:range es:Organization .
+
+### hasResearchTopic —— 研究方向主题（v1.1 新增，Author → Keyword）
+es:hasResearchTopic a owl:ObjectProperty ;
+    rdfs:label "研究方向"@zh, "has research topic"@en ;
+    rdfs:comment "作者的研究方向主题（Author → Keyword），依据作者全部文献的关键词聚合生成，用于支撑'作者/研究方向'维度的检索与分析。"@zh ;
+    rdfs:domain es:Author ;
+    rdfs:range es:Keyword .
+
+### hasPart —— 对应国标"有部分 hasPart"
+es:hasPart a owl:ObjectProperty ;
+    rdfs:label "部分"@zh, "has part"@en ;
+    rdfs:comment "整体与部分之间的组成关系（Paper → Paper），可用于分卷、章节、专辑等层级结构建模，遵循国标'有部分 hasPart'定义。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range es:Paper .
+
+### related_to —— 语义相关（领域扩展，第9章模块化原则下新增）
+es:related_to a owl:ObjectProperty ;
+    rdfs:label "相关"@zh, "related to"@en ;
+    rdfs:comment "文献之间的非引用语义关联（如共享主题、相似研究），用于主题聚类与推荐。该属性为领域扩展属性，属第9章模块化扩展范围。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range es:Paper .
+
+### sourcedFrom —— AI 结论回链来源（v1.5 新增，可复用 PROV-O prov:wasDerivedFrom）
+es:sourcedFrom a owl:ObjectProperty ;
+    rdfs:label "回链来源"@zh, "sourced from"@en ;
+    rdfs:comment "AI 自动标注结论（aiSummary / autoKeywords / confidence 等）回链到其来源文档/数据载体的关系，用于溯源与复核。该属性与 W3C PROV-O 的 prov:wasDerivedFrom 语义等价，可复用 PROV-O 模型；不限定值域（可指向 LocalFile、原始元数据条目或来源文档），本体会话范围内不设 range 以避免过度约束。"@zh ;
+    rdfs:subPropertyOf prov:wasDerivedFrom ;
+    rdfs:domain es:Paper .
+
+# ============================================================
+# 3. 数据属性 (Datatype Properties) —— 附录A元数据 + 附录C数据类型
+# ============================================================
+
+### researchArea —— 作者研究方向（v1.1 新增，数据属性）
+es:researchArea a owl:DatatypeProperty ;
+    rdfs:label "研究方向文本"@zh, "research area"@en ;
+    rdfs:comment "作者研究方向的文本描述（Author → xsd:string），由作者全部文献的关键词聚合而成的逗号分隔文本，并注明'由关键词聚合生成'。"@zh ;
+    rdfs:domain es:Author ;
+    rdfs:range xsd:string .
+
+### aiSummary —— AI 生成摘要（v1.5 新增，数据属性）
+es:aiSummary a owl:DatatypeProperty ;
+    rdfs:label "AI 摘要"@zh, "AI summary"@en ;
+    rdfs:comment "由本地 LLM 或规则管线自动生成的文献摘要文本（Paper → xsd:string，非强制）。溯源信息通过 es:sourcedFrom 回链来源，生成方式（llm/rule）与置信度见 es:confidence 及 created_by 标注。无本地模型时该字段留空，不编造。"@zh ;
+    rdfs:subPropertyOf dcterms:description ;
+    rdfs:domain es:Paper ;
+    rdfs:range xsd:string .
+
+### autoKeywords —— 自动抽取关键词（v1.5 新增，数据属性）
+es:autoKeywords a owl:DatatypeProperty ;
+    rdfs:label "自动关键词"@zh, "auto keywords"@en ;
+    rdfs:comment "管线自动抽取的关键词文本（逗号分隔，xsd:string，非强制）。既可作为文本标注保存，也可同步通过 es:hasKeyword 关联 Keyword 节点；生成方式与置信度见 created_by / es:confidence。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range xsd:string .
+
+### confidence —— AI 标注置信度（v1.5 新增，数据属性）
+es:confidence a owl:DatatypeProperty ;
+    rdfs:label "置信度"@zh, "confidence"@en ;
+    rdfs:comment "AI/规则自动标注结论的置信度（0.0-1.0，xsd:decimal，非强制）。规则模式为经验默认值并标注 created_by=rule，不允许编造高置信度。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range xsd:decimal .
+
+### title —— 文献标题（必填、唯一，公理8.2全局唯一标识）
+es:title a owl:DatatypeProperty ;
+    rdfs:label "标题"@zh, "title"@en ;
+    rdfs:comment "文献标题。依据国标公理规则，标题是文献的全局唯一标识之一，同一文献不可重复。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range xsd:string .
+
+### year —— 文献发表年份（取值区间，公理8.2取值约束）
+es:year a owl:DatatypeProperty ;
+    rdfs:label "年份"@zh, "year"@en ;
+    rdfs:comment "文献发表年份。取值区间 1900-2026（由 SHACL 约束校验）。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range xsd:gYear .
+
+### doi —— 文献数字对象标识符（格式约束）
+es:doi a owl:DatatypeProperty ;
+    rdfs:label "DOI"@zh, "digital object identifier"@en ;
+    rdfs:comment "文献的 DOI 数字对象标识符，格式如 10.xxxx/xxxx，由 SHACL 正则约束校验。允许为空字符串表示未分配。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range xsd:string .
+
+### filePath —— 本地文件路径
+es:filePath a owl:DatatypeProperty ;
+    rdfs:label "文件路径"@zh, "file path"@en ;
+    rdfs:comment "本地文件在文件系统中的存储路径（如相对路径或绝对路径）。"@zh ;
+    rdfs:domain es:LocalFile ;
+    rdfs:range xsd:string .
+
+### name —— 命名实体名称（作者/机构/期刊/关键词共用）
+es:name a owl:DatatypeProperty ;
+    rdfs:label "名称"@zh, "name"@en ;
+    rdfs:comment "命名实体的显示名称，适用于作者姓名、机构名称、期刊/会议名称、关键词等（Author / Organization / Venue / Keyword）。为避免 OWL domain 交集语义，不限定单一定义域，通过 SHACL 按类校验。"@zh ;
+    rdfs:range xsd:string .
+
+### paperType —— 文献类型（枚举约束）
+es:paperType a owl:DatatypeProperty ;
+    rdfs:label "文献类型"@zh, "paper type"@en ;
+    rdfs:comment "文献的类型，取值限定为枚举集合：期刊论文、会议论文、学位论文、技术报告、预印本。依据国标公理规则'枚举值约束'。"@zh ;
+    rdfs:domain es:Paper ;
+    rdfs:range xsd:string .
+
+### keywordName —— 关键词文本（保留扩展）
+es:keywordName a owl:DatatypeProperty ;
+    rdfs:label "关键词文本"@zh, "keyword text"@en ;
+    rdfs:comment "关键词的字面文本（当关键词未建独立节点时的轻量表示）。"@zh ;
+    rdfs:range xsd:string .
+
+### organizationName —— 机构全称（保留扩展）
+es:organizationName a owl:DatatypeProperty ;
+    rdfs:label "机构全称"@zh, "organization full name"@en ;
+    rdfs:comment "机构的正式全称文本（如需要与简称区分时的扩展属性）。"@zh ;
+    rdfs:range xsd:string .
+
+### venueName —— 期刊/会议名称（保留扩展）
+es:venueName a owl:DatatypeProperty ;
+    rdfs:label "期刊/会议名称"@zh, "venue name"@en ;
+    rdfs:comment "期刊或会议的全称文本。"@zh ;
+    rdfs:range xsd:string .

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Palantir 产品架构总览</title>
+<style>
+:root{
+  --bg0:#070b15;
+  --bg1:#0d1526;
+  --bg2:#131c31;
+  --line:rgba(148,163,184,.16);
+  --txt:#e8edf6;
+  --txt-dim:#8b96ad;
+  --cyan:#22d3ee;
+  --indigo:#818cf8;
+  --amber:#fbbf24;
+  --pink:#e879f9;
+  --blue:#60a5fa;
+  --emerald:#34d399;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  background:
+    radial-gradient(1200px 620px at 82% -8%, rgba(99,102,241,.20), transparent 60%),
+    radial-gradient(1000px 520px at 8% 0%, rgba(34,211,238,.13), transparent 55%),
+    linear-gradient(180deg,var(--bg1),var(--bg0) 62%);
+  color:var(--txt);
+  min-height:100vh;
+  padding:52px 24px 80px;
+}
+.wrap{max-width:1140px;margin:0 auto}
+header{text-align:center;margin-bottom:38px}
+header .kicker{
+  display:inline-block;font-size:12px;letter-spacing:4px;color:var(--cyan);
+  border:1px solid rgba(34,211,238,.35);border-radius:999px;padding:5px 16px;margin-bottom:18px;
+  background:rgba(34,211,238,.08);
+}
+h1{
+  font-size:40px;font-weight:800;letter-spacing:1px;
+  background:linear-gradient(90deg,#e2e8f0,#94a3b8 55%,#22d3ee);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+header .sub{margin-top:14px;color:var(--txt-dim);font-size:15px;letter-spacing:.5px}
+section{margin-bottom:44px}
+.sec-title{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.sec-title .bar{width:5px;height:22px;border-radius:3px;background:linear-gradient(180deg,var(--indigo),var(--cyan))}
+.sec-title h2{font-size:21px;font-weight:700}
+.sec-title .hint{color:var(--txt-dim);font-size:13px;margin-top:2px}
+
+/* ---- 四大产品 ---- */
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.pcard{
+  position:relative;border-radius:16px;padding:22px 20px 20px;
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+  border:1px solid var(--line);overflow:hidden;transition:transform .25s ease,box-shadow .25s ease;
+}
+.pcard:hover{transform:translateY(-4px)}
+.pcard::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;border-radius:16px 16px 0 0}
+.pc-foundry::before{background:var(--indigo)}
+.pc-aip::before{background:var(--pink)}
+.pc-apollo::before{background:var(--emerald)}
+.pc-gotham::before{background:var(--amber)}
+.pcard .name{font-size:22px;font-weight:800;letter-spacing:.5px;margin-bottom:2px}
+.pcard .tag{font-size:12px;font-weight:600;letter-spacing:1px;padding:3px 10px;border-radius:999px;display:inline-block;margin:8px 0 10px}
+.pc-foundry .tag{color:var(--indigo);background:rgba(129,140,248,.14)}
+.pc-aip .tag{color:var(--pink);background:rgba(232,121,249,.14)}
+.pc-apollo .tag{color:var(--emerald);background:rgba(52,211,153,.14)}
+.pc-gotham .tag{color:var(--amber);background:rgba(251,191,36,.14)}
+.pcard .desc{font-size:13px;line-height:1.7;color:var(--txt-dim)}
+
+/* ---- 五层架构 ---- */
+.stacks{
+  position:relative;border-radius:20px;padding:26px 26px 8px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  border:1px solid var(--line);
+}
+.layer{
+  display:grid;grid-template-columns:190px 1fr;gap:20px;align-items:center;
+  border:1px solid var(--line);border-radius:14px;padding:16px 20px;
+  background:rgba(255,255,255,.035);margin-bottom:0;position:relative;
+}
+.layer+.layer{margin-top:0}
+.layer .lft{display:flex;flex-direction:column;gap:4px}
+.layer .lft .lvl{font-size:11px;letter-spacing:2px;color:var(--txt-dim)}
+.layer .lft .lname{font-size:19px;font-weight:800}
+.layer .lft .ldesc{font-size:12px;color:var(--txt-dim);line-height:1.55}
+.layer .mods{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end}
+.mod{
+  position:relative;cursor:default;min-width:120px;text-align:center;
+  padding:14px 18px;border-radius:12px;font-size:14px;font-weight:600;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.mod:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,0,0,.35)}
+.l-data .mod{border-color:rgba(34,211,238,.4)}
+.l-data .mod:hover{box-shadow:0 10px 26px rgba(34,211,238,.22)}
+.l-onto .mod{border-color:rgba(129,140,248,.55);background:rgba(129,140,248,.10)}
+.l-onto .mod:hover{box-shadow:0 10px 26px rgba(129,140,248,.30)}
+.l-dyn .mod{border-color:rgba(251,191,36,.4)}
+.l-dyn .mod:hover{box-shadow:0 10px 26px rgba(251,191,36,.20)}
+.l-ai .mod{border-color:rgba(232,121,249,.4)}
+.l-ai .mod:hover{box-shadow:0 10px 26px rgba(232,121,249,.22)}
+.l-app .mod{border-color:rgba(96,165,250,.4)}
+.l-app .mod:hover{box-shadow:0 10px 26px rgba(96,165,250,.22)}
+/* 高亮核心层 */
+.layer.l-onto{
+  border-color:rgba(129,140,248,.6);
+  background:linear-gradient(180deg,rgba(129,140,248,.12),rgba(129,140,248,.05));
+  box-shadow:0 0 0 1px rgba(129,140,248,.25),0 12px 40px rgba(99,102,241,.18);
+}
+.layer.l-onto .lname{color:#c7d2fe}
+.core-badge{
+  position:absolute;right:18px;top:-12px;font-size:11px;font-weight:700;letter-spacing:2px;
+  color:#0b1120;background:linear-gradient(90deg,#818cf8,#a5b4fc);padding:3px 12px;border-radius:999px;
+}
+/* 层间箭头 */
+.arrow{
+  display:flex;justify-content:center;align-items:center;height:34px;gap:10px;
+}
+.arrow::before{
+  content:"";width:100%;max-width:520px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--txt-dim),transparent);
+  position:relative;
+}
+.arrow::after{
+  content:"";position:absolute;width:0;height:0;
+  border-left:7px solid var(--txt-dim);border-top:5px solid transparent;border-bottom:5px solid transparent;
+}
+.arrow{position:relative}
+
+/* ---- 底部 ---- */
+.footer-note{
+  margin-top:26px;text-align:center;color:var(--txt-dim);font-size:13px;line-height:1.9;
+}
+.footer-note b{color:#c7d2fe}
+.badges{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.badges span{
+  font-size:12px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.04);color:var(--txt-dim);
+}
+
+/* tooltip */
+#tip{
+  position:fixed;z-index:99;max-width:280px;pointer-events:none;opacity:0;
+  transform:translateY(4px);transition:opacity .18s ease,transform .18s ease;
+  background:#101827;border:1px solid rgba(148,163,184,.35);color:#e2e8f0;
+  font-size:12.5px;line-height:1.7;padding:10px 14px;border-radius:10px;
+  box-shadow:0 14px 34px rgba(0,0,0,.5);
+}
+#tip.on{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .products{grid-template-columns:repeat(2,1fr)}
+  .layer{grid-template-columns:1fr}
+  .layer .mods{justify-content:flex-start}
+  h1{font-size:30px}
+}
+@media(max-width:520px){.products{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="kicker">PALANTIR PLATFORM</span>
+    <h1>Palantir 产品架构总览</h1>
+    <div class="sub">把散落的混乱数据，统一组织成「可直接操作的业务系统」 · 数据层 → Ontology → 动力层 → AI 层 → 应用层</div>
+  </header>
+
+  <!-- 四大产品 -->
+  <section>
+    <div class="sec-title">
+      <div class="bar"></div>
+      <div><h2>四大产品矩阵</h2><div class="hint">Foundry 与它的 Ontology 是整个体系的心脏，其余产品围绕数据与 AI 能力延伸</div></div>
+    </div>
+    <div class="products">
+      <div class="pcard pc-foundry">
+        <div class="name">Foundry</div>
+        <div class="tag">数据运营平台</div>
+        <div class="desc">把数据接进来、整理好，通过 Ontology 做成可操作的业务系统。五大分层（见下方架构）的承载体，是整个体系的「心脏」。</div>
+      </div>
+      <div class="pcard pc-aip">
+        <div class="name">AIP</div>
+        <div class="tag">人工智能平台</div>
+        <div class="desc">在整理好的 Ontology 数据之上，用 AI（Agent / Chatbot / Logic）自动读写对象、执行业务动作，让机器替人干活。</div>
+      </div>
+      <div class="pcard pc-apollo">
+        <div class="name">Apollo</div>
+        <div class="tag">软件交付平台</div>
+        <div class="desc">自动把软件安全、合规地发布到世界各地，打通「开发 → 部署 → 运维」的持续交付链路。</div>
+      </div>
+      <div class="pcard pc-gotham">
+        <div class="name">Gotham</div>
+        <div class="tag">安全情报分析平台</div>
+        <div class="desc">面向国防与情报领域的加强版 Foundry，提供大规模图分析、威胁追踪与协同研判能力。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 五层架构 -->
+  <section>
+    <div class="sec-title">
+      <div class="bar"></div>
+      <div><h2>Foundry 五层架构（千层蛋糕）</h2><div class="hint">Ontology 是贯穿所有层的「共同语言」：数据层往上喂、动力层驱动写回、AI 层读写、应用层展示操作</div></div>
+    </div>
+    <div class="stacks">
+
+      <!-- 应用层 -->
+      <div class="layer l-app">
+        <div class="lft">
+          <span class="lvl">第 5 层</span>
+          <span class="lname" style="color:#93c5fd">应用层</span>
+          <span class="ldesc">业务人员点按钮、看图表、做决策的入口</span>
+        </div>
+        <div class="mods">
+          <div class="mod" data-tip="低代码应用搭建，业务人员拖拽式构建可操作的应用界面">Workshop</div>
+          <div class="mod" data-tip="可视化数据分析与图表展示工具">Quiver</div>
+          <div class="mod" data-tip="专业级仪表盘与大屏可视化">Slate</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+
+      <!-- AI 层 -->
+      <div class="layer l-ai">
+        <div class="lft">
+          <span class="lvl">第 4 层</span>
+          <span class="lname" style="color:#f0abfc">AI 层 · AIP</span>
+          <span class="ldesc">AI 直接读 / 写 Ontology 对象，等于 AI 也在数字孪生里干活</span>
+        </div>
+        <div class="mods">
+          <div class="mod" data-tip="AI 智能体，可自主调用动作、函数完成业务任务">Agent</div>
+          <div class="mod" data-tip="对话式交互，基于本体对象回答与执行">Chatbot</div>
+          <div class="mod" data-tip="逻辑与规则编排，约束 AI 行为边界">Logic</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+
+      <!-- 动力层 -->
+      <div class="layer l-dyn">
+        <div class="lft">
+          <span class="lvl">第 3 层</span>
+          <span class="lname" style="color:#fcd34d">动力层</span>
+          <span class="ldesc">业务规则与写回数据的执行引擎</span>
+        </div>
+        <div class="mods">
+          <div class="mod" data-tip="动作类型（Action Type）：按钮式执行业务，自动改属性、建链接、发通知、鉴权">Action 动作</div>
+          <div class="mod" data-tip="函数（Function）：低延迟计算的业务逻辑大脑，被各应用调用">Function 函数</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+
+      <!-- Ontology -->
+      <div class="layer l-onto">
+        <span class="core-badge">★ CORE</span>
+        <div class="lft">
+          <span class="lvl">第 2 层</span>
+          <span class="lname" style="color:#c7d2fe">语义层 · Ontology</span>
+          <span class="ldesc">活的数字孪生 —— Palantir 与普通数据平台的分水岭</span>
+        </div>
+        <div class="mods">
+          <div class="mod" data-tip="对象 Object：现实世界里的「东西」，如客户、设备、订单">对象</div>
+          <div class="mod" data-tip="属性 Property：对象的特征，如温度、状态、金额">属性</div>
+          <div class="mod" data-tip="链接 Link：对象之间的关系，替代数据库 join">链接</div>
+          <div class="mod" data-tip="接口 Interface：多种对象类型的「共同形状」，实现多态复用">接口</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+
+      <!-- 数据层 -->
+      <div class="layer l-data">
+        <div class="lft">
+          <span class="lvl">第 1 层</span>
+          <span class="lname" style="color:#67e8f9">数据层</span>
+          <span class="ldesc">原始数据的接入、清洗与组织</span>
+        </div>
+        <div class="mods">
+          <div class="mod" data-tip="来自各业务系统的原始数据集合">数据集</div>
+          <div class="mod" data-tip="虚拟表：按需逻辑视图，不复制物理数据">虚拟表</div>
+          <div class="mod" data-tip="数据模型：统一口径的指标与语义模型">模型</div>
+          <div class="mod" data-tip="连接器：对接数据库 / API / 文件等多种数据源">连接器</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-note">
+      <div><b>知识复合（Knowledge Compounding）</b>：一次建模，处处复用 —— 数据层往上喂、AI 层往下用、应用层展示操作，全部围绕同一套「对象 / 关系 / 动作」。</div>
+      <div class="badges">
+        <span>语义网对照：Class → 对象类型</span>
+        <span>Data Property → 属性</span>
+        <span>Object Property → 链接</span>
+        <span>TBox = 模式层 · ABox = 数据层</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="tip"></div>
+<script>
+(function(){
+  var tip=document.getElementById('tip');
+  var mods=document.querySelectorAll('.mod');
+  function move(e){tip.style.left=(e.clientX+16)+'px';tip.style.top=(e.clientY+14)+'px';}
+  mods.forEach(function(m){
+    m.addEventListener('mouseenter',function(e){
+      var t=m.getAttribute('data-tip');
+      if(!t)return;
+      tip.textContent=t;tip.classList.add('on');move(e);
+    });
+    m.addEventListener('mousemove',move);
+    m.addEventListener('mouseleave',function(){tip.classList.remove('on');});
+  });
+})();
+</script>
+</body>
+</html>

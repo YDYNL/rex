@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AIP 产品架构图</title>
+<style>
+:root{
+  --bg0:#0a0714;
+  --bg1:#150f26;
+  --bg2:#1d1433;
+  --line:rgba(216,180,254,.16);
+  --txt:#efe9f8;
+  --txt-dim:#9d92b8;
+  --pink:#e879f9;
+  --violet:#a78bfa;
+  --fuchsia:#f0abfc;
+  --cyan:#22d3ee;
+  --indigo:#818cf8;
+  --emerald:#34d399;
+  --amber:#fbbf24;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  background:
+    radial-gradient(1200px 620px at 80% -8%, rgba(217,70,239,.20), transparent 60%),
+    radial-gradient(1000px 520px at 10% 0%, rgba(129,140,248,.14), transparent 55%),
+    linear-gradient(180deg,var(--bg1),var(--bg0) 62%);
+  color:var(--txt);
+  min-height:100vh;
+  padding:52px 24px 80px;
+}
+.wrap{max-width:1160px;margin:0 auto}
+header{text-align:center;margin-bottom:40px}
+header .kicker{
+  display:inline-block;font-size:12px;letter-spacing:4px;color:var(--pink);
+  border:1px solid rgba(232,121,249,.4);border-radius:999px;padding:5px 16px;margin-bottom:18px;
+  background:rgba(232,121,249,.09);
+}
+h1{
+  font-size:40px;font-weight:800;letter-spacing:1px;
+  background:linear-gradient(90deg,#f5d0fe,#c4b5fd 50%,#67e8f9);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+header .sub{margin-top:14px;color:var(--txt-dim);font-size:15px;letter-spacing:.5px}
+section{margin-bottom:44px}
+.sec-title{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.sec-title .bar{width:5px;height:22px;border-radius:3px;background:linear-gradient(180deg,var(--pink),var(--cyan))}
+.sec-title h2{font-size:21px;font-weight:700}
+.sec-title .hint{color:var(--txt-dim);font-size:13px;margin-top:2px}
+
+/* 交互层模块组 */
+.group{
+  border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+}
+.group .ghead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.group .ghead .dot{width:10px;height:10px;border-radius:50%}
+.group .ghead .gname{font-size:16px;font-weight:700}
+.group .ghead .gdesc{font-size:12px;color:var(--txt-dim);margin-left:auto;text-align:right}
+.gmods{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.mod{
+  position:relative;cursor:default;border-radius:12px;padding:15px 16px;
+  background:rgba(255,255,255,.055);border:1px solid var(--line);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.mod:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,0,0,.4)}
+.mod .mname{font-size:15px;font-weight:700;margin-bottom:5px}
+.mod .mdesc{font-size:12px;color:var(--txt-dim);line-height:1.6}
+.g-int .mod{border-color:rgba(232,121,249,.4)}
+.g-int .mod:hover{box-shadow:0 12px 28px rgba(232,121,249,.20)}
+.g-core .mod{border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.08)}
+.g-core .mod:hover{box-shadow:0 12px 28px rgba(167,139,250,.26)}
+.g-auto .mod{border-color:rgba(251,191,36,.4)}
+.g-auto .mod:hover{box-shadow:0 12px 28px rgba(251,191,36,.18)}
+.g-onto .mod{border-color:rgba(52,211,153,.42)}
+.g-onto .mod:hover{box-shadow:0 12px 28px rgba(52,211,153,.18)}
+.g-data .mod{border-color:rgba(34,211,238,.4)}
+.g-data .mod:hover{box-shadow:0 12px 28px rgba(34,211,238,.18)}
+
+/* 箭头 */
+.arrow{display:flex;justify-content:center;align-items:center;height:32px;position:relative;margin:2px 0}
+.arrow::before{content:"";width:100%;max-width:540px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--txt-dim),transparent)}
+.arrow::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:0;height:0;
+  border-top:7px solid var(--txt-dim);border-left:5px solid transparent;border-right:5px solid transparent;top:auto;bottom:-2px}
+.arrow.down::after{border-top:7px solid var(--txt-dim);border-bottom:0}
+.arrow .alabel{
+  position:absolute;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:2px;
+  color:var(--txt-dim);background:var(--bg1);padding:0 10px;top:-1px;
+}
+
+/* 底座说明 */
+.base-note{
+  margin-top:22px;text-align:center;color:var(--txt-dim);font-size:13px;line-height:1.9;
+}
+.base-note b{color:#e9d5ff}
+.badges{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.badges span{font-size:12px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.04);color:var(--txt-dim)}
+
+#tip{position:fixed;z-index:99;max-width:300px;pointer-events:none;opacity:0;
+  transform:translateY(4px);transition:opacity .18s ease,transform .18s ease;
+  background:#171128;border:1px solid rgba(216,180,254,.4);color:#f3e8ff;
+  font-size:12.5px;line-height:1.7;padding:10px 14px;border-radius:10px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+#tip.on{opacity:1;transform:translateY(0)}
+
+@media(max-width:720px){h1{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="kicker">PALANTIR AIP</span>
+    <h1>AIP 产品架构图</h1>
+    <div class="sub">人工智能平台 · 在 Ontology 之上，让 AI 自动读数据、做判断、执行业务动作</div>
+  </header>
+
+  <!-- 交互层 -->
+  <section>
+    <div class="sec-title">
+      <div class="bar"></div>
+      <div><h2>用户交互层</h2><div class="hint">业务人员与 AI 直接对话、构建应用的入口</div></div>
+    </div>
+    <div class="group g-int">
+      <div class="ghead"><span class="dot" style="background:#e879f9"></span>
+        <span class="gname">对话与构建入口</span><span class="gdesc">自然语言 · 可视化 · 低代码</span>
+      </div>
+      <div class="gmods">
+        <div class="mod">
+          <div class="mname">AIP Chatbot Studio</div>
+          <div class="mdesc">拖拽构建聊天机器人，绑定 Ontology 对象与动作，让机器人会查数、能办事。</div>
+        </div>
+        <div class="mod">
+          <div class="mname">AIP Analyst</div>
+          <div class="mdesc">自然语言数据分析助手：提问即出图表与结论，直接基于本体对象做分析。</div>
+        </div>
+        <div class="mod">
+          <div class="mname">AIP Assist</div>
+          <div class="mdesc">嵌入式智能辅助（Copilot）：在 Workshop 等应用内随叫随到，辅助填写与操作。</div>
+        </div>
+        <div class="mod">
+          <div class="mname">AI FDE</div>
+          <div class="mdesc">AI 前端开发环境：用自然语言生成交互式应用界面，自动产出可运行的业务应用。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="arrow down"><span class="alabel">调 用</span></div>
+
+  <!-- 智能核心层 -->
+  <section>
+    <div class="sec-title">
+      <div class="bar"></div>
+      <div><h2>智能核心层</h2><div class="hint">AI 的「大脑」：规则、代理与质量保障</div></div>
+    </div>
+    <div class="group g-core">
+      <div class="ghead"><span class="dot" style="background:#a78bfa"></span>
+        <span class="gname">智能引擎</span><span class="gdesc">业务规则约束 · 自主代理 · 持续评估</span>
+      </div>
+      <div class="gmods">
+        <div class="mod">
+          <div class="mname">AIP Logic</div>
+          <div class="mdesc">逻辑与决策编排引擎：把业务规则固化为可校验的决策树 / 规则流，约束 AI 行为边界。</div>
+        </div>
+        <div class="mod">
+          <div class="mname">Pro-code Agents</div>
+          <div class="mdesc">面向工程师的代码智能体：用专业代码开发、测试与部署复杂业务逻辑。</div>
+        </div>
+        <div class="mod">
+          <div class="mname">AIP Evals</div>
+          <div class="mdesc">AI 质量评估平台：构建评测集，持续度量回答的准确率、合规性与业务效果。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="arrow down"><span class="alabel">调 度</span></div>
+
+  <!-- 自动化层 -->
+  <section>
+    <div class="sec-title">
+      <div class="bar"></div>
+      <div><h2>自动化运行层</h2><div class="hint">让 AI 独立、持续地工作</div></div>
+    </div>
+    <div class="group g-auto">
+      <div class="ghead"><span class="dot" style="background:#fbbf24"></span>
+        <span class="gname">自主运行</span><span class="gdesc">无人值守 · 编排与监控</span>
+      </div>
+      <div class="gmods">
+        <div class="mod">
+          <div class="mname">Autopilot</div>
+          <div class="mdesc">自主运行编排：让 Agent 按计划自动执行任务、自动决策并处理异常，无人值守持续运转。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="arrow down"><span class="alabel">读 / 写</span></div>
+
+  <!-- Ontology + 数据 -->
+  <section>
+    <div class="sec-title">
+      <div class="bar"></div>
+      <div><h2>数据底座</h2><div class="hint">AI 的一切行为都发生在这一套「活的数字孪生」之上</div></div>
+    </div>
+    <div class="group g-onto">
+      <div class="ghead"><span class="dot" style="background:#34d399"></span>
+        <span class="gname">Ontology · 语义层</span><span class="gdesc">对象 / 属性 / 链接 / 接口 · 动作 / 函数 / 安全</span>
+      </div>
+      <div class="gmods">
+        <div class="mod">
+          <div class="mname">对象与关系</div>
+          <div class="mdesc">对象、属性、链接、接口 —— AI 以「业务实体」而非「表」的方式理解世界。</div>
+        </div>
+        <div class="mod">
+          <div class="mname">动作与函数</div>
+          <div class="mdesc">Action 动作（写回）与 Function 函数（计算）—— AI 能真实执行业务，而不只是回答。</div>
+        </div>
+        <div class="mod">
+          <div class="mname">安全与权限</div>
+          <div class="mdesc">两层权限模型 + Markings 标记，确保 AI 只能接触其被授权的数据与操作。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow down" style="height:26px"></div>
+
+    <div class="group g-data">
+      <div class="ghead"><span class="dot" style="background:#22d3ee"></span>
+        <span class="gname">数据层</span><span class="gdesc">原始数据的接入与组织</span>
+      </div>
+      <div class="gmods">
+        <div class="mod"><div class="mname">数据集 / 虚拟表</div><div class="mdesc">经清洗组织的原始数据与逻辑视图。</div></div>
+        <div class="mod"><div class="mname">数据模型</div><div class="mdesc">统一口径的语义模型与指标。</div></div>
+        <div class="mod"><div class="mname">连接器</div><div class="mdesc">对接数据库 / API / 文件等数据源。</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="base-note">
+    <div><b>核心链路</b>：Chatbot / Analyst / Assist 等入口 → AIP Logic 与 Pro-code Agents 决策 → 通过动作 / 函数读写 Ontology → 数据层兜底。</div>
+    <div class="badges">
+      <span>AIP Evals 全程护航质量</span>
+      <span>Autopilot 负责无人值守运行</span>
+      <span>AI FDE 负责应用界面生成</span>
+    </div>
+  </div>
+</div>
+
+<div id="tip"></div>
+<script>
+(function(){
+  var tip=document.getElementById('tip');
+  var mods=document.querySelectorAll('.mod');
+  function move(e){tip.style.left=(e.clientX+16)+'px';tip.style.top=(e.clientY+14)+'px';}
+  mods.forEach(function(m){
+    m.addEventListener('mouseenter',function(e){
+      var t=m.getAttribute('data-tip');
+      if(!t)return;
+      tip.textContent=t;tip.classList.add('on');move(e);
+    });
+    m.addEventListener('mousemove',move);
+    m.addEventListener('mouseleave',function(){tip.classList.remove('on');});
+  });
+})();
+</script>
+</body>
+</html>

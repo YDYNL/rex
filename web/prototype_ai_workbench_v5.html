@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>科研文献工作台 · 原型 v5（图谱+本体模型）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f6f7fb;--panel:#fff;--ink:#1f2430;--muted:#6b7280;--line:#e6e9f2;--accent:#4c6ef5;--accent2:#12b886;--warn:#f59f00;--danger:#e03131;--radius:12px;--shadow:0 2px 14px rgba(30,41,80,.07)}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column}
+#topbar{height:56px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;gap:18px;position:relative;z-index:50}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;white-space:nowrap}
+.brand .logo{width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tabs{display:flex;gap:4px;flex:1;justify-content:center}
+.tab{padding:8px 20px;border-radius:9px;font-size:14px;color:var(--muted);cursor:pointer;border:none;background:transparent}
+.tab:hover{background:#eef1fb;color:var(--ink)}
+.tab.active{background:var(--accent);color:#fff;font-weight:600}
+.top-right{display:flex;align-items:center;gap:10px}
+#btnUpload{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer}
+#btnUpload:hover{filter:brightness(1.08)}
+#btnAI{background:#fff;color:var(--accent);border:1px solid #c5d0f5;border-radius:9px;padding:9px 14px;font-size:13px;cursor:pointer}
+#btnAI.on{background:#eef2ff;border-color:var(--accent)}
+#main{flex:1;display:flex;overflow:hidden}
+#content{flex:1;overflow:auto;padding:20px 24px}
+#aiPanel{width:320px;background:var(--panel);border-left:1px solid var(--line);display:none;flex-direction:column;overflow:hidden}
+#aiPanel.on{display:flex}
+/* 工具栏 */
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+#search{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px;outline:none}
+#search:focus{border-color:var(--accent)}
+.switch-btn{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 14px;font-size:13px;color:var(--muted);cursor:pointer}
+.switch-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+select.mini{border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;background:#fff;color:var(--ink);outline:none}
+.viewhint{font-size:12px;color:var(--muted)}
+/* 布局 */
+.lib{display:grid;grid-template-columns:210px 1fr;gap:16px;align-items:start}
+.filters{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;position:sticky;top:0}
+.filters h4{font-size:13px;margin:0 0 6px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.filters h4 .rm{border:none;background:transparent;color:var(--danger);cursor:pointer;font-size:11px}
+.fgroup{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.fchip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:4px 11px;font-size:12px;color:var(--ink);cursor:pointer}
+.fchip:hover{border-color:var(--accent)}
+.fchip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.adddim{width:100%;margin-top:8px;border:1px dashed #c5d0f5;background:#fafbff;border-radius:9px;padding:8px;font-size:12.5px;color:var(--accent);cursor:pointer;text-align:center}
+.adddim:hover{background:#f0f4ff}
+.adddim-row{width:100%;margin-top:8px;border:1px solid var(--line);border-radius:9px;padding:6px;font-size:12.5px;background:#fff;color:var(--ink)}
+.fsep{height:1px;background:var(--line);margin:12px 0}
+/* 图谱聚团维度条 */
+.dimbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.dimbar .lb{font-size:12.5px;color:var(--muted);font-weight:600}
+.dimbtn{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 14px;font-size:12.5px;cursor:pointer;color:var(--ink)}
+.dimbtn:hover{border-color:var(--accent)}
+.dimbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* 列表 */
+.paperlist{display:flex;flex-direction:column;gap:10px}
+.pcard{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;cursor:pointer;border:2px solid transparent}
+.pcard:hover{border-color:#c5d0f5}
+.pcard.sel{border-color:var(--accent);background:#fafbff}
+.pcard .t{font-size:14.5px;font-weight:600;margin-bottom:5px}
+.pcard .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+.pcard .kw{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.kwtag{background:#eef2ff;color:var(--accent);border-radius:20px;padding:2px 9px;font-size:11px}
+.pcard .sum{font-size:12.5px;color:#495057;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pcard .ai{font-size:11px;color:var(--accent2);margin-top:5px}
+/* 图谱 */
+.graphbox{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative}
+#graphWrap{width:100%;height:600px;cursor:grab;overflow:hidden;background:radial-gradient(ellipse at center,#ffffff,#f3f5fb)}
+#graphWrap:active{cursor:grabbing}
+#graphSvg{width:100%;height:100%;display:block}
+.g-node{cursor:pointer}
+.g-node.dim circle{stroke:#fff;stroke-width:2}
+.g-node.paper circle{stroke:#fff;stroke-width:1.5}
+.g-node text{font-size:11px;fill:#495057;pointer-events:none}
+.g-node.dim text{font-size:12.5px;font-weight:600;fill:#1f2430}
+.g-edge{stroke:#c9d2ea;stroke-width:1.2;opacity:.55}
+.legend{position:absolute;top:10px;left:12px;background:rgba(255,255,255,.92);border-radius:9px;padding:8px 12px;font-size:11.5px;color:var(--muted);box-shadow:0 1px 6px rgba(30,41,80,.08);max-width:250px;line-height:1.6}
+.legend b{color:var(--ink)}
+.gtooltip{position:absolute;background:#1f2430;color:#fff;font-size:12px;border-radius:8px;padding:8px 12px;pointer-events:none;opacity:0;transition:opacity .12s;max-width:340px;line-height:1.5;z-index:60}
+/* 本体模型页 */
+.onto-wrap{display:grid;grid-template-columns:minmax(460px,1.05fr) minmax(340px,1fr);gap:16px;align-items:stretch}
+.onto-card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;min-height:0}
+.onto-card h3{font-size:14.5px;margin-bottom:4px}
+.onto-card .sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+#ontoCanvas{display:block;width:100%;height:calc(100vh - 186px);min-height:430px;border-radius:10px;background:radial-gradient(ellipse at center,#ffffff,#f3f5fb);border:1px solid var(--line)}
+#editorArea{flex:1;min-height:0;overflow-y:auto}
+.o-node{cursor:pointer}
+.o-node rect{fill:#fff;stroke-width:2;filter:drop-shadow(0 2px 4px rgba(30,41,80,.12))}
+.o-node text{font-size:12px;fill:#1f2430;pointer-events:none;font-weight:600}
+.o-node .cnt{font-size:10.5px;fill:var(--muted);font-weight:400}
+.o-edge{stroke:#c9d2ea;stroke-width:1.4;opacity:.7}
+.o-edge-label{font-size:10px;fill:#868e96;pointer-events:none}
+.o-node.sel rect{stroke-width:3}
+/* 实例列表 */
+.inst-list{display:flex;flex-direction:column;gap:4px;max-height:min(300px,32vh);overflow:auto;margin-bottom:10px;flex:0 0 auto}
+.inst-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:#f8f9fc;font-size:12.5px;cursor:pointer;border:1.5px solid transparent}
+.inst-item:hover{background:#eef2ff}
+.inst-item.sel{border-color:var(--accent);background:#fafbff}
+.inst-item .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inst-item .flag{font-size:10.5px;color:var(--warn);flex-shrink:0}
+/* 编辑表单 */
+.detail-card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fff}
+.detail-card:last-child{margin-bottom:0}
+.dc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.dc-title{font-size:12.5px;font-weight:700;color:var(--ink)}
+.dc-tag{font-size:10.5px;color:var(--accent);background:#eef2ff;border-radius:12px;padding:1px 8px;white-space:nowrap}
+.dc-row{display:flex;gap:10px;font-size:12px;padding:5px 0;border-bottom:1px dashed #f0f2f8;line-height:1.5;align-items:baseline}
+.dc-row:last-child{border-bottom:none}
+.dc-row .k{color:var(--muted);min-width:76px;flex-shrink:0}
+.dc-row .v{color:var(--ink);flex:1}
+.dc-row .tag{color:var(--muted);font-size:11px;flex-shrink:0;background:#f3f4fa;border-radius:10px;padding:0 7px}
+.paper-link{cursor:pointer;border-radius:6px}
+.paper-link:hover{background:#fafbff}
+.form-row{margin-bottom:12px}
+.form-row label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px;font-weight:600}
+.form-row input,.form-row textarea,.form-row select{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none;background:#fff}
+.form-row input:focus,.form-row textarea:focus{border-color:var(--accent)}
+.rel-line{display:flex;align-items:center;gap:6px;margin:4px 0;font-size:12.5px;background:#f8f9fc;border-radius:8px;padding:6px 10px}
+.rel-line .rel-name{color:var(--accent);font-weight:600;min-width:78px}
+.rel-line .del{cursor:pointer;color:var(--danger);border:none;background:transparent;font-size:13px}
+.add-rel{display:flex;gap:6px;margin-top:6px}
+.add-rel select{flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;background:#fff}
+.add-rel button{border:none;background:var(--accent);color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer}
+/* diff */
+.diffbox{border:1px solid #f3e6b0;background:#fffdf0;border-radius:10px;padding:12px;margin-top:14px}
+.diffbox h5{font-size:12.5px;color:#b07800;margin-bottom:8px}
+.diff-line{font-size:12px;display:flex;gap:8px;margin:5px 0;line-height:1.5}
+.diff-line .k{color:var(--muted);min-width:80px;flex-shrink:0}
+.diff-line .old{color:var(--danger);text-decoration:line-through;flex:1}
+.diff-line .new{color:var(--accent2);flex:1}
+.act-row{display:flex;gap:8px;margin-top:12px}
+.btn-primary{flex:1;border:none;background:var(--accent);color:#fff;border-radius:9px;padding:9px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{flex:1;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px;font-size:13px;cursor:pointer;color:var(--muted)}
+.btn-ghost:hover{color:var(--ink)}
+/* 关联面板 */
+#relPanel{position:fixed;right:0;top:56px;bottom:0;width:340px;background:var(--panel);box-shadow:-4px 0 24px rgba(30,41,80,.12);padding:20px;overflow:auto;z-index:40;transform:translateX(105%);transition:transform .25s}
+#relPanel.open{transform:translateX(0)}
+#relPanel .close{float:right;border:none;background:#f1f3f9;border-radius:7px;padding:4px 10px;cursor:pointer;font-size:12px}
+#relPanel h3{font-size:15px;margin:8px 0 4px}
+#relPanel .sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.rel-sec{font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+.rel-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;background:#f8f9fc;margin:4px 0;font-size:12.5px}
+.rel-item .tag{font-size:11px;color:var(--accent);background:#eef2ff;border-radius:14px;padding:1px 8px}
+/* AI */
+.ai-head{padding:16px 16px 10px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.ai-body{flex:1;overflow:auto;padding:14px 16px}
+.ai-card{background:#f7f9ff;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.6}
+.ai-card .hd{font-weight:600;color:var(--accent);font-size:12.5px;margin-bottom:5px}
+.ai-card.insight{background:#fffdf0;border:1px solid #f3e6b0}
+.ai-card.insight .hd{color:#b07800}
+.ai-q{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13px}
+.ai-q input{width:100%;border:none;outline:none;font-size:13px;font-family:inherit;padding:4px 0}
+.ai-q .send{margin-top:8px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;cursor:pointer}
+.ai-msg{font-size:12.5px;background:#f1f3f9;border-radius:9px;padding:10px;margin-bottom:10px;line-height:1.6}
+.ai-msg b{color:var(--accent)}
+/* 上传弹窗 */
+#modal{position:fixed;inset:0;background:rgba(20,24,40,.45);z-index:100;display:none;align-items:center;justify-content:center}
+#modal.open{display:flex}
+.modal-box{width:640px;max-width:94vw;max-height:88vh;background:var(--panel);border-radius:16px;box-shadow:0 20px 60px rgba(20,24,40,.3);overflow:auto;padding:24px 26px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-head h3{font-size:17px}
+.modal-head .x{border:none;background:#f1f3f9;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px}
+.drop{border:2px dashed #c5d0f5;border-radius:14px;padding:36px 20px;text-align:center;color:var(--muted);font-size:13.5px;cursor:pointer;background:#fafbff}
+.drop:hover{border-color:var(--accent);background:#f0f4ff}
+.drop b{color:var(--accent);font-size:15px}
+.pipe{margin-top:16px}
+.pstep{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;background:#f8f9fc;margin:6px 0;font-size:13px;color:var(--muted)}
+.pstep .st{width:20px;height:20px;border-radius:50%;background:#e9ecf5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.pstep.done .st{background:var(--accent2)}
+.pstep.doing .st{background:var(--accent)}
+.pstep .nm{flex:1}
+.pstep .sts{font-size:12px}
+.result-group{margin-top:16px}
+.result-group h5{font-size:13px;margin-bottom:8px}
+.result-group .row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:#f8f9fc;margin:4px 0;font-size:12.5px}
+.result-group .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.result-group .ok .dot{background:var(--accent2)} .result-group .warn .dot{background:var(--warn)} .result-group .bad .dot{background:var(--danger)}
+.result-group .row .nm{flex:1}
+.result-group .row .act{font-size:11.5px;color:var(--accent);cursor:pointer}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand"><span class="logo">◆</span>科研文献库</div>
+  <div class="tabs">
+    <button class="tab active" data-tab="lib">📚 检索</button>
+    <button class="tab" data-tab="read">📖 阅读</button>
+    <button class="tab" data-tab="onto">🧩 管理</button>
+  </div>
+  <div class="top-right">
+    <button id="btnUpload">⬆ 上传文献</button>
+    <button id="btnAI" class="on">🤖 AI 伴随</button>
+  </div>
+</div>
+
+<div id="main">
+  <div id="content">
+    <!-- ===== 文献库 ===== -->
+    <div id="view-lib">
+      <div class="toolbar">
+        <input id="search" placeholder="搜索标题 / 作者 / 关键词…">
+        <button class="switch-btn active" id="viewList">☰ 列表</button>
+        <button class="switch-btn" id="viewGraph">🕸 图谱</button>
+        <span class="viewhint" id="viewHint"></span>
+      </div>
+      <div class="lib">
+        <aside class="filters" id="filters"></aside>
+        <div>
+          <div class="dimbar hidden" id="graphDimBar"><span class="lb">图谱聚团维度</span><div id="dimBtns"></div></div>
+          <div id="paperArea"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 阅读（占位） ===== -->
+    <div id="view-read" class="placeholder hidden" style="max-width:720px;margin:60px auto;text-align:center">
+      <div style="font-size:46px;margin-bottom:16px">📖</div>
+      <h2 style="font-size:20px;margin-bottom:10px">AI 伴随沉浸式阅读</h2>
+      <p style="color:var(--muted);font-size:14px;line-height:1.8">左侧全文阅读，右侧 AI 伴随：本文摘要、库内定位摘要、划词提问、提问锚点记录。<br><br>当前为原型占位，后续将接入已开发的阅读工具。</p>
+      <div style="display:inline-block;background:#eef2ff;color:var(--accent);border-radius:8px;padding:6px 14px;font-size:12.5px;margin-top:12px">规划中 · P4 阶段接入</div>
+    </div>
+
+    <!-- ===== 本体模型 ===== -->
+    <div id="view-onto" class="hidden">
+      <div class="onto-wrap">
+        <div class="onto-card">
+          <h3>本体结构</h3>
+          <div class="sub">类（7）+ 对象关系（连线）· 节点大小 = 实例数 · 点击类查看实例与编辑</div>
+          <svg id="ontoCanvas" viewBox="0 0 1000 720"></svg>
+        </div>
+        <div class="onto-card">
+          <h3 id="ontoTitle">选择左侧类</h3>
+          <div class="sub" id="ontoSub"></div>
+          <div class="inst-list" id="instList"></div>
+          <div id="editorArea"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="aiPanel" class="on">
+    <div class="ai-head"><span>🤖 AI 伴随</span><button class="x" onclick="toggleAI()">×</button></div>
+    <div class="ai-body" id="aiBody"></div>
+  </div>
+</div>
+
+<div id="relPanel"></div>
+<div class="gtooltip" id="gtip"></div>
+
+<div id="modal">
+  <div class="modal-box">
+    <div class="modal-head"><h3>上传文献</h3><button class="x" onclick="closeModal()">×</button></div>
+    <div id="uploadStep">
+      <div class="drop" id="dropZone">
+        <b>拖拽文件到这里，或点击选择</b><br><br>
+        支持多文件（PDF）与压缩包（.zip，自动批量解压）<br>上传后 AI 将自动解析元数据、补全摘要关键词、校验并入库
+      </div>
+      <input type="file" id="fileInput" multiple accept=".pdf,.zip" class="hidden">
+    </div>
+    <div id="pipeStep" class="hidden">
+      <h4 style="margin:6px 0 12px">AI 解析治理中…</h4>
+      <div class="pipe" id="pipe"></div>
+      <div class="result-group hidden" id="uploadResult"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= 数据 ================= */
+var PAPERS = [
+  {id:1,title:"Effects of confining stiffness and rupture strain on performance of FRP confined concrete",authors:["Xiao Y","Wu H"],year:2020,journal:"Engineering Structures",org:"Tongji University",kw:["FRP","confined concrete","concrete"],dir:"FRP约束混凝土",conf:0.65,sum:"系统研究了约束刚度与断裂应变对 FRP 约束混凝土性能的影响规律，提出了考虑约束效率的承载力修正模型。"},
+  {id:2,title:"Axial compressive behavior of confined steel fiber reinforced high strength concrete",authors:["Li J","Wang Q"],year:2021,journal:"Construction and Building Materials",org:"Tsinghua University",kw:["steel fiber","high strength concrete","axial"],dir:"FRP约束混凝土",conf:0.6,sum:"通过 36 个试件试验揭示钢纤维高强混凝土约束受压机理，建立峰值应力与约束刚度关系式。"},
+  {id:3,title:"Assessing the Efficiency of CFRP Discrete Confinement Systems for Concrete Cylinders",authors:["ASCE 1090"],year:2008,journal:"Journal of Composites for Construction",org:"Southeast University",kw:["CFRP","confinement","cylinders"],dir:"FRP约束混凝土",conf:0.8,sum:"评估 CFRP 离散约束系统对混凝土圆柱的约束效率，对比连续与离散缠绕方式的强度提升差异。"},
+  {id:4,title:"Compressive behavior of concrete cylinder fully and partially confined",authors:["Chen Z","Liu Y"],year:2019,journal:"Engineering Structures",org:"Zhengzhou University",kw:["concrete","confinement"],dir:"FRP约束混凝土",conf:0.75,sum:"对比完全约束与部分约束混凝土圆柱的受压行为，给出部分约束下的有效约束系数建议。"},
+  {id:5,title:"钢筋混凝土连续梁在集中荷载下的挠度计算",authors:["高丹盈","房栋","祝玉斌"],year:2018,journal:"土木工程学报",org:"Zhengzhou University",kw:["钢筋混凝土","连续梁","挠度"],dir:"混凝土结构",conf:0.9,sum:"基于虚功原理推导集中荷载下连续梁挠度计算公式，与有限元结果误差在 5% 以内。"},
+  {id:6,title:"体外预应力 FRP 筋加固混凝土单向板抗裂及刚度计算方法",authors:["朱超宇","高丹盈"],year:2020,journal:"工程力学",org:"Zhengzhou University",kw:["FRP筋","预应力","单向板","抗裂"],dir:"混凝土结构",conf:0.85,sum:"提出体外预应力 FRP 筋加固单向板的抗裂验算与刚度折减方法，通过 12 块板试验验证。"},
+  {id:7,title:"Behavior in compression of concrete cylinders externally wrapped with FRP",authors:["Zhang W"],year:2017,journal:"Composite Structures",org:"Harbin Institute of Technology",kw:["FRP","wrap","compression"],dir:"FRP约束混凝土",conf:0.7,sum:"总结 FRP 外贴约束混凝土圆柱受压行为的试验数据，评估现有本构模型的适用边界。"},
+  {id:8,title:"Seismic performance of RC frames with FRP retrofitting",authors:["Kim S","Park J"],year:2022,journal:"Earthquake Engineering & Structural Dynamics",org:"KAIST",kw:["seismic","RC frame","retrofit"],dir:"抗震与加固",conf:0.78,sum:"通过振动台试验研究 FRP 加固 RC 框架的抗震性能，延性与耗能能力提升显著。"},
+  {id:9,title:"Durability of GFRP bars in alkaline concrete environment",authors:["Ahmed M"],year:2021,journal:"Materials and Structures",org:"Cairo University",kw:["GFRP","durability","alkaline"],dir:"耐久性",conf:0.72,sum:"开展 GFRP 筋在碱环境下的长期浸泡试验，建立拉伸强度保留率与暴露时间的退化模型。"},
+  {id:10,title:"Fiber-reinforced polymer composites in bridge engineering: A review",authors:["Teng JG","Chen JF"],year:2016,journal:"Advances in Structural Engineering",org:"PolyU",kw:["FRP","bridge","review"],dir:"FRP约束混凝土",conf:0.88,sum:"系统综述 FRP 复合材料在桥梁工程中的加固、组合与新建应用，梳理关键研究与工程案例。"},
+  {id:11,title:"Machine learning prediction of FRP-confined concrete strength",authors:["Naderpour H","Kheyroddin A"],year:2023,journal:"Journal of Composites for Construction",org:"Semnan University",kw:["machine learning","FRP","strength prediction"],dir:"智能方法",conf:0.82,sum:"基于 700+ 试验数据训练机器学习模型预测 FRP 约束混凝土强度，精度优于传统回归公式。"},
+  {id:12,title:"Stress-strain model for FRP-confined concrete under eccentric loading",authors:["Jiang T","Ozbakkaloglu T"],year:2024,journal:"Composite Structures",org:"University of Adelaide",kw:["stress-strain","eccentric","FRP"],dir:"FRP约束混凝土",conf:0.79,sum:"提出偏压荷载下 FRP 约束混凝土的应力-应变模型，涵盖应变梯度影响系数。"}
+];
+var DIMS = [
+  {key:"dir", name:"研究方向", cls:"DomainCategory", single:true, get:function(p){return p.dir}},
+  {key:"year", name:"年份", cls:"data:year", single:true, get:function(p){return String(p.year)}},
+  {key:"journal", name:"期刊", cls:"Venue", single:true, get:function(p){return p.journal}},
+  {key:"org", name:"机构", cls:"Organization", single:true, get:function(p){return p.org}},
+  {key:"authors", name:"作者", cls:"Author", single:false, get:function(p){return p.authors}},
+  {key:"kw", name:"关键词", cls:"Keyword", single:false, get:function(p){return p.kw}}
+];
+function dimValues(dim){
+  var m={};
+  PAPERS.forEach(function(p){
+    var vs=dim.get(p); if(!vs) return;
+    (Array.isArray(vs)?vs:[vs]).forEach(function(v){ if(v) m[v]=(m[v]||0)+1; });
+  });
+  return Object.keys(m).map(function(k){return {v:k, n:m[k]}}).sort(function(a,b){return b.n-a.n});
+}
+var CACHE={}; DIMS.forEach(function(d){ CACHE[d.key]=dimValues(d); });
+var state = { tab:"lib", sel:null, filters:{}, graph:true, statDim:"dir", ontoClass:"Paper", ontoInst:null, edits:{} };
+
+/* ================= 筛选 ================= */
+function renderFilters(){
+  var f=document.getElementById("filters");
+  var h='<h4>按本体维度筛选</h4>';
+  Object.keys(state.filters).forEach(function(k){
+    var d=DIMS.filter(function(x){return x.key===k})[0]; if(!d) return;
+    h+='<h4>'+d.name+'<button class="rm" data-k="'+k+'">× 移除</button></h4><div class="fgroup" data-dim="'+k+'">';
+    CACHE[k].forEach(function(x){
+      var on=state.filters[k].indexOf(x.v)>=0;
+      h+='<button class="fchip'+(on?" on":"")+'" data-dim="'+k+'" data-v="'+x.v+'">'+x.v+' ('+x.n+')</button>';
+    });
+    h+='</div>';
+  });
+  if(!Object.keys(state.filters).length){
+    h+='<div style="font-size:12px;color:#adb5bd;line-height:1.7;padding:6px 0">默认未筛选。<br>点击下方「+ 添加维度」，可同时按多个本体维度组合筛选。</div>';
+  }
+  h+='<div class="fsep"></div>';
+  var used=Object.keys(state.filters);
+  var rest=DIMS.filter(function(d){return used.indexOf(d.key)<0});
+  h+='<button class="adddim" id="addDimBtn">+ 添加筛选维度</button><div class="adddim-row hidden" id="addDimRow"><select id="addDimSel" style="width:100%;border:none;outline:none;background:transparent">';
+  rest.forEach(function(d){ h+='<option value="'+d.key+'">'+d.name+'（'+d.cls+'）</option>'; });
+  h+='</select></div>';
+  f.innerHTML=h;
+  f.querySelectorAll(".fchip").forEach(function(c){
+    c.addEventListener("click", function(){
+      var k=c.getAttribute("data-dim"), v=c.getAttribute("data-v");
+      var arr=state.filters[k]; var idx=arr.indexOf(v);
+      if(idx>=0) arr.splice(idx,1); else arr.push(v);
+      if(!arr.length) delete state.filters[k];
+      renderFilters(); refreshArea();
+    });
+  });
+  f.querySelectorAll(".rm").forEach(function(b){
+    b.addEventListener("click", function(){ delete state.filters[b.getAttribute("data-k")]; renderFilters(); refreshArea(); });
+  });
+  document.getElementById("addDimBtn").addEventListener("click", function(){
+    document.getElementById("addDimRow").classList.remove("hidden");
+    document.getElementById("addDimSel").addEventListener("change", function(){
+      var k=this.value; if(!state.filters[k]) state.filters[k]=[];
+      document.getElementById("addDimRow").classList.add("hidden");
+      renderFilters();
+    });
+  });
+}
+function filteredPapers(){
+  var q=(document.getElementById("search").value||"").toLowerCase();
+  return PAPERS.filter(function(p){
+    for(var k in state.filters){
+      var d=DIMS.filter(function(x){return x.key===k})[0];
+      var vs=Array.isArray(d.get(p))?d.get(p):[d.get(p)];
+      if(!state.filters[k].some(function(v){return vs.indexOf(v)>=0})) return false;
+    }
+    if(q){ var blob=(p.title+p.authors.join(" ")+p.kw.join(" ")+p.sum).toLowerCase(); if(blob.indexOf(q)<0) return false; }
+    return true;
+  });
+}
+document.getElementById("search").addEventListener("input", refreshArea);
+document.getElementById("viewList").addEventListener("click", function(){ state.graph=false; syncView(); });
+document.getElementById("viewGraph").addEventListener("click", function(){ state.graph=true; syncView(); });
+function syncView(){
+  document.getElementById("viewList").classList.toggle("active", !state.graph);
+  document.getElementById("viewGraph").classList.toggle("active", state.graph);
+  document.getElementById("graphDimBar").classList.toggle("hidden", !state.graph);
+  refreshArea();
+}
+function refreshArea(){ if(state.graph) renderGraph(); else renderList(); }
+
+/* ================= 列表 ================= */
+function renderList(){
+  var list=filteredPapers();
+  var box=document.getElementById("paperArea");
+  document.getElementById("viewHint").textContent="共 "+list.length+" 篇";
+  if(!list.length){ box.innerHTML='<div class="pcard" style="text-align:center;color:var(--muted)">没有匹配的文献，试试放宽筛选条件</div>'; return; }
+  var h='<div class="paperlist">';
+  list.forEach(function(p){
+    h+='<div class="pcard'+(state.sel&&state.sel.id===p.id?" sel":"")+'" data-id="'+p.id+'">'
+      +'<div class="t">'+p.title+'</div>'
+      +'<div class="meta">'+p.authors.join(", ")+' · '+p.year+' · '+p.journal+' · <span style="color:var(--accent2)">'+p.dir+'</span></div>'
+      +'<div class="kw">'+p.kw.map(function(k){return '<span class="kwtag">'+k+'</span>'}).join("")+'</div>'
+      +'<div class="sum">'+p.sum+'</div>'
+      +'<div class="ai">🤖 AI 摘要 · 置信度 '+p.conf+' · '+p.org+'</div></div>';
+  });
+  h+='</div>';
+  box.innerHTML=h;
+  box.querySelectorAll(".pcard").forEach(function(c){
+    c.addEventListener("click", function(){
+      var p=findP(c.getAttribute("data-id"));
+      state.sel=p;
+      box.querySelectorAll(".pcard").forEach(function(x){x.classList.remove("sel")});
+      c.classList.add("sel");
+      openRel(p); renderAI("lib");
+    });
+  });
+}
+
+/* ================= 图谱 ================= */
+function renderDimBtns(){
+  var h="";
+  DIMS.forEach(function(d){
+    h+='<button class="dimbtn'+(state.statDim===d.key?" on":"")+'" data-k="'+d.key+'">'+d.name+'</button>';
+  });
+  document.getElementById("dimBtns").innerHTML=h;
+  document.getElementById("dimBtns").querySelectorAll(".dimbtn").forEach(function(b){
+    b.addEventListener("click", function(){
+      state.statDim=b.getAttribute("data-k");
+      renderDimBtns(); renderGraph();
+    });
+  });
+}
+var gtip=document.getElementById("gtip");
+function palette(n){ var cols=[]; for(var i=0;i<n;i++){ var hue=Math.round(210 - i*(210/Math.max(n,1))); cols.push("hsl("+hue+",72%,55%)"); } return cols; }
+function buildGraph(){
+  var list=filteredPapers();
+  var d=DIMS.filter(function(x){return x.key===state.statDim})[0];
+  var dims=[], dimMap={};
+  CACHE[d.key].forEach(function(x){ dimMap[x.v]={id:"d_"+x.v, name:x.v, type:"dim", papers:[]}; dims.push(dimMap[x.v]); });
+  var nodes=[], edges=[], nodeMap={};
+  dims.forEach(function(n){ nodes.push(n); nodeMap[n.id]=n; });
+  list.forEach(function(p){
+    var pn={id:"p"+p.id, name:p.title, type:"paper", paper:p};
+    nodes.push(pn); nodeMap[pn.id]=pn;
+    var vs=Array.isArray(d.get(p))?d.get(p):[d.get(p)];
+    vs.forEach(function(v){ if(dimMap[v]){ dimMap[v].papers.push(pn); edges.push({s:"d_"+v, t:"p"+p.id}); } });
+  });
+  var W=1000, H=660, CX=W/2, CY=H/2, R=275;
+  dims.forEach(function(n,i){ n.x=CX+R*Math.cos(2*Math.PI*i/dims.length); n.y=CY+R*Math.sin(2*Math.PI*i/dims.length); n.fx=n.x; n.fy=n.y; });
+  list.forEach(function(p){
+    var vs=Array.isArray(d.get(p))?d.get(p):[d.get(p)];
+    var t=dimMap[vs[0]];
+    var ang=Math.random()*Math.PI*2, dist=85+Math.random()*55;
+    var pn=nodeMap["p"+p.id];
+    pn.x=t.x+dist*Math.cos(ang); pn.y=t.y+dist*Math.sin(ang); pn.fx=null; pn.fy=null;
+  });
+  var alpha=0.9;
+  for(var iter=0; iter<220; iter++){
+    for(var i=0;i<nodes.length;i++) for(var j=i+1;j<nodes.length;j++){
+      var a=nodes[i], b=nodes[j];
+      if(a.fx!==undefined&&b.fx!==undefined) continue;
+      var dx=a.x-b.x, dy=a.y-b.y, d2=dx*dx+dy*dy||1, d=Math.sqrt(d2);
+      var force=2600/d2, fx=dx/d*force, fy=dy/d*force;
+      if(a.fx===undefined){ a.x+=fx*alpha; a.y+=fy*alpha; }
+      if(b.fx===undefined){ b.x-=fx*alpha; b.y-=fy*alpha; }
+    }
+    edges.forEach(function(e){
+      var a=nodeMap[e.s], b=nodeMap[e.t]; if(!a||!b) return;
+      var dx=a.x-b.x, dy=a.y-b.y, d=Math.sqrt(dx*dx+dy*dy)||1;
+      var k=0.018*(d-120), fx=dx/d*k, fy=dy/d*k;
+      if(a.fx===undefined){ a.x-=fx*alpha; a.y-=fy*alpha; }
+      if(b.fx===undefined){ b.x+=fx*alpha; b.y+=fy*alpha; }
+    });
+    nodes.forEach(function(n){
+      if(n.fx!==undefined) return;
+      n.x+=(CX-n.x)*0.006*alpha; n.y+=(CY-n.y)*0.006*alpha;
+      n.x=Math.max(30,Math.min(W-30,n.x)); n.y=Math.max(30,Math.min(H-30,n.y));
+    });
+    alpha*=0.985;
+  }
+  return {nodes:nodes, edges:edges, dims:dims, nodeMap:nodeMap};
+}
+function renderGraph(){
+  var area=document.getElementById("paperArea");
+  var list=filteredPapers();
+  var d=DIMS.filter(function(x){return x.key===state.statDim})[0];
+  document.getElementById("viewHint").textContent="共 "+list.length+" 篇";
+  if(!list.length){ area.innerHTML='<div class="pcard" style="text-align:center;color:var(--muted)">没有匹配的文献，试试放宽筛选条件</div>'; return; }
+  try{
+  var g=buildGraph();
+  var cols=palette(g.dims.length);
+  g.dims.forEach(function(n,i){ n.color=cols[i]; });
+  var W=1000, H=660;
+  var svg='<div class="graphbox" style="height:600px"><div id="graphWrap"><svg id="graphSvg" viewBox="0 0 '+W+' '+H+'"><g id="gEdges">';
+  g.edges.forEach(function(e){
+    var a=g.nodeMap[e.s], b=g.nodeMap[e.t]; if(!a||!b) return;
+    svg+='<line class="g-edge" x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'"/>';
+  });
+  svg+='</g><g id="gNodes">';
+  g.dims.forEach(function(n){
+    svg+='<g class="g-node dim" data-id="'+n.id+'"><circle r="20" fill="'+n.color+'" cx="'+n.x+'" cy="'+n.y+'"/><text x="'+n.x+'" y="'+(n.y-26)+'" text-anchor="middle">'+short(n.name,14)+'</text></g>';
+  });
+  g.nodes.forEach(function(n){
+    if(n.type!=="paper") return;
+    var r=8+Math.round(n.paper.conf*6);
+    svg+='<g class="g-node paper" data-id="'+n.id+'" data-pid="'+n.paper.id+'"><circle r="'+r+'" fill="#fff" stroke="#748ffc" cx="'+n.x+'" cy="'+n.y+'"/><circle r="'+(r-3)+'" fill="#748ffc" opacity=".85" cx="'+n.x+'" cy="'+n.y+'"/></g>';
+  });
+  svg+='</g></svg>';
+  svg+='<div class="legend"><b>'+d.name+'</b>（大节点）→ 挂载文献（小节点）<br>圆点大小 = 置信度 · 悬浮看标题 · 点击看详情</div></div></div>';
+  area.innerHTML=svg;
+  bindGraph(g);
+  }catch(err){
+    area.innerHTML='<div class="pcard" style="border:2px solid #ffc9c9;background:#fff5f5"><b style="color:#c92a2a">图谱渲染失败</b><br><span style="font-size:12.5px;color:#e03131">'+esc(err.message)+'</span><br><span style="font-size:12px;color:#868e96">可切回「☰ 列表」继续使用，或把这条信息发我定位。</span></div>';
+    document.getElementById("viewHint").textContent="图谱渲染失败";
+  }
+}
+function short(s,n){ return s.length>n? s.slice(0,n-1)+"…": s; }
+function bindGraph(g){
+  var wrap=document.getElementById("graphWrap"), svg=document.getElementById("graphSvg");
+  var viewBox=svg.getAttribute("viewBox").split(" ").map(Number);
+  wrap.addEventListener("wheel", function(e){
+    e.preventDefault();
+    var f=e.deltaY<0?0.9:1.1;
+    var nw=Math.max(400, Math.min(4000, viewBox[2]*f));
+    viewBox[2]=nw; viewBox[3]=nw*660/1000;
+    svg.setAttribute("viewBox", viewBox.join(" "));
+  }, {passive:false});
+  var drag=null;
+  wrap.addEventListener("mousedown", function(e){ drag={x:e.clientX, y:e.clientY, vx:viewBox[0], vy:viewBox[1]}; });
+  window.addEventListener("mousemove", function(e){
+    if(!drag) return;
+    var dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+    viewBox[0]=drag.vx-dx*viewBox[2]/wrap.clientWidth;
+    viewBox[1]=drag.vy-dy*viewBox[3]/wrap.clientHeight;
+    svg.setAttribute("viewBox", viewBox.join(" "));
+  });
+  window.addEventListener("mouseup", function(){ drag=null; });
+  svg.querySelectorAll(".g-node").forEach(function(n){
+    n.addEventListener("mousemove", function(e){
+      var id=n.getAttribute("data-id");
+      if(id.charAt(0)==="d"){
+        var dn=g.dims.filter(function(x){return x.id===id})[0];
+        gtip.innerHTML="<b>"+dn.name+"</b><br>"+dn.papers.length+" 篇文献";
+      } else {
+        var p=findP(n.getAttribute("data-pid"));
+        gtip.innerHTML="<b>"+p.title.slice(0,60)+"</b><br>"+p.authors.join(", ")+" · "+p.year+" · "+p.journal+"<br>置信度 "+p.conf;
+      }
+      gtip.style.opacity=1;
+      gtip.style.left=(wrap.getBoundingClientRect().left+e.offsetX+14)+"px";
+      gtip.style.top=(wrap.getBoundingClientRect().top+e.offsetY-10)+"px";
+    });
+    n.addEventListener("mouseleave", function(){ gtip.style.opacity=0; });
+    n.addEventListener("click", function(e){
+      e.stopPropagation();
+      var id=n.getAttribute("data-id");
+      if(id.charAt(0)==="d"){
+        var dn=g.dims.filter(function(x){return x.id===id})[0];
+        var pids=dn.papers.map(function(p){return String(p.paper.id)});
+        svg.querySelectorAll(".g-node.paper").forEach(function(x){ x.style.opacity = pids.indexOf(x.getAttribute("data-pid"))>=0 ? 1 : 0.15; });
+        gtip.innerHTML="<b>"+dn.name+"</b>："+dn.papers.length+" 篇文献（点击空白取消高亮）";
+        gtip.style.opacity=1;
+      } else {
+        var p=findP(n.getAttribute("data-pid"));
+        state.sel=p; openRel(p); renderAI("lib");
+      }
+    });
+  });
+  svg.addEventListener("click", function(e){
+    if(e.target.tagName==="svg"||e.target.tagName==="line"){ svg.querySelectorAll(".g-node.paper").forEach(function(x){ x.style.opacity=1; }); }
+  });
+}
+function findP(id){ for(var i=0;i<PAPERS.length;i++) if(String(PAPERS[i].id)===String(id)) return PAPERS[i]; return null; }
+
+/* ================= 本体模型 ================= */
+var ONTO_CLASSES = [
+  {key:"Paper", name:"论文", color:"#4c6ef5", data:function(){ return PAPERS.map(function(p){return {name:p.title, item:p, flag:p.conf<0.7}}); }},
+  {key:"Author", name:"作者", color:"#12b886", data:function(){ var m={}; PAPERS.forEach(function(p){p.authors.forEach(function(a){m[a]=(m[a]||0)+1});}); return Object.keys(m).map(function(k){return {name:k, item:k, flag:false}}); }},
+  {key:"Organization", name:"机构", color:"#f59f00", data:function(){ var m={}; PAPERS.forEach(function(p){m[p.org]=(m[p.org]||0)+1}); return Object.keys(m).map(function(k){return {name:k, item:k, flag:false}}); }},
+  {key:"Venue", name:"期刊", color:"#e64980", data:function(){ var m={}; PAPERS.forEach(function(p){m[p.journal]=(m[p.journal]||0)+1}); return Object.keys(m).map(function(k){return {name:k, item:k, flag:false}}); }},
+  {key:"Keyword", name:"关键词", color:"#7048e8", data:function(){ var m={}; PAPERS.forEach(function(p){p.kw.forEach(function(k){m[k]=(m[k]||0)+1});}); return Object.keys(m).map(function(k){return {name:k, item:k, flag:false}}); }},
+  {key:"DomainCategory", name:"研究方向", color:"#0ca678", data:function(){ var m={}; PAPERS.forEach(function(p){m[p.dir]=(m[p.dir]||0)+1}); return Object.keys(m).map(function(k){return {name:k, item:k, flag:false}}); }},
+  {key:"LocalFile", name:"本地文件", color:"#5c7cfa", data:function(){ return PAPERS.slice(0,4).map(function(p){return {name:p.title.slice(0,22)+".pdf", item:p, flag:false}}); }}
+];
+var ONTO_EDGES = [
+  {from:"Paper", to:"Author", rel:"hasAuthor"},
+  {from:"Paper", to:"Venue", rel:"publishedIn"},
+  {from:"Paper", to:"Keyword", rel:"hasKeyword"},
+  {from:"Paper", to:"DomainCategory", rel:"belongsTo"},
+  {from:"Author", to:"Organization", rel:"affiliatedWith"},
+  {from:"Paper", to:"LocalFile", rel:"hasLocalFile"}
+];
+function ontoPos(W,H){
+  var cx=Math.round(W/2), lx=Math.round(Math.max(94, W*0.16)), rx=Math.round(Math.min(W-94, W*0.84));
+  return {
+    LocalFile:{x:cx,y:Math.round(H*0.10)},
+    Author:{x:lx,y:Math.round(H*0.27)},
+    Venue:{x:rx,y:Math.round(H*0.27)},
+    Paper:{x:cx,y:Math.round(H*0.50)},
+    Organization:{x:lx,y:Math.round(H*0.74)},
+    Keyword:{x:rx,y:Math.round(H*0.74)},
+    DomainCategory:{x:cx,y:Math.round(H*0.90)}
+  };
+}
+
+function renderOntoCanvas(){
+  var svg=document.getElementById("ontoCanvas");
+  var rect=svg.getBoundingClientRect();
+  var W=Math.max(420, Math.round(rect.width)||1000);
+  var H=Math.max(380, Math.round(rect.height)||600);
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
+  var ONTO_POS=ontoPos(W,H);
+  var h='';
+  ONTO_EDGES.forEach(function(e){
+    var a=ONTO_POS[e.from], b=ONTO_POS[e.to];
+    var mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+    h+='<line class="o-edge" x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'"/>';
+    h+='<text class="o-edge-label" x="'+mx+'" y="'+(my-6)+'" text-anchor="middle">'+e.rel+'</text>';
+  });
+  var S=Math.max(1, Math.min(1.45, Math.min(W/1000, H/700)));
+  var bw=Math.round(116*S), bh=Math.round(48*S), rr=Math.round(12*S), cr=Math.round(9*S);
+  ONTO_CLASSES.forEach(function(c){
+    var p=ONTO_POS[c.key], cnt=c.data().length;
+    var sel=c.key===state.ontoClass?" sel":"";
+    h+='<g class="o-node'+sel+'" data-k="'+c.key+'">'
+      +'<rect x="'+(p.x-bw/2)+'" y="'+(p.y-bh/2)+'" width="'+bw+'" height="'+bh+'" rx="'+rr+'" fill="#fff" stroke="'+c.color+'" stroke-width="2"/>'
+      +'<circle cx="'+(p.x-bw/2+14*S)+'" cy="'+(p.y-bh/2)+'" r="'+cr+'" fill="'+c.color+'" opacity=".9"/>'
+      +'<text x="'+(p.x-bw/2+28*S)+'" y="'+(p.y-bh/2+6*S)+'" style="font-size:'+(11*S)+'px">'+c.name+'</text>'
+      +'<text class="cnt" x="'+(p.x-bw/2+28*S)+'" y="'+(p.y-bh/2+23*S)+'" style="font-size:'+(10.5*S)+'px">'+cnt+' 实例</text>'
+      +'</g>';
+  });
+  /* cites 自环标注 */
+  h+='<text x="'+(ONTO_POS.Paper.x+bw/2+10)+'" y="'+(ONTO_POS.Paper.y-bh/2+6)+'" class="o-edge-label" text-anchor="middle">cites(引用)</text>';
+  svg.innerHTML=h;
+  svg.querySelectorAll(".o-node").forEach(function(n){
+    n.addEventListener("click", function(){
+      state.ontoClass=n.getAttribute("data-k");
+      state.ontoInst=null; state.edits={};
+      renderOntoCanvas(); renderOntoPanel();
+    });
+  });
+}
+var _ontoRz=null;
+window.addEventListener("resize", function(){
+  clearTimeout(_ontoRz);
+  _ontoRz=setTimeout(function(){ if(state.tab==="onto") renderOntoCanvas(); },160);
+});
+function renderOntoPanel(){
+  var c=ONTO_CLASSES.filter(function(x){return x.key===state.ontoClass})[0];
+  document.getElementById("ontoTitle").textContent=c.name+" 实例（"+c.data().length+"）";
+  document.getElementById("ontoSub").textContent="本体类 "+c.key+" · 点击实例进入编辑";
+  var list=document.getElementById("instList");
+  var h="";
+  c.data().forEach(function(x){
+    h+='<div class="inst-item'+(state.ontoInst===x.name?" sel":"")+'" data-n="'+x.name+'"><span class="nm">'+x.name+'</span>'+(x.flag?'<span class="flag">⚠ 低置信度</span>':"")+'</div>';
+  });
+  list.innerHTML=h;
+  list.querySelectorAll(".inst-item").forEach(function(it){
+    it.addEventListener("click", function(){ state.ontoInst=it.getAttribute("data-n"); renderOntoEditor(); });
+  });
+  renderOntoEditor();
+}
+function renderOntoEditor(){
+  var area=document.getElementById("editorArea");
+  if(state.ontoClass!=="Paper"){
+    var c=ONTO_CLASSES.filter(function(x){return x.key===state.ontoClass})[0];
+    if(!state.ontoInst){ area.innerHTML='<div style="font-size:12.5px;color:var(--muted);padding:20px 0;text-align:center">点击上方实例查看详情与编辑（演示版支持编辑 Paper 实例）</div>'; return; }
+    var item=c.data().filter(function(x){return x.name===state.ontoInst})[0];
+    var meta={
+      Author:{desc:"论文作者实体，通过 hasAuthor 挂接 Paper", props:[["name","string · 必填"],["affiliation","string · 指向 Organization"]]},
+      Organization:{desc:"机构实体（高校/研究院所）", props:[["name","string · 必填"],["country","string · 可选"]]},
+      Venue:{desc:"期刊/会议实体，承载 Paper 的发表载体", props:[["name","string · 必填"],["type","期刊 / 会议"]]},
+      Keyword:{desc:"关键词实体，用于主题聚类与检索", props:[["name","string · 必填"],["weight","float · 出现权重"]]},
+      DomainCategory:{desc:"研究方向分类，对齐国标主题维度（dir）", props:[["name","string · 必填"],["parent","DomainCategory · 可选"]]},
+      LocalFile:{desc:"本地源文件实体，经 hasLocalFile 与 Paper 一一挂接", props:[["path","string · 必填"],["format","PDF / DOCX"]]}
+    }[c.key];
+    var rels=ONTO_EDGES.filter(function(e){return e.to===c.key}).map(function(e){return e.rel+" · "+e.from+" → "+c.key});
+    var papers=PAPERS.filter(function(p){
+      if(c.key==="Author") return p.authors.indexOf(item.name)>=0;
+      if(c.key==="Organization") return p.org===item.name;
+      if(c.key==="Venue") return p.journal===item.name;
+      if(c.key==="Keyword") return p.kw.indexOf(item.name)>=0;
+      if(c.key==="DomainCategory") return p.dir===item.name;
+      if(c.key==="LocalFile") return p===item.item;
+      return false;
+    });
+    var h2='<div class="detail-card"><div class="dc-head"><span class="dc-title">基本信息</span><span class="dc-tag">'+c.key+'</span></div>'
+      +'<div class="dc-row"><span class="k">名称</span><span class="v">'+esc(item.name)+'</span></div>'
+      +'<div class="dc-row"><span class="k">类说明</span><span class="v">'+meta.desc+'</span></div>'
+      +'<div class="dc-row"><span class="k">关联文献</span><span class="v">'+papers.length+' 篇</span></div></div>'
+      +'<div class="detail-card"><div class="dc-head"><span class="dc-title">数据属性（Schema）</span><span class="dc-tag">'+c.key+'Shape</span></div>'
+      +meta.props.map(function(pr){return '<div class="dc-row"><span class="k">'+pr[0]+'</span><span class="v">'+pr[1]+'</span></div>'}).join("")
+      +'</div>'
+      +'<div class="detail-card"><div class="dc-head"><span class="dc-title">对象关系</span><span class="dc-tag">'+rels.length+' 组</span></div>'
+      +(rels.length? rels.map(function(r){return '<div class="dc-row"><span class="k">'+r.split(" · ")[0]+'</span><span class="v">'+r.split(" · ")[1]+'</span></div>'}).join("") : '<div class="dc-row"><span class="v" style="color:#adb5bd">暂无入边对象关系</span></div>')
+      +'</div>'
+      +'<div class="detail-card"><div class="dc-head"><span class="dc-title">关联文献</span><span class="dc-tag">'+papers.length+' 篇</span></div>'
+      +(papers.length? papers.slice(0,8).map(function(p2){return '<div class="dc-row paper-link" data-pid="'+p2.id+'"><span class="v">'+esc(p2.title.slice(0,36))+'</span><span class="tag">'+p2.year+'</span></div>'}).join("") : '<div class="dc-row"><span class="v" style="color:#adb5bd">暂无关联文献</span></div>')
+      +(papers.length>8? '<div class="dc-row"><span class="v" style="color:#adb5bd">…还有 '+(papers.length-8)+' 篇，可前往检索页查看</span></div>' : "")
+      +'</div>';
+    area.innerHTML=h2;
+    area.querySelectorAll(".paper-link").forEach(function(r2){
+      r2.addEventListener("click", function(){
+        var p2=findP(r2.getAttribute("data-pid"));
+        if(p2){ state.sel=p2; switchTab("lib"); openRel(p2); }
+      });
+    });
+    return;
+  }
+  var p=PAPERS.filter(function(x){return x.title===state.ontoInst})[0];
+  if(!p){ area.innerHTML='<div style="font-size:12.5px;color:var(--muted);padding:20px 0;text-align:center">点击左侧实例开始编辑</div>'; return; }
+  var e=state.edits[p.id]||{};
+  var v=function(k,def){ return (k in e)? e[k] : def; };
+  var allAuthors=[]; PAPERS.forEach(function(x){x.authors.forEach(function(a){if(allAuthors.indexOf(a)<0)allAuthors.push(a)});});
+  var allKw=[]; PAPERS.forEach(function(x){x.kw.forEach(function(k){if(allKw.indexOf(k)<0)allKw.push(k)});});
+  var allDir=[]; PAPERS.forEach(function(x){if(allDir.indexOf(x.dir)<0)allDir.push(x.dir)});
+
+  var h='<div class="form-row"><label>标题</label><input id="f_title" value="'+esc(v("title",p.title))+'"></div>'
+    +'<div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label>年份</label><input id="f_year" value="'+v("year",p.year)+'"></div><div><label>置信度</label><input id="f_conf" value="'+v("conf",p.conf)+'"></div></div>'
+    +'<div class="form-row"><label>期刊</label><input id="f_journal" value="'+esc(v("journal",p.journal))+'"></div>'
+    +'<div class="form-row"><label>机构</label><input id="f_org" value="'+esc(v("org",p.org))+'"></div>'
+    +'<div class="form-row"><label>研究方向</label><select id="f_dir">'+allDir.map(function(d){return '<option'+(d===v("dir",p.dir)?" selected":"")+'>'+d+'</option>'}).join("")+'</select></div>'
+    +'<div class="form-row"><label>摘要</label><textarea id="f_sum" rows="3">'+esc(v("sum",p.sum))+'</textarea></div>';
+
+  /* 对象关系：作者 */
+  var authors=(e.authors!==undefined)?e.authors:p.authors.slice();
+  h+='<div class="form-row"><label>作者（hasAuthor）</label>';
+  authors.forEach(function(a,idx){ h+='<div class="rel-line"><span class="rel-name">作者</span><span style="flex:1">'+esc(a)+'</span><button class="del" data-idx="'+idx+'" data-rel="authors">×</button></div>'; });
+  h+='<div class="add-rel"><select id="addAuthor">'+allAuthors.map(function(a){return '<option>'+esc(a)+'</option>'}).join("")+'</select><button id="btnAddAuthor">+ 添加</button></div></div>';
+
+  /* 对象关系：关键词 */
+  var kw=(e.kw!==undefined)?e.kw:p.kw.slice();
+  h+='<div class="form-row"><label>关键词（hasKeyword）</label>';
+  kw.forEach(function(k,idx){ h+='<div class="rel-line"><span class="rel-name">关键词</span><span style="flex:1">'+esc(k)+'</span><button class="del" data-idx="'+idx+'" data-rel="kw">×</button></div>'; });
+  h+='<div class="add-rel"><select id="addKw">'+allKw.map(function(k){return '<option>'+esc(k)+'</option>'}).join("")+'</select><button id="btnAddKw">+ 添加</button></div></div>';
+
+  h+='<div id="diffBox"></div>';
+  h+='<div class="act-row"><button class="btn-ghost" id="btnRollback">回滚</button><button class="btn-primary" id="btnCommit">提交修改</button></div>';
+  area.innerHTML=h;
+
+  /* 编辑监听 → diff */
+  function collect(){
+    var e2={};
+    e2.title=document.getElementById("f_title").value;
+    e2.year=document.getElementById("f_year").value;
+    e2.conf=document.getElementById("f_conf").value;
+    e2.journal=document.getElementById("f_journal").value;
+    e2.org=document.getElementById("f_org").value;
+    e2.dir=document.getElementById("f_dir").value;
+    e2.sum=document.getElementById("f_sum").value;
+    e2.authors=authors.slice();
+    e2.kw=kw.slice();
+    return e2;
+  }
+  function renderDiff(e2){
+    var diffs=[];
+    if(e2.title!==p.title) diffs.push({k:"标题", old:p.title.slice(0,50), new:e2.title.slice(0,50)});
+    if(e2.year!==String(p.year)) diffs.push({k:"年份", old:p.year, new:e2.year});
+    if(e2.conf!==String(p.conf)) diffs.push({k:"置信度", old:p.conf, new:e2.conf});
+    if(e2.journal!==p.journal) diffs.push({k:"期刊", old:p.journal, new:e2.journal});
+    if(e2.org!==p.org) diffs.push({k:"机构", old:p.org, new:e2.org});
+    if(e2.dir!==p.dir) diffs.push({k:"研究方向", old:p.dir, new:e2.dir});
+    if(e2.sum!==p.sum) diffs.push({k:"摘要", old:p.sum.slice(0,40)+"…", new:e2.sum.slice(0,40)+"…"});
+    if(e2.authors.join("|")!==p.authors.join("|")) diffs.push({k:"作者", old:p.authors.join(", "), new:e2.authors.join(", ")});
+    if(e2.kw.join("|")!==p.kw.join("|")) diffs.push({k:"关键词", old:p.kw.join(", "), new:e2.kw.join(", ")});
+    var box=document.getElementById("diffBox");
+    if(!diffs.length){ box.innerHTML=""; box.className="diffbox hidden"; return false; }
+    var h2='<h5>🔄 改动预览（'+diffs.length+' 处）</h5>';
+    diffs.forEach(function(d){ h2+='<div class="diff-line"><span class="k">'+d.k+'</span><span class="old">'+esc(String(d.old))+'</span><span class="new">'+esc(String(d.new))+'</span></div>'; });
+    box.className="diffbox"; box.innerHTML=h2;
+    return true;
+  }
+  function bindLive(){
+    ["f_title","f_year","f_conf","f_journal","f_org","f_dir","f_sum"].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.addEventListener("input", function(){ state.edits[p.id]=collect(); renderDiff(state.edits[p.id]); });
+    });
+  }
+  bindLive();
+  document.querySelectorAll(".del").forEach(function(b){
+    b.addEventListener("click", function(){
+      var rel=b.getAttribute("data-rel"), idx=+b.getAttribute("data-idx");
+      if(rel==="authors") authors.splice(idx,1); else kw.splice(idx,1);
+      state.edits[p.id]=collect(); renderOntoEditor();
+    });
+  });
+  document.getElementById("btnAddAuthor").addEventListener("click", function(){
+    var a=document.getElementById("addAuthor").value;
+    if(authors.indexOf(a)<0){ authors.push(a); state.edits[p.id]=collect(); renderOntoEditor(); }
+  });
+  document.getElementById("btnAddKw").addEventListener("click", function(){
+    var k=document.getElementById("addKw").value;
+    if(kw.indexOf(k)<0){ kw.push(k); state.edits[p.id]=collect(); renderOntoEditor(); }
+  });
+  document.getElementById("btnRollback").addEventListener("click", function(){
+    delete state.edits[p.id]; state.ontoInst=null; renderOntoEditor(); renderAI("onto");
+  });
+  document.getElementById("btnCommit").addEventListener("click", function(){
+    var e2=collect();
+    if(!renderDiff(e2)){ alert("没有改动，无需提交"); return; }
+    p.title=e2.title; p.year=parseInt(e2.year)||p.year; p.conf=parseFloat(e2.conf)||p.conf;
+    p.journal=e2.journal; p.org=e2.org; p.dir=e2.dir; p.sum=e2.sum;
+    p.authors=e2.authors.slice(); p.kw=e2.kw.slice();
+    CACHE={}; DIMS.forEach(function(d){ CACHE[d.key]=dimValues(d); });
+    delete state.edits[p.id]; state.ontoInst=null;
+    renderOntoCanvas(); renderOntoPanel();
+    alert("✅ 已提交（模拟 /api/commit：创建快照 → 写回图谱 → 重算派生数据）");
+    renderAI("onto");
+  });
+}
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+/* ================= 关联面板 ================= */
+function openRel(p){
+  var r=document.getElementById("relPanel");
+  var related=PAPERS.filter(function(x){ return x.id!==p.id && (x.dir===p.dir || x.kw.some(function(k){return p.kw.indexOf(k)>=0})); });
+  var h='<button class="close" onclick="closeRel()">× 关闭</button>';
+  h+='<h3>'+p.title.slice(0,46)+'</h3><div class="sub">'+p.authors.join(", ")+' · '+p.year+' · '+p.journal+' · '+p.org+'</div>';
+  h+='<div class="kw">'+p.kw.map(function(k){return '<span class="kwtag">'+k+'</span>'}).join("")+'</div>';
+  h+='<div class="rel-sec">研究方向 · '+p.dir+'</div><div class="rel-sec">关联文献（'+related.length+'）</div>';
+  related.slice(0,6).forEach(function(x){ h+='<div class="rel-item"><span>'+x.title.slice(0,30)+'</span><span class="tag">'+x.year+'</span></div>'; });
+  h+='<div class="rel-sec">快捷操作</div>';
+  h+='<div class="rel-item"><span>📖 进入阅读</span><span class="act" onclick="switchTab(\'read\')">去阅读 →</span></div>';
+  h+='<div class="rel-item"><span>🧩 修正字段</span><span class="act" onclick="switchTab(\'onto\')">去编辑 →</span></div>';
+  r.innerHTML=h; r.classList.add("open");
+}
+function closeRel(){ document.getElementById("relPanel").classList.remove("open"); }
+
+/* ================= 导航 / AI ================= */
+document.querySelectorAll(".tab").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active")});
+    b.classList.add("active");
+    switchTab(b.getAttribute("data-tab"));
+  });
+});
+function switchTab(t){
+  state.tab=t;
+  ["lib","read","onto"].forEach(function(v){ document.getElementById("view-"+v).classList.toggle("hidden", v!==t); });
+  closeRel();
+  if(t==="lib"){ renderDimBtns(); refreshArea(); renderAI("lib"); }
+  else if(t==="read") renderAI("read");
+  else { renderOntoCanvas(); renderOntoPanel(); renderAI("onto"); }
+}
+function toggleAI(){ var p=document.getElementById("aiPanel"); p.classList.toggle("on"); document.getElementById("btnAI").classList.toggle("on"); }
+function renderAI(ctx){
+  var b=document.getElementById("aiBody");
+  if(ctx==="read"){ b.innerHTML=aiCard("阅读伴随","此处将显示：本文内容摘要、库内定位摘要、划词提问入口。","insight")+aiAsk(); return; }
+  if(ctx==="onto"){
+    var low=PAPERS.filter(function(p){return p.conf<0.7}).length;
+    b.innerHTML=aiCard("模型体检","7 类实体、6 组对象关系，符合国标 GB/T 48000.3-2026。当前 <b>"+low+"</b> 篇低置信度文献建议复核。","insight")
+      +aiCard("使用提示","① 点画布类节点 → 看实例；② 点实例 → 编辑字段与关系；③ 改动实时预览 diff；④ 提交后写回图谱并生成快照。")
+      +aiCard("待复核清单",PAPERS.filter(function(p){return p.conf<0.7}).map(function(p){return "· "+p.title.slice(0,32)}).join("<br>"));
+    return;
+  }
+  b.innerHTML=aiCard("库洞察","共 "+PAPERS.length+" 篇文献。☰ 列表逐条细读；🕸 图谱按所选维度聚团看结构。","insight")
+    +aiCard("双形态提示","切到「🕸 图谱」后，顶部维度条可切换聚团维度：研究方向 / 年份 / 期刊 / 机构 / 作者 / 关键词。")+aiAsk();
+}
+function aiCard(hd,body,cls){ return '<div class="ai-card '+(cls||"")+'"><div class="hd">'+hd+'</div>'+body.replace(/\n/g,"<br>")+'</div>'; }
+function aiAsk(){ return '<div class="ai-q"><input id="aiInput" placeholder="问问你的文献库…"><button class="send" onclick="aiSend()">提问</button></div><div id="aiMsgs"></div>'; }
+function aiSend(){
+  var inp=document.getElementById("aiInput"); if(!inp) return;
+  var q=inp.value.trim(); if(!q) return;
+  var box=document.getElementById("aiMsgs");
+  var msg=document.createElement("div"); msg.className="ai-msg";
+  msg.innerHTML="<b>回答：</b>"+mockAnswer(q);
+  box.appendChild(msg); inp.value="";
+  box.scrollTop=box.scrollHeight;
+}
+function mockAnswer(q){
+  var s="", hits=PAPERS.filter(function(p){return (p.title+p.authors.join(" ")+p.kw.join(" ")).toLowerCase().indexOf(q.toLowerCase())>=0});
+  if(hits.length){ s="在文献库中找到 <b>"+hits.length+"</b> 篇相关："; hits.slice(0,3).forEach(function(p){ s+="<br>· "+p.title.slice(0,40)+"（"+p.year+"）"; }); }
+  else { s="暂未找到与「"+q+"」直接匹配的文献，可以换个说法，或到上传页导入更多文献。"; }
+  return s;
+}
+
+/* ================= 上传 ================= */
+document.getElementById("btnUpload").addEventListener("click", openModal);
+document.getElementById("dropZone").addEventListener("click", function(){ document.getElementById("fileInput").click(); });
+document.getElementById("fileInput").addEventListener("change", function(){ startPipe(); });
+document.getElementById("dropZone").addEventListener("dragover", function(e){ e.preventDefault(); this.style.borderColor="var(--accent)"; });
+document.getElementById("dropZone").addEventListener("dragleave", function(){ this.style.borderColor="#c5d0f5"; });
+document.getElementById("dropZone").addEventListener("drop", function(e){ e.preventDefault(); startPipe(); });
+function openModal(){ document.getElementById("modal").classList.add("open"); }
+function closeModal(){ document.getElementById("modal").classList.remove("open"); setTimeout(resetModal,300); }
+function resetModal(){
+  document.getElementById("uploadStep").classList.remove("hidden");
+  document.getElementById("pipeStep").classList.add("hidden");
+  document.getElementById("uploadResult").classList.add("hidden");
+}
+function startPipe(){
+  document.getElementById("uploadStep").classList.add("hidden");
+  document.getElementById("pipeStep").classList.remove("hidden");
+  var steps=[
+    {nm:"解压 / 读取文件（3 个 PDF + 1 个 zip）",st:"done",sts:"完成"},
+    {nm:"识别元数据（标题 / 作者 / 年份 / 期刊 / 机构）",st:"done",sts:"完成"},
+    {nm:"AI 补全摘要与关键词（Ollama qwen3:8b）",st:"doing",sts:"进行中…"},
+    {nm:"SHACL 数据校验（必填字段 / 类型约束）",st:"",sts:""},
+    {nm:"写入图谱并派生 TTL（经 /api/commit 闸门）",st:"",sts:""}
+  ];
+  var pipe=document.getElementById("pipe"); pipe.innerHTML="";
+  steps.forEach(function(s,i){
+    pipe.innerHTML+='<div class="pstep '+(s.st==="done"?"done":s.st==="doing"?"doing":"")+'" id="step'+i+'"><span class="st">'+(s.st==="done"?"✓":s.st==="doing"?"…":i+1)+'</span><span class="nm">'+s.nm+'</span><span class="sts">'+(s.sts||"")+'</span></div>';
+  });
+  var i=2;
+  var timer=setInterval(function(){
+    if(i>=steps.length){ clearInterval(timer); showResult(); return; }
+    document.getElementById("step"+i).className="pstep doing";
+    document.getElementById("step"+i).querySelector(".st").textContent="…";
+    document.getElementById("step"+i).querySelector(".sts").textContent="进行中…";
+    setTimeout(function(){
+      document.getElementById("step"+i).className="pstep done";
+      document.getElementById("step"+i).querySelector(".st").textContent="✓";
+      document.getElementById("step"+i).querySelector(".sts").textContent="完成";
+    },600);
+    i++;
+  },700);
+}
+function showResult(){
+  var r=document.getElementById("uploadResult"); r.classList.remove("hidden");
+  r.innerHTML='<h5>✅ 解析完成 · 入库结果</h5>'
+    +'<div class="row ok"><span class="dot"></span><span class="nm">FRP加固混凝土梁试验研究.pdf</span><span class="act">已入库</span></div>'
+    +'<div class="row ok"><span class="dot"></span><span class="nm">GFRP筋耐久性综述.pdf</span><span class="act">已入库</span></div>'
+    +'<div class="row warn"><span class="dot"></span><span class="nm">部分约束圆柱.pdf</span><span class="act">需复核（缺作者）</span></div>'
+    +'<div class="row bad"><span class="dot"></span><span class="nm">扫描版_会议论文.pdf</span><span class="act">解析失败（OCR 暂未支持）</span></div>'
+    +'<p style="margin-top:10px;font-size:12px;color:var(--muted)">⚠ 表示建议人工复核，✅ 已自动入库并在文献库可见。</p>';
+}
+
+/* ===== 初始化 ===== */
+renderFilters(); renderDimBtns(); syncView(); renderAI("lib");
+</script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix es:   <http://edu-scholar.org/ontology#> .
+
+# ============================================================
+# 科研学术本体 SHACL 约束文件
+# 依据 GB/T 48000.3-2026 第8章 公理规则：
+#   - 实体类型不相交、全局唯一标识
+#   - 属性唯一性、日期有效性、枚举值、取值约束
+#   - 关系功能性、层次结构、引用区分
+# 校验模式：以目标类(Target Class)为中心的节点形状(NodeShape)
+# ============================================================
+
+es: sh:declare [
+    sh:prefix "es" ;
+    sh:namespace "http://edu-scholar.org/ontology#"^^xsd:anyURI ;
+] ;
+    dcterms:title "科研学术本体 SHACL 约束"@zh ;
+    dcterms:description "基于 GB/T 48000.3-2026 第8章公理规则生成的 SHACL 约束文件，用于文献知识图谱数据质量校验。"@zh .
+
+# ============================================================
+# 1. 文献形状 (PaperShape) —— 核心约束
+# ============================================================
+es:PaperShape a sh:NodeShape ;
+    sh:targetClass es:Paper ;
+    rdfs:label "文献形状"@zh ;
+    rdfs:comment "文献实体的约束：标题必填且唯一、至少一个作者、DOI 格式、年份区间、类型枚举、cites 定义域值域。"@zh ;
+
+    # 1.1 标题必填且唯一（公理8.2：属性唯一性 + 全局唯一标识）
+    sh:property [
+        sh:path es:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "文献必须有且仅有一个标题。"@zh ;
+    ] ;
+    # 标题全局唯一性由本体中的 owl:hasKey 声明与数据加载层保证，
+    # SHACL 层面校验"单值必填"，跨实例唯一性依赖键约束。
+
+    # 1.2 至少关联一个作者（公理8.2：关系最小基数）
+    sh:property [
+        sh:path es:hasAuthor ;
+        sh:minCount 1 ;
+        sh:message "文献必须至少关联一个作者。"@zh ;
+    ] ;
+
+    # 1.3 DOI 格式校验（公理8.2：取值约束，正则）
+    sh:property [
+        sh:path es:doi ;
+        sh:datatype xsd:string ;
+        sh:pattern "^10\\.\\d{4,9}/[-._;()/:A-Za-z0-9]+$" ;
+        sh:message "DOI 格式不合法，应为 10.xxxx/xxxx 形式。"@zh ;
+    ] ;
+
+    # 1.4 年份取值区间校验（公理8.2：日期有效性 + 取值约束）
+    # v1.7.1：pyshacl/rdflib 对 xsd:gYear 字面量的 sh:minInclusive / sh:maxInclusive
+    # 无法完成序关系比较，会对全部合法年份（1994-2022）产生 100% 误报，故改为
+    # sh:sparql 约束：按年份词法形态校验 1900-2026，并显式放行「未标注」哨兵值。
+    sh:property [
+        sh:path es:year ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "文献必须有且仅有一个年份；确实取不到时须显式标记「未标注」。"@zh ;
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "文献年份必须是 1900-2026 之间的四位年份，或「未标注」。"@zh ;
+        sh:select """
+            PREFIX es: <http://edu-scholar.org/ontology#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this ?value
+            WHERE {
+                $this es:year ?value .
+                FILTER ( str(?value) != "未标注" )
+                FILTER ( !regex(str(?value), "^(19[0-9]{2}|200[0-9]|201[0-9]|202[0-6])$")
+                         || datatype(?value) != xsd:gYear )
+            }""" ;
+    ] ;
+
+    # 1.5 文献类型枚举约束（公理8.2：枚举值）
+    sh:property [
+        sh:path es:paperType ;
+        sh:datatype xsd:string ;
+        sh:in ( "期刊论文" "会议论文" "学位论文" "技术报告" "预印本" ) ;
+        sh:message "文献类型必须是：期刊论文、会议论文、学位论文、技术报告、预印本之一。"@zh ;
+    ] ;
+
+    # 1.6 cites 定义域值域校验（公理8.2：关系功能性/引用区分）
+    # 被引对象必须为 Paper 类（值域校验）；定义域由 targetClass=Paper 保证
+    sh:property [
+        sh:path es:cites ;
+        sh:class es:Paper ;
+        sh:message "cites 引用的对象必须是文献 (Paper) 类实例。"@zh ;
+    ] ;
+
+    # 1.7 publishedIn 值域校验
+    sh:property [
+        sh:path es:publishedIn ;
+        sh:class es:Venue ;
+        sh:message "publishedIn 的对象必须是期刊/会议 (Venue) 类实例。"@zh ;
+    ] ;
+
+    # 1.8 hasKeyword 值域校验
+    sh:property [
+        sh:path es:hasKeyword ;
+        sh:class es:Keyword ;
+        sh:message "hasKeyword 的对象必须是关键词 (Keyword) 类实例。"@zh ;
+    ] ;
+
+    # 1.9 belongsTo 值域校验
+    sh:property [
+        sh:path es:belongsTo ;
+        sh:class es:DomainCategory ;
+        sh:message "belongsTo 的对象必须是领域类别 (DomainCategory) 类实例。"@zh ;
+    ] ;
+
+    # 1.10 v1.5 AI 摘要：非强制、单值、字符串
+    sh:property [
+        sh:path es:aiSummary ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:message "aiSummary 必须为字符串且至多一个值（可为空）。"@zh ;
+    ] ;
+
+    # 1.11 v1.5 自动关键词：非强制、单值、字符串
+    sh:property [
+        sh:path es:autoKeywords ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:message "autoKeywords 必须为字符串且至多一个值（可为空）。"@zh ;
+    ] ;
+
+    # 1.12 v1.5 置信度：非强制、单值、decimal（0.0-1.0）
+    sh:property [
+        sh:path es:confidence ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "confidence 必须为 0.0-1.0 之间的 decimal 且至多一个值（可为空）。"@zh ;
+    ] .
+
+# ============================================================
+# 2. 作者形状 (AuthorShape)
+# ============================================================
+es:AuthorShape a sh:NodeShape ;
+    sh:targetClass es:Author ;
+    rdfs:label "作者形状"@zh ;
+    rdfs:comment "作者实体约束：名称必填。"@zh ;
+    sh:property [
+        sh:path es:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "作者必须有且仅有一个名称。"@zh ;
+    ] ;
+    # hasAffiliation 值域校验
+    sh:property [
+        sh:path es:hasAffiliation ;
+        sh:class es:Organization ;
+        sh:message "hasAffiliation 的对象必须是机构 (Organization) 类实例。"@zh ;
+    ] ;
+    # v1.1 researchArea：非强制、单值、字符串
+    sh:property [
+        sh:path es:researchArea ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:message "researchArea 必须为字符串且至多一个值（可为空）。"@zh ;
+    ] ;
+    # v1.1 hasResearchTopic：值域 Keyword，数量 0..5
+    sh:property [
+        sh:path es:hasResearchTopic ;
+        sh:class es:Keyword ;
+        sh:maxCount 5 ;
+        sh:message "hasResearchTopic 的对象必须是关键词 (Keyword) 类实例，且至多 5 个。"@zh ;
+    ] .
+
+# ============================================================
+# 3. 机构形状 (OrganizationShape)
+# ============================================================
+es:OrganizationShape a sh:NodeShape ;
+    sh:targetClass es:Organization ;
+    rdfs:label "机构形状"@zh ;
+    rdfs:comment "机构实体约束：名称必填。"@zh ;
+    sh:property [
+        sh:path es:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "机构必须有且仅有一个名称。"@zh ;
+    ] .
+
+# ============================================================
+# 4. 期刊/会议形状 (VenueShape)
+# ============================================================
+es:VenueShape a sh:NodeShape ;
+    sh:targetClass es:Venue ;
+    rdfs:label "期刊/会议形状"@zh ;
+    rdfs:comment "期刊/会议实体约束：名称必填。"@zh ;
+    sh:property [
+        sh:path es:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "期刊/会议必须有且仅有一个名称。"@zh ;
+    ] .
+
+# ============================================================
+# 5. 关键词形状 (KeywordShape)
+# ============================================================
+es:KeywordShape a sh:NodeShape ;
+    sh:targetClass es:Keyword ;
+    rdfs:label "关键词形状"@zh ;
+    rdfs:comment "关键词实体约束：名称必填。"@zh ;
+    sh:property [
+        sh:path es:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "关键词必须有且仅有一个名称。"@zh ;
+    ] .
+
+# ============================================================
+# 6. 本地文件形状 (LocalFileShape)
+# ============================================================
+es:LocalFileShape a sh:NodeShape ;
+    sh:targetClass es:LocalFile ;
+    rdfs:label "本地文件形状"@zh ;
+    rdfs:comment "本地文件实体约束：文件路径必填。"@zh ;
+    sh:property [
+        sh:path es:filePath ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "本地文件必须有且仅有一个文件路径。"@zh ;
+    ] .
+
+# ============================================================
+# 7. 领域类别形状 (DomainCategoryShape)
+# ============================================================
+es:DomainCategoryShape a sh:NodeShape ;
+    sh:targetClass es:DomainCategory ;
+    rdfs:label "领域类别形状"@zh ;
+    rdfs:comment "领域类别实体约束：名称必填。"@zh ;
+    sh:property [
+        sh:path es:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "领域类别必须有且仅有一个名称。"@zh ;
+    ] .

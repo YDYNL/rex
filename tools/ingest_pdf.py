@@ -1,0 +1,1883 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+科研文献本地化管理系统 v1.6 —— 上传 PDF 自动入库闭环核心管线
+============================================================
+ingest_pdf.py：输入本地 PDF（单文件 / 目录 / 监控目录），自动完成
+  解析元数据 -> 去重 -> 本地 LLM 增强 -> 实例化本体 -> 增量并入图谱(v2_4)
+  -> 写 TTL -> SHACL 复检 -> 重建可视化页面  的完整闭环。
+
+命令行：
+  python3 ingest_pdf.py --file <单个PDF文件> [--no-shacl]
+  python3 ingest_pdf.py --dir  <目录> [--no-shacl]                # 扫描目录下所有 .pdf
+  python3 ingest_pdf.py --dir  <目录> --watch [--no-shacl]        # 监控模式：轮询新出现的 .pdf 自动入库
+
+设计约定（与 v1.5 管线保持一致）：
+  1. 元数据提取     ：pypdf 优先（DocumentInfo + 首屏文本），pdfplumber 兜底；
+                      提取 标题/作者/年份/DOI/摘要/期刊，DOI 用正则 10.xxxx/xxx。
+  2. 去重           ：按 DOI / 标题归一化 / 文件名 匹配已入库 v2_3 图谱，命中则跳过并提示。
+  3. LLM 增强       ：复用 enhance_ingest.py 的 Ollama OpenAI 兼容接口（qwen3:8b），
+                      生成 aiSummary / 关键词 / 研究方向，带 es:sourcedFrom 回链与
+                      es:confidence，created_by=ollama；单篇失败重试一次，仍失败标 failed 不编造。
+  4. 实例化         ：新文献按本体实例化 Paper/Author/Venue/Keyword/LocalFile/Organization
+                      及对象属性边；作者按 姓名+机构 消歧合并；期刊/关键词/机构按名称复用。
+  5. 增量合并       ：在 v2_3 基础上追加新节点/边，写 scholar_literature_graph_v2_4.json 与
+                      scholar_data_v2_4.ttl（v2_3 保留不动）。
+  6. SHACL 复检     ：year 的 xsd:gYear 属工具误报（v1.1 起豁免规则），其余检查如实记录。
+  7. 页面重建       ：调用 rebuild_page.py 重建 scholar_literature_manager.html 使新文献即时可见。
+
+所有统计来自真实执行结果，失败不编造。
+"""
+import argparse
+try:
+    import fcntl                      # POSIX（macOS / Linux）文件锁
+except ImportError:                   # Windows 无 fcntl，退回 msvcrt 独占锁
+    fcntl = None
+try:
+    import msvcrt                     # Windows 文件锁
+except ImportError:
+    msvcrt = None
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import unicodedata
+import urllib.parse
+import urllib.request
+from datetime import datetime
+
+# ---- 让本脚本能 import 同一目录的 enhance_ingest.py 复用 v1.5 逻辑 ----
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
+from enhance_ingest import (norm_title, norm_doi, detect_ollama,
+                            llm_extract_ollama_http, rule_extract,
+                            graph_to_ttl, run_shacl, OLLAMA_DEFAULT_MODEL,
+                            warmup_model, LLM_STATS, llm_stats_line)
+
+BASE_DIR = os.path.dirname(SCRIPT_DIR)                       # Ontology 目录
+DATA_DIR = os.path.join(BASE_DIR, "data_test", "论文")       # 本地 PDF 存放目录
+GRAPH_V2_3 = os.path.join(BASE_DIR, "scholar_literature_graph_v2_3.json")  # 已入库比对库（始终不改动）
+OUT_JSON = os.path.join(BASE_DIR, "scholar_literature_graph_v2_4.json")
+OUT_TTL = os.path.join(BASE_DIR, "scholar_data_v2_4.ttl")
+REBUILD = os.path.join(SCRIPT_DIR, "rebuild_page.py")
+
+ES_NS = "http://edu-scholar.org/ontology#"
+INBOX = os.path.join(BASE_DIR, ".ingest_inbox")              # --dir/--watch 的输入暂存（处理后归入 data_test/论文）
+GRAPH_LOCK_PATH = os.path.join(BASE_DIR, ".graph_write.lock")  # 图谱 JSON 跨进程读写互斥锁
+
+
+# ----------------------------------------------------------------------------
+# 0. 通用工具
+# ----------------------------------------------------------------------------
+def now_iso():
+    return datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
+
+class graph_write_lock:
+    """跨进程互斥锁：保证「读图谱 JSON → 修改 → 写回」整体原子。
+
+    上传入库（ingest）与后台 AI 摘要补全（backfill）是两条独立管线的独立进程，
+    若不互斥，后写者会用它读到的旧快照整体覆盖图谱，导致期间入库的文献丢失。
+    本锁基于 fcntl.flock（本机同用户进程有效），在 with 块内独占。
+    """
+
+    def __enter__(self):
+        self._fh = open(GRAPH_LOCK_PATH, "a+")
+        try:
+            if fcntl is not None:
+                fcntl.flock(self._fh.fileno(), fcntl.LOCK_EX)
+            elif msvcrt is not None:
+                self._fh.seek(0)
+                while True:
+                    try:
+                        msvcrt.locking(self._fh.fileno(), msvcrt.LK_LOCK, 1)
+                        break
+                    except OSError:
+                        time.sleep(0.2)
+        except Exception:
+            pass
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        try:
+            if fcntl is not None:
+                fcntl.flock(self._fh.fileno(), fcntl.LOCK_UN)
+            elif msvcrt is not None:
+                try:
+                    self._fh.seek(0)
+                    msvcrt.locking(self._fh.fileno(), msvcrt.LK_UNLCK, 1)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        try:
+            self._fh.close()
+        except Exception:
+            pass
+        return False
+
+
+def latest_graph_snapshot(fallback=None):
+    """读取当前最新图谱（v2_4 优先，其次传入的 fallback）；文件缺失/损坏时回退 fallback。"""
+    for path in (OUT_JSON, GRAPH_V2_3):
+        if os.path.exists(path):
+            try:
+                return read_json(path)
+            except Exception:
+                continue
+    return fallback if fallback is not None else {"nodes": [], "edges": []}
+
+
+def slug(s):
+    """图谱 id 的 slug：保留字母数字 _ . -，其余替换为 _，并去除首尾下划线。"""
+    s = re.sub(r"[^A-Za-z0-9_.\-]+", "_", s or "")
+    return s.strip("_")
+
+
+def lf_slug(name):
+    """LocalFile 节点 slug：与 Paper 不同，保留前导下划线（兼容 v2_3 已有命名）。"""
+    return re.sub(r"[^A-Za-z0-9_.\-]+", "_", name or "")
+
+
+def venue_slug(name):
+    """Venue 节点 id 的 slug（P1 收尾）：ASCII 可表达时沿用 slug()；
+    纯中文等非 ASCII 刊名（如《公路》《土木工程学报》《工业建筑》）改用百分号编码，
+    避免被清空成空串后多个期刊坍缩到同一个 `Venue:` 空节点而丢失刊名。"""
+    s = slug(name)
+    if s:
+        return s
+    return urllib.parse.quote(name or "", safe="")
+
+
+def norm_name(s):
+    """作者姓名归一化：小写 + 去标点 + 压缩空白，用于消歧合并。"""
+    if not s:
+        return ""
+    s = re.sub(r"[^a-z0-9]+", " ", s.lower()).strip()
+    return re.sub(r"\s+", " ", s)
+
+
+def norm_aff(s):
+    return norm_name(s)
+
+
+_CJK_CLS = "\u3400-\u4dbf\u4e00-\u9fff"
+
+
+def norm_venue(s):
+    """Venue/Organization 归并键（v1.8e 修复）：保留中日韩字符。
+
+    旧实现复用 norm_name（只留 a-z0-9），中文刊名/机构名会被清空成空串，
+    导致《公路》《土木工程学报》《工业建筑》等多个 Venue、多个中文机构
+    共用同一个空键而坍缩到同一节点。"""
+    s = unicodedata.normalize("NFKC", s or "").lower()
+    return re.sub(r"[^0-9a-z" + _CJK_CLS + r"]+", "", s)
+
+
+def norm_org(s):
+    return norm_venue(s)
+
+
+def norm_author(s):
+    """作者归并键（v1.8f 修复）：保留 CJK，避免中文姓名被清空成空键后互相合并。"""
+    return norm_venue(s)
+
+
+def author_slug(name):
+    """Author 节点 id 的 slug：中文姓名改用百分号编码，避免 slug 为空导致 id 坍缩为 `Author:`。"""
+    return venue_slug(name)
+
+
+def _is_cjk_only(s):
+    return bool(re.search(r"[" + _CJK_CLS + r"]", s or "")) and not re.search(r"[A-Za-z]{3,}", s or "")
+
+
+def _is_latin_only(s):
+    return not re.search(r"[" + _CJK_CLS + r"]", s or "") and bool(re.search(r"[A-Za-z]{3,}", s or ""))
+
+
+def merge_bilingual(affs):
+    """机构名称中英对照去重：恰为 2 条、且一条纯中文、一条纯西文时视为同一机构的双语写法，保留中文条目。
+
+    例：《体外预应力…》原文同时列出「郑州大学新型建材与结构研究中心」与
+    「Research Center of New Style Building Material & Structure, Zhengzhou University」。
+    返回 (合并后的列表, [(保留项, 被合并项)])。"""
+    if len(affs) == 2:
+        a, b = affs
+        if _is_cjk_only(a) and _is_latin_only(b):
+            return [a], [(a, b)]
+        if _is_cjk_only(b) and _is_latin_only(a):
+            return [b], [(b, a)]
+    return list(affs), []
+
+
+def refresh_affiliation_edges(matched, meta, graph, idx, log):
+    """P2 收尾：重跑解析时按本次机构列表校正本文作者的 hasAffiliation 边。
+
+    归属规则与 instantiate 一致，不做无依据推测：
+      1) 机构列表仅 1 个 -> 本文全部作者归属该机构；
+      2) 多机构且存在逐作者 affiliation_map -> 按映射归属；
+      3) 多机构且无映射 -> 不新建边（避免编造），保留原有边。
+    仅增删「本文作者」相关的边，不触碰其他论文。返回变更列表。"""
+    authors = [e["target_id"] for e in graph["edges"]
+               if e.get("source_id") == matched["id"] and e.get("type") == "hasAuthor"]
+    if not authors:
+        return []
+    affs = [a for a in (meta.get("affiliations") or []) if a and str(a).strip()]
+    if not affs and meta.get("affiliation"):
+        affs = [meta["affiliation"]]
+    affs, merged = merge_bilingual(affs)
+    for zh, en in merged:
+        log.append(f"  [双语归并] 机构中英对照视为同一机构：{zh[:26]} <=> {en[:44]}")
+    affs = [a for a in affs if a and str(a).strip()]
+    if not affs:
+        return []
+    org_ids = {}
+    for a in affs:
+        oid = ensure_org(a, graph, idx, log)
+        if oid:
+            org_ids[a] = oid
+    if not org_ids:
+        return []
+    name_of = {n["id"]: n.get("properties", {}).get("name", "") for n in graph["nodes"]}
+    amap = meta.get("affiliation_map") or {}
+    want = {}
+    if len(org_ids) == 1:
+        oid = list(org_ids.values())[0]
+        for aid in authors:
+            want[aid] = {oid}
+    else:
+        for aid in authors:
+            a = amap.get(name_of.get(aid, ""))
+            if a and a in org_ids:
+                want[aid] = {org_ids[a]}
+        if not want and len(authors) == 1:
+            want[authors[0]] = set(org_ids.values())
+        if not want:
+            log.append("  [机构] 原文为多机构且无逐作者对应关系，未做推测归属（保留原有边）")
+            return []
+    changes = []
+    aut_set = set(authors)
+    want_pairs = {(aid, oid) for aid, oids in want.items() for oid in oids}
+    drop = {(e["source_id"], e["target_id"], e.get("type"))
+            for e in graph["edges"]
+            if e.get("type") == "hasAffiliation" and e.get("source_id") in aut_set
+            and e["source_id"] in want and (e["source_id"], e["target_id"]) not in want_pairs}
+    if drop:
+        graph["edges"] = [e for e in graph["edges"]
+                          if (e.get("source_id"), e.get("target_id"), e.get("type")) not in drop]
+        changes.append(("hasAffiliation-错误归属已移除",
+                        sorted({t.split("#")[-1][:24] for _, t, _ in drop}), ""))
+    seen = {(e.get("source_id"), e.get("target_id"), e.get("type")) for e in graph["edges"]}
+    added = []
+    for aid, oid in sorted(want_pairs):
+        before = len(graph["edges"])
+        add_edge(graph, seen, aid, oid, "hasAffiliation")
+        if len(graph["edges"]) > before:
+            added.append(oid.split("#")[-1][:24])
+    if added:
+        changes.append(("hasAffiliation-新增归属", "", len(added)))
+    for f, o, n in changes:
+        log.append(f"  [刷新] {f}: {str(o)[:80]} -> {n}")
+    return changes
+
+
+def read_json(path):
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def collect_pdfs(file_path=None, dir_path=None):
+    """收集待处理的 PDF 绝对路径列表。--file 与 --dir 互斥；--dir 需要已存在的目录。"""
+    paths = []
+    if file_path:
+        if not os.path.isfile(file_path):
+            raise SystemExit(f"错误：--file 指向的文件不存在: {file_path}")
+        paths = [os.path.abspath(file_path)]
+    elif dir_path:
+        if not os.path.isdir(dir_path):
+            raise SystemExit(f"错误：--dir 指向的目录不存在: {dir_path}")
+        for fn in sorted(os.listdir(dir_path)):
+            if fn.lower().endswith(".pdf") and os.path.isfile(os.path.join(dir_path, fn)):
+                paths.append(os.path.join(dir_path, fn))
+    return paths
+
+
+# ----------------------------------------------------------------------------
+# 1. PDF 元数据提取（pypdf 优先，pdfplumber 兜底）
+# ----------------------------------------------------------------------------
+DOI_RE = re.compile(r"10\.\d{4,9}/[^\s\"<>\[\]{}%]+", re.I)
+YEAR_RE = re.compile(r"(19|20)\d{2}")
+
+# ============================================================================
+# P0-P3 修复增强块（v1.7）：年份多信号优先级 / DOI 规范化 / 刊名规范化 / 机构抽取
+# 依据《科研学术本体工作台_年份与机构识别根因诊断报告》第 3 章方案实施
+# ============================================================================
+DOI_SEG_RE = re.compile(r"10\.\d{4,9}/[A-Za-z0-9._/;:()\-]+")
+DOI_ESC_MAP = (("//H20849", "/("), ("/H20849", "("), ("/H20850", ")"))
+YEAR_UNKNOWN = "未标注"          # P0：确实取不到年份时的显式标记（不编造）
+CROSSREF_CACHE = os.path.join(BASE_DIR, ".crossref_cache.json")
+
+# P1：DOI 前缀 -> 规范刊名（离线映射，覆盖本批文献主要来源刊）
+DOI_PREFIX_VENUE = [
+    ("10.1016/j.conbuildmat", "Construction and Building Materials"),
+    ("10.1016/j.engstruct", "Engineering Structures"),
+    ("10.1016/j.compositesb", "Composites Part B: Engineering"),
+    ("10.1016/j.compstruct", "Composite Structures"),
+    ("10.1016/j.cemconcomp", "Cement and Concrete Composites"),
+    ("10.1016/j.compscitech", "Composites Science and Technology"),
+    ("10.1016/j.istruc", "Structures"),
+    ("10.1016/j.strusafe", "Structural Safety"),
+    ("10.1061/(asce)cc", "Journal of Composites for Construction"),
+    ("10.1061/(asce)1090-0268", "Journal of Composites for Construction"),
+    ("10.1061/(asce)st", "Journal of Structural Engineering"),
+    ("10.1061/(asce)be", "Journal of Bridge Engineering"),
+    ("10.1061/(asce)mt", "Journal of Materials in Civil Engineering"),
+    ("10.3390/app", "Applied Sciences"),
+    ("10.3390/ma", "Materials"),
+    ("10.1007/978-3-030-88166-5", "RILEM Bookseries"),
+    ("10.1680", "Proceedings of the Institution of Civil Engineers"),
+    ("10.14359", "ACI Structural Journal"),
+    # P1 收尾：CNKI 中文刊 DOI（10.15935/j.cnki.<刊代码>. <年>.<期>.<序号>）→ 规范中文刊名
+    # jggcs = 《结构工程师》（同济大学主办，ISSN 1005-0159）
+    ("10.15935/j.cnki.jggcs", "结构工程师"),
+]
+
+ZH_VENUE_TAIL_RE = re.compile(r"(学报|院刊|杂志|建筑|工程|公路|桥梁|混凝土|结构|力学|科学|技术)$")
+ZH_VENUE_NOISE = re.compile(r"(本文|摘要|关键词|研究|我们|采用|试验|计算|分析|结果|方法|影响|性能|模型|数据)")
+ZH_JOURNAL_EXACT = re.compile(
+    r"^[\u4e00-\u9fff]{2,10}(?:学报|院刊|杂志|混凝土|建筑结构|土木工程|公路|桥梁|结构工程师|"
+    r"工业建筑|建筑材料学报|水利学报|工程力学)$")
+
+
+def venue_by_doi(doi):
+    d = (doi or "").lower()
+    for k, v in DOI_PREFIX_VENUE:
+        if d.startswith(k):
+            return v
+    return ""
+
+
+def _yr_ok(y):
+    return bool(y) and str(y).isdigit() and 1900 <= int(y) <= 2035
+
+
+def extract_year(text, raw, doi):
+    # P0：多信号优先级取年，返回 (年份, 来源)。优先级：版式强信号 > DOI 内嵌年 >
+    # 中文『20XX年』> /CreationDate > 正文首现；全部失败返回 ("", "none")，绝不编造。
+    head = unicodedata.normalize("NFKC", text[:9000])
+    flat = re.sub(r"\s+", " ", head)
+    patterns = [
+        (r"Appl\.\s*Sci\.\s*((?:19|20)\d{2})", "mdpi-line"),
+        (r"(?:©|\(c\))\s*((?:19|20)\d{2})", "copyright"),
+        (r"copyright\s*(?:©|\(c\))?\s*((?:19|20)\d{2})", "copyright"),
+        (r"((?:19|20)\d{2})\s*(?:Elsevier|Springer|Wiley|Taylor\s*&\s*Francis|American Society)", "publisher"),
+        (r"available\s+online[^\d\n]{0,25}((?:19|20)\d{2})", "available-online"),
+        (r"(?:volume|vol\.?)\s*\d{1,5}\s*[,，(（]?\s*((?:19|20)\d{2})", "volume"),
+        (r"\b\d{1,4}\s*\(\s*((?:19|20)\d{2})\s*\)\s*\d{1,6}\s*[–\-]", "volume-line"),
+    ]
+    for pat, src in patterns:
+        for m in re.finditer(pat, flat, re.I):
+            if _yr_ok(m.group(1)):
+                return m.group(1), src
+    if doi:
+        m = re.search(r"[.(]((?:19|20)\d{2})[.)]", doi)
+        if m and _yr_ok(m.group(1)):
+            return m.group(1), "doi-year"
+    flat_ns = re.sub(r"\s+", "", unicodedata.normalize("NFKC", text[:3000]))
+    m = re.search(r"((?:19|20)\d{2})年", flat_ns)
+    if m and _yr_ok(m.group(1)):
+        return m.group(1), "zh-year"
+    # 正文首现年 > /CreationDate：CreationDate 是文件登记时间（下载/复制时间），
+    # 常与出版年无关（如 1993 年学位论文被登记为 2018），故降级为末位兜底信号。
+    first = re.sub(r"\s+", " ", unicodedata.normalize("NFKC", text[:1500]))
+    m = re.search(r"(?<!\d)((?:19|20)\d{2})(?!\d)", first)
+    if m and _yr_ok(m.group(1)):
+        return m.group(1), "first-in-text"
+    c = str((raw or {}).get("ctime") or "")
+    m = re.search(r"((?:19|20)\d{2})", c)
+    if m and _yr_ok(m.group(1)):
+        return m.group(1), "creationDate"
+    return "", "none"
+
+
+def extract_venue(text, doi, crossref_venue=""):
+    # P1：Crossref 规范名 > DOI 前缀映射 > 英文页眉卷期形态 > 中文刊名 > 学位论文培养单位
+    if crossref_venue:
+        return crossref_venue.strip(), "crossref"
+    v = venue_by_doi(doi)
+    if v:
+        return v, "doi-prefix"
+    head = unicodedata.normalize("NFKC", text[:6000])
+    flat = re.sub(r"[ \t]+", " ", head)
+    m = re.search(r"([A-Z][A-Za-z&\-\.\s]{5,60}?)\s+\d{1,4}\s*\(\s*(?:19|20)\d{2}\s*\)\s*\d{1,6}\s*[–\-]", flat)
+    if m:
+        cand = re.sub(r"\s+", " ", m.group(1)).strip(" .")
+        if 4 < len(cand) < 70 and not re.search(r"homepage|www\.|elsevier|sciencedirect", cand, re.I):
+            return cand, "volume-line"
+    flat_ns = re.sub(r"\s+", "", flat[:1300])
+    for mz in re.finditer(r"([\u4e00-\u9fff]{2,10})(?=20\d{2}年|第\d{1,4}[卷期])", flat_ns):
+        cand = mz.group(1)
+        if ZH_VENUE_TAIL_RE.search(cand) and not ZH_VENUE_NOISE.search(cand):
+            return cand, "zh-journal-header"
+    for ln in flat[:900].splitlines():
+        c = re.sub(r"\s+", "", ln)
+        if c and len(c) <= 14 and ZH_JOURNAL_EXACT.match(c):
+            return c, "zh-journal"
+    # 学位论文不设 Venue：培养单位属 Organization 而非期刊，留空不编造
+    return "", "none"
+
+
+# ---------------------------------------------------------------- P2 机构抽取
+AFF_EN_KEY = re.compile(
+    r"(Department|Dept\.|School|Faculty|Institute|College|Universit|Laborator|"
+    r"Centre|Center|Academy|Key Lab|Research Group|Engineering Research)", re.I)
+AFF_ZH_KEY = re.compile(
+    r"[\u4e00-\u9fff]{2,24}(?:大学|学院|研究院|研究所|研究中心|重点实验室|工程研究中心|设计院|"
+    r"科学研究院|土木工程系|工程学院|教研室)")
+AFF_ZH_HEAD = re.compile(
+    r"^[\u4e00-\u9fff]{2,24}(?:大学|学院|研究院|研究所|研究中心|重点实验室|工程研究中心|设计院)")
+AFF_NOISE = re.compile(
+    r"^\s*(?:Corresponding|E-?mail|Tel\.|Fax|Received|Accepted|Available|Published|"
+    r"https?://|www\.|©|Copyright|All rights reserved|Abstract|Keywords|"
+    r"编辑部|通讯作者|收稿日期|基金项目|作者简介|通讯地址)", re.I)
+AFF_SKIP = re.compile(
+    r"(Downloaded from|all rights reserved|For personal use only|is brought to you|"
+    r"free and open access|Scholars' Repository|In accordance with|Microfilms|"
+    r"\b(?:were|was|are|is|has been|have been|becomes|specimens|applied)\b)", re.I)
+AFF_ESC_MAP = (("/H20849", "("), ("/H20850", ")"), ("/H20851", ""), ("/H11003", ""), ("/H11005", ""))
+AFF_STRIP_PREFIX = re.compile(
+    r"^[\s∗*†‡\d.,;:、\-]*(?:Corresponding author(?: at)?\s*[:：]?\s*)?", re.I)
+AFF_TITLE = re.compile(
+    r"^(?:(?:Associate|Assistant|Full|Distinguished|Adjunct|Senior|Chief)\s+)*"
+    r"(?:Professor|Lecturer|Reader|Researcher|Scientist|Engineer|"
+    r"Ph\.?\s?D\.?\s*(?:Student|Candidate|Scholar|Fellow)?|Post-?doctoral\s+\w+(?:\s+\w+)?|"
+    r"Research\s+\w+|Graduate\s+\w+|Master\s+\w+)[,，]\s*", re.I)
+
+
+def _clean_aff(s):
+    s = re.sub(r"\s+", " ", s or "").strip(" (,;.·。；)")
+    for a, b in AFF_ESC_MAP:
+        s = s.replace(a, b)
+    s = re.split(r"[;；]\s*(?:[A-Za-z0-9._%+\-]+@|http)", s)[0]
+    s = re.sub(r"\([A-Z]\.?[A-Z]?\.?$", "", s)
+    s = re.sub(r"\(\s*(?:corresponding author|通讯作者)\s*\)\.?", "", s, flags=re.I)
+    s = re.sub(r"^[\s∗*†‡]+", "", s)
+    s = re.sub(r"^\d{1,2}(?=[A-Z])", "", s)
+    s = re.sub(r"^[a-z0-9]{1,3}\s*[,、.)]\s*", "", s)
+    s = re.sub(r"^[a-h]\s+(?=[A-Z])", "", s)
+    s = re.sub(r"^(?:and|&)\s+", "", s, flags=re.I)
+    s = AFF_TITLE.sub("", s)
+    s = re.sub(r"\s*\bcorresponding author\b\.?\s*$", "", s, flags=re.I)
+    s = re.sub(r"\s*E-?mail\s*[:：]?.*$", "", s, flags=re.I)
+    s = re.sub(r"^[a-z](?=[A-Z])", "", s)
+    s = re.sub(r"\s*\(\s*correspond\w*\.?$", "", s, flags=re.I)
+    s = re.sub(r"\s*\(\s*$", "", s)
+    s = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", s)      # 粘连驼峰拆词
+    s = re.sub(r",(?=\S)", ", ", s)                # 逗号后补空格
+    s = re.sub(r"\s*\d{1,3}\s*$", "", s).strip(" ,;.")
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def _push_aff(v, found, minlen=4, maxlen=45):
+    v = (v or "").strip(" ,;.:")
+    if len(v) < minlen or len(v) > maxlen:
+        return
+    for i, f in enumerate(found):
+        if v in f:
+            return
+        if f in v:
+            found[i] = v
+            return
+    found.append(v)
+
+
+def extract_affiliations(text, maxn=4):
+    # P2：从首页正文/脚注抽取机构（不依赖本不存在的 PDF affiliation 字段）
+    head = unicodedata.normalize("NFKC", text[:6500])
+    head = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", " ", head)   # 清理旧式 PDF 控制字符
+    head = re.sub(r"[‐‑-]\s*\n\s*", "", head)
+    lines = [re.sub(r"\s+", " ", x).strip() for x in head.splitlines()]
+    tail_join = re.compile(r"(?:\b(?:of|di|at|and|the|de|du|for|in|van|der)&?,?|,|&)\s*$", re.I)
+    found = []
+    for i, ln0 in enumerate(lines):
+        if len(ln0) < 4 or AFF_NOISE.match(ln0):
+            continue
+        ln = ln0
+        # 跨行拼接：行尾停在介词/逗号，或下一行以机构关键词开头（"…of Coastal and Offshore" + "Engineering, …"）
+        j = i
+        while (tail_join.search(ln) or (AFF_EN_KEY.search(ln) and j + 1 < len(lines)
+                                        and AFF_EN_KEY.match(lines[j + 1] or ""))) \
+                and j + 1 < len(lines) and len(ln) < 160:
+            nxt = lines[j + 1]
+            if not nxt or len(nxt) < 3 or AFF_NOISE.match(nxt):
+                break
+            ln = ln + " " + nxt
+            j += 1
+        mt = re.search(r"\d(?=(?:Associate|Assistant|Full|Distinguished|Professor|Lecturer|Ph\.?\s?D))", ln)
+        if mt:
+            ln = ln[mt.start():]
+        if AFF_SKIP.search(ln):
+            continue
+        mh = AFF_ZH_HEAD.match(ln)
+        if mh:
+            _push_aff(_clean_aff(mh.group(0)), found)
+        else:
+            for m in AFF_ZH_KEY.finditer(ln):
+                _push_aff(_clean_aff(m.group(0)), found, minlen=5)
+        if AFF_EN_KEY.search(ln):
+            v = _clean_aff(ln)
+            v = AFF_STRIP_PREFIX.sub("", v)
+            v = re.split(r"\s{2,}", v)[0].strip()
+            if AFF_EN_KEY.search(v[:40]) and not re.search(r"\bin the\b|\b(?:and|or)\s+(?:the|a|an)\b", v, re.I) \
+                    and not re.search(r"(Journal|Proceedings|Volume|Issue|Published)", v, re.I):
+                _push_aff(v, found, minlen=9, maxlen=150)
+        if len(found) >= maxn:
+            break
+    return found[:maxn]
+
+
+def map_author_affiliations(authors, affs, text):
+    # 多机构篇的可确证映射：单机构全量归属；多机构按上标序号定位；无法确证返回空
+    if not affs or not authors:
+        return {}
+    if len(affs) == 1:
+        return {a: affs[0] for a in authors}
+    head = unicodedata.normalize("NFKC", text[:2500])
+    idx2aff = {}
+    for ln in head.splitlines():
+        m = re.match(r"^\s*([0-9]{1,2}|[a-h])\s*[,、.)]?\s*(.+)$", ln)
+        if not m:
+            continue
+        body = re.sub(r"\s+", " ", m.group(2))
+        if not (AFF_EN_KEY.search(body) or AFF_ZH_KEY.search(body)):
+            continue
+        for a in affs:
+            if a[:25] and (a[:25] in body or re.sub(r"\s+", "", a)[:20] in re.sub(r"\s+", "", body)):
+                idx2aff.setdefault(m.group(1), a)
+                break
+    out = {}
+    for a in authors:
+        mm = re.search(re.escape(a) + r"\s*[\*†‡]?\s*((?:\d{1,2}\s*,\s*)*\d{1,2}|[a-h](?:\s*,\s*[a-h])*)\b", head)
+        if mm:
+            for i in re.split(r"\s*,\s*", mm.group(1).strip()):
+                if i in idx2aff:
+                    out[a] = idx2aff[i]
+                    break
+    return out
+
+
+# ------------------------------------------------- P1 增强：Crossref 反查（可选降级）
+def crossref_enrich(doi, cache_path=None, timeout=6):
+    if not doi or not re.match(r"^10\.\d{4,9}/", doi):
+        return {}
+    cache = {}
+    if cache_path and os.path.isfile(cache_path):
+        try:
+            cache = json.load(open(cache_path, encoding="utf-8"))
+        except Exception:
+            cache = {}
+    key = doi.lower()
+    if key in cache:
+        return cache[key] or {}
+    url = "https://api.crossref.org/works/" + urllib.parse.quote(doi) + "?mailto=research@example.com"
+    try:
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "scholar-ontology/1.7 (mailto:research@example.com)"})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            msg = json.loads(r.read().decode("utf-8"))["message"]
+    except Exception:
+        return {}
+
+    def _cy(d):
+        try:
+            return str(((d.get("date-parts") or [[None]])[0] or [None])[0] or "")
+        except Exception:
+            return ""
+
+    ji = (msg.get("journal-issue") or {}).get("published-print") or {}
+    cands = [_cy(ji), _cy(msg.get("published-print") or {}), _cy(msg.get("published") or {}),
+             _cy(msg.get("issued") or {}), _cy(msg.get("published-online") or {})]
+    year = next((y for y in cands if _yr_ok(y)), "")
+    cts = msg.get("container-title") or []
+    res = {"year": year, "venue": (cts[0].strip() if cts else "")}
+    if cache_path:
+        try:
+            cache[key] = res
+            json.dump(cache, open(cache_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        except Exception:
+            pass
+    return res
+
+
+def extract_doi(text):
+    # P1：三路召回（原始文本 / 逐行 NFKC+去空格 / 'DOI' 邻域切片），清洗后取最长且尾部合法者。
+    # 逐行去空格可还原全角排版 DOI：『DOI ：10．15935／j ．cnki ．j ggcs ．1994．03．002』
+    head = text[:12000]
+    cands = [_clean_doi(m.group(0)) for m in DOI_RE.finditer(head)]
+    for ln in head.splitlines():
+        ln2 = re.sub(r"\s+", "", unicodedata.normalize("NFKC", ln))
+        if len(ln2) < 12:
+            continue
+        if "10." not in ln2:
+            continue
+        cands += [_clean_doi(m.group(0)) for m in DOI_RE.finditer(ln2)]
+        cands += [_clean_doi(m.group(0)) for m in DOI_SEG_RE.finditer(ln2)]
+    for m in re.finditer(r"DOI|doi\.org|dx\.doi\.org", head, re.I):
+        seg = re.sub(r"\s+", "", head[max(0, m.start() - 10):m.start() + 150])
+        mm = DOI_SEG_RE.search(seg)
+        if mm:
+            cands.append(_clean_doi(mm.group(0)))
+    cands = [c for c in cands if len(c) >= 12 and c.startswith("10.") and "/" in c]
+    if not cands:
+        return ""
+    good = [c for c in cands if re.search(r"[0-9)]$", c)]
+    return max(good or cands, key=len)
+
+
+def _clean_doi(s):
+    # P1：DOI 规范化——去 URL 前缀 / 转义残留（//H20849 等）/ 重复斜杠 / 尾部英文污染（...10.087R）
+    s = str(s or "").strip().rstrip(".,;:")
+    s = s.replace("https://doi.org/", "").replace("http://doi.org/", "")
+    s = s.replace("https://dx.doi.org/", "").replace("http://dx.doi.org/", "").replace("DOI:", "")
+    for a, b in DOI_ESC_MAP:
+        s = s.replace(a, b)
+    s = re.sub(r"(?<=[0-9])[A-Za-z]+$", "", s)
+    m = re.match(r"10\.\d{4,9}/[A-Za-z0-9._/;:()\-~]+", s)   # 在首个非法字符（含中文）处截断
+    if m:
+        s = m.group(0)
+    s = re.sub(r"\(\s+", "(", s)
+    s = re.sub(r"\s+\)", ")", s)
+    s = re.sub(r"/{2,}", "/", s)
+    return s.strip(" .,;:")
+
+
+# 页眉 / 期刊信息 / 摘要正文等噪声行特征（用于标题候选过滤）。
+# 全角与半角均覆盖（Ｒ/Ｒ、ＪＯＵＲＮＡＬ 等）。
+_HEADER_NOISE_RE = re.compile(
+    r"(JOUＲNAL|JOURNAL|CHINA CIVIL|CHINESE ENGINEERING|ISSN|VOL\.?|VOL．|NO\.?|NO．|№|"
+    r"(^|\D)(19|20)\d{2}(\D|$)|第.{1,8}[卷期号]|\d{1,2}月|\d{1,2}期之|"
+    r"收稿|基金|作者简介|简介[:：]|资助|目\s*录|专题|本刊|投稿|"
+    r"中华人民共和国|国家标准|ICS|UDC|分类号|万方数据|中国知网|CNKI|"
+    r"摘要[:：]|关键词[:：]|Ａｂｓｔｒａｃｔ|ＡＢＳＴＲＡＣＴ|Abstract)", re.IGNORECASE)
+
+
+def _is_garbled(s, reps=0.5):
+    """CNKI 等加密字体 PDF 提取出的文本常为同一替身字重复（如『檿檿檿…』）。
+
+    去空白后若长度≥6、且出现最多的单字符占比超过 reps，判定为乱码/不可用。
+    """
+    s = re.sub(r"\s+", "", s or "")
+    if len(s) < 6:
+        return False
+    from collections import Counter
+    top = Counter(s).most_common(1)[0][1]
+    return top / len(s) > reps
+
+
+def _title_from_filename(filename):
+    """兜底：无法从 PDF 文本提取标题时，用文件名反推（CNKI 下載文件名常为『标题_作者』）。"""
+    base = os.path.splitext(os.path.basename(filename))[0].strip()
+    # 去掉尾部的 _作者（2-4 字中文人名，支持 _3/_2 等重复版本后缀）或 （作者） 后缀
+    m = re.match(r"^(.*?)[_＿]([\u4e00-\u9fff]{2,4})(?:[_＿]?\s*\d+)?$", base)
+    if m:
+        base = m.group(1).strip()
+    elif re.search(r"[_＿]?\s*\d+$", base):
+        base = re.sub(r"[_＿]?\s*\d+$", "", base).strip()
+    base = re.sub(r"\s*[（(][^（）()]{1,20}[)）]\s*$", "", base).strip()
+    base = re.sub(r"^(【[^】]*】)?\s*", "", base)
+    # 清洗 CNKI 常见前后缀
+    base = re.sub(r"^(万方数据|中国知网|CNKI|百度学术)[_-]?", "", base).strip()
+    return base
+
+
+def _is_noisy_title(t):
+    """判断已入库标题是否『劣质』：空、乱码，或整行英文大写且疑似期刊名/机构名（中文 PDF 误取页眉的典型形态）。"""
+    t = (t or "").strip()
+    if not t:
+        return True
+    if _is_garbled(t):
+        return True
+    # 整行全英文大写（≥6 字符）且含刊名/机构特征词 → 极可能是页眉误取
+    if re.fullmatch(r"[A-ZＡ-Ｚ0-9][A-ZＡ-Ｚ0-9\s'&',．.\-－:：]{5,80}", t) and \
+       re.search(r"JOURNAL|JOUＲNAL|PROCEEDING|REVIEW|PRESS|CIVIL|ENGINEERING|TRANSACTIONS|ACTA", t, re.I):
+        return True
+    return False
+
+
+def repair_paper(node, meta, graph, idx, log):
+    """用新解析的正确元数据修正已入库旧记录的劣质标题/空白字段（作者边缺失时补建）。"""
+    props = node["properties"]
+    old = props.get("title", "")
+    if _is_noisy_title(old) and meta.get("title"):
+        props["title"] = meta["title"]
+        props["content"] = meta["title"]
+    for k in ("year", "venue", "doi"):
+        if meta.get(k) and not props.get(k):
+            props[k] = meta[k]
+    if meta.get("abstract") and len(meta["abstract"]) > len(props.get("abstract", "")):
+        props["abstract"] = meta["abstract"]
+    paper_id = node["id"]
+    if meta.get("authors"):
+        # 已有一条及以上 hasAuthor 边但全部指向平台/期刊名（如 CNKI）时，替换为真实作者
+        auth_edges = [(i, e) for i, e in enumerate(graph["edges"])
+                      if e["source_id"] == paper_id and e["type"] == "hasAuthor"]
+        _noise_auth = {"cnki", "elsevier", "springer", "wiley", "ieee", "acs", "rsc"}
+        bad = [i for i, e in auth_edges
+               if str(next((x["properties"].get("name") for x in graph["nodes"] if x["id"] == e["target_id"]), "")).strip().lower() in _noise_auth]
+        if auth_edges and len(bad) == len(auth_edges):
+            for i in sorted(bad, reverse=True):
+                graph["edges"].pop(i)
+            seen = {(e["source_id"], e["target_id"], e["type"]) for e in graph["edges"]}
+            for aid in resolve_or_create_authors(meta, graph, idx, log=log):
+                add_edge(graph, seen, paper_id, aid, "hasAuthor")
+        elif not auth_edges:
+            seen = {(e["source_id"], e["target_id"], e["type"]) for e in graph["edges"]}
+            for aid in resolve_or_create_authors(meta, graph, idx, log=log):
+                add_edge(graph, seen, paper_id, aid, "hasAuthor")
+    log.append(f"  [修正] 已入库旧记录标题 《{old or ''}》→《{props.get('title','')}》")
+
+
+def _zh_title_from_window(text, max_win=4, max_len=40):
+    """针对中文文献：标题常被 PDF 单字排版拆成多个短行（如『体外』『预应力 FＲP 筋加固…』）。
+
+    策略：找第一个“去空白后≥6 字、以中文为主”的行作为标题起点，向前/向后各最多
+    max_win 行并入相邻中文行（剔除页眉/收稿/作者简介等噪声行），拼出完整中文标题。
+    """
+    lines = [re.sub(r"\s+", "", ln) for ln in text.splitlines()]
+    n = len(lines)
+    for i, ln in enumerate(lines):
+        if not (len(ln) >= 6 and re.search(r"[\u4e00-\u9fff]", ln)) or _is_garbled(ln):
+            continue
+        if _HEADER_NOISE_RE.search(ln) or ln.startswith(("收稿", "基金", "简介", "资助", "摘要", "关键词")):
+            continue
+        seg = ln
+        # 向前并入（至多 max_win 行，行须含中文且非噪声）
+        j = i - 1
+        while j >= 0 and i - j <= max_win:
+            prev = lines[j]
+            if not (prev and re.search(r"[\u4e00-\u9fff]", prev)):
+                break
+            if _HEADER_NOISE_RE.search(prev) or prev.startswith(("收稿", "基金", "简介", "资助", "摘要", "关键词")) or "www" in prev.lower():
+                break
+            seg = prev + seg
+            j -= 1
+        # 向后并入（至多 max_win 行；并入后过长则停）
+        k = i + 1
+        while k < n and k - i <= max_win and len(seg) < max_len:
+            nxt = lines[k]
+            if not (nxt and re.search(r"[\u4e00-\u9fff]", nxt)):
+                break
+            if _HEADER_NOISE_RE.search(nxt) or nxt.startswith(("收稿", "基金", "简介", "资助", "摘要", "关键词")) or "www" in nxt.lower():
+                break
+            # 2-3 字超短行大概率是人名/机构（如『高丹』），且不是标题尾词，停止并入
+            if len(nxt) <= 3 and not re.search(r"(方法|研究|分析|计算|试验|实验|性能|行为|评估|模型|机制|规律|加固|应用|设计|技术|训练|预测|综述|系统|方法$)", nxt):
+                break
+            seg += nxt
+            k += 1
+        if 10 <= len(seg) <= 60 and re.search(r"[\u4e00-\u9fff]", seg):
+            return seg
+    return ""
+
+
+def _has_garbled_line(text, limit=2500):
+    """是否存在大片乱码行（加密字体 PDF 特征：某行几乎同一替身字重复）。限首屏标题区。"""
+    for ln in text[:limit].splitlines():
+        c = re.sub(r"\s+", "", ln)
+        if len(c) >= 20 and _is_garbled(ln):
+            return True
+    return False
+
+
+def _first_title_line(text):
+    """从首屏文本挑一行最像标题的行：长度适中、不以数字/常见噪声开头、不含 DOI。
+
+    优先保留英文标题路径；对中文文献启用窗口合并以还原被拆行的标题。
+    若首屏含大块乱码（CNKI 加密字体），文本标题不可信，整体交由文件名降级。
+    """
+    if _has_garbled_line(text):
+        return ""
+    zh = _zh_title_from_window(text)
+    if zh:
+        return zh
+    for line in text.splitlines():
+        s = line.strip()
+        if len(s) < 12 or len(s) > 220 or _is_garbled(s):
+            continue
+        if re.match(r"^\d", s) or s.upper().startswith(("DOI", "HTTP", "WWW", "VOL", "ARTICLE")):
+            continue
+        if _HEADER_NOISE_RE.search(s):
+            continue
+        if DOI_RE.search(s):
+            continue
+        return s
+    return ""
+
+
+# 常见中文姓氏（百家姓高频 + 常用单姓），用于中文作者名切词判断"姓名首字"
+_ZH_SURNAMES = ("赵钱孙李周吴郑王冯陈褚卫蒋沈韩杨朱秦尤许何吕施张孔曹严华金魏陶姜戚谢邹喻柏水窦章云苏潘葛奚范彭郎鲁韦昌马苗凤花方俞任袁柳酆鲍史唐费廉岑薛雷贺倪汤滕殷罗毕郝邬安常乐于时傅皮卞齐康伍余元卜顾孟平黄和穆萧尹姚邵湛汪祁毛禹狄米贝明臧计伏成戴谈宋茅庞熊纪舒屈项祝董梁杜阮蓝闵席季麻强贾路娄危江童颜郭梅盛林刁钟徐邱骆高夏蔡田樊胡凌霍虞万支柯昝管卢莫经房裘缪干解应宗丁宣贲邓郁单杭洪包诸左石崔吉钮龚程嵇邢滑裴陆荣翁荀羊於惠甄曲家封芮羿储靳汲邴糜松井段富巫乌焦巴弓牧隗山谷车侯宓蓬全都班仰秋仲伊宫宁仇栾暴甘斜厉戎祖武符刘景詹束龙叶幸司韶郜黎蓟薄印宿白怀蒲邰从鄂索咸籍赖卓蔺屠蒙池乔阴郁胥能苍双闻莘党翟谭贡劳逄姬申扶堵冉宰郦雍却璩桑桂濮牛寿通边扈燕冀郏浦尚农温别庄晏柴瞿阎充慕连茹习宦艾鱼容向古易慎戈廖庾终暨居衡步都耿满弘匡国文寇广禄阙东欧殳沃利蔚越夔隆师巩厍聂晁勾敖融冷訾辛阚那简饶空曾毋沙乜养鞠须丰巢关蒯相查后荆红游竺权逯盖益桓公")
+
+
+def _split_zh_names(s):
+    """把一段连续中文（如 CNKI 排版拆行后再拼接的『高丹盈房栋祝玉斌』）切分为中文姓名序列。
+
+    规则：每块 2/3/4 字；2-3 字块要求首字为常见姓氏，4 字块要求前两字为常见复姓；
+    整段必须能被完整切分否则放弃。
+    例：『高丹盈房栋祝玉斌』 -> ['高丹盈','房栋','祝玉斌']；『中华人民共和国国家标准』切不成 -> []。
+    """
+    if not s:
+        return []
+    s = s.strip()
+    n = len(s)
+    _cmp_sur = {"欧阳", "司马", "上官", "诸葛", "东方", "皇甫", "尉迟", "公羊", "澹台", "公冶",
+                "宗政", "濮阳", "淳于", "单于", "太叔", "申屠", "公孙", "仲孙", "轩辕", "令狐",
+                "钟离", "宇文", "长孙", "慕容", "鲜于", "闾丘", "司徒", "司空", "亓官", "司寇",
+                "仉督", "子车", "颛孙", "端木", "巫马", "公西", "漆雕", "乐正", "壤驷", "公良",
+                "拓跋", "夹谷", "宰父", "谷梁", "段干", "百里", "东郭", "南门", "呼延", "归海",
+                "羊舌", "微生", "岳帅", "缑亢", "况后", "有琴", "梁丘", "左丘", "东门", "西门",
+                "商牟", "佘佴", "伯赏", "南宫", "墨哈", "谯笪", "第五", "言福", "万俟", "闻人",
+                "欧冶"}
+
+    def dfs(pos, stack):
+        if pos == n:
+            return list(stack)
+        for L, cond in ((3, lambda w: w[0] in _ZH_SURNAMES),
+                        (2, lambda w: w[0] in _ZH_SURNAMES),
+                        (4, lambda w: w[:2] in _cmp_sur)):
+            if pos + L > n:
+                continue
+            w = s[pos:pos + L]
+            if not cond(w):
+                continue
+            r = dfs(pos + L, stack + [w])
+            if r is not None:
+                return r
+        return None
+
+    res = dfs(0, [])
+    return res if res else []
+
+
+def _valid_zh_names(names):
+    """校验中文作者名形态：2-4 字且首字为常见姓氏。
+
+    用于拦截被写进 PDF 元数据 / 正文的作者位噪声（如某刊把摘要首句塞进 /Author，
+    解析出「并推导出锈蚀钢筋与混凝土的基本锚固长度计算式」这类非人名）。"""
+    out = []
+    for n in names:
+        n = (n or "").strip()
+        if re.fullmatch(r"[\u4e00-\u9fff]{2,4}", n) and n[0] in _ZH_SURNAMES:
+            out.append(n)
+    return out
+
+
+def _extract_zh_authors(seg):
+    """从文本段中定位并切分中文作者名（兼容 CNKI 把名字拆行的排版）。
+
+    策略：以"首字为常见姓氏的中文短行"为块起点，收集其后连续"纯中文、去空白后 2-14 字、
+    非标题/期刊/收稿等噪声"的行，拼接后若能完整切分为 2-4 字中文姓名序列，则采信为作者。
+    """
+    noise_collect = re.compile(r"收稿|基金|项目|作者简介|简介[:：]|摘要|关键词|关键字|中图分类号|文献标识码|致谢|资助|编辑部|刊名|电话|Ｅ?-?mail|@|www|doi|通讯作者|责任作者", re.I)
+    lines = [re.sub(r"[\s\u3000]+", "", ln) for ln in seg.splitlines()]
+    n = len(lines)
+    i = 0
+    while i < n:
+        raw = lines[i]
+        if raw and 2 <= len(raw) <= 14 and raw[0] in _ZH_SURNAMES and \
+                re.fullmatch(r"[\u4e00-\u9fff]+", raw) and not noise_collect.search(raw):
+            # 收集其后连续同类中文短行
+            block = []
+            j = i
+            while j < n:
+                r2 = lines[j]
+                if r2 and re.fullmatch(r"[\u4e00-\u9fff]+", r2) and 2 <= len(r2) <= 14 and not noise_collect.search(r2):
+                    block.append(r2)
+                    j += 1
+                else:
+                    break
+            if block:
+                joined = "".join(block)
+                names = _split_zh_names(joined)
+                if 4 <= len(joined) <= 30 and 1 <= len(names) <= 8 and sum(map(len, names)) == len(joined) \
+                        and len(_valid_zh_names(names)) == len(names):
+                    return names
+            i = j
+        else:
+            i += 1
+    return []
+
+
+def _first_author_line(text, title):
+    """在标题之后、摘要之前找作者行（优先中文姓名块，其次英文首字母缩写 / 逗号分号分隔 / 单行中文）。"""
+    if not title:
+        return ""
+    idx = text.find(title)
+    seg = text[idx + len(title): idx + len(title) + 1500] if idx != -1 else text[:1500]
+    # 1) 中文作者块（CNKI 常把姓名拆成多行：『高丹』『盈 房 栋 祝玉斌』）
+    zh = _extract_zh_authors(seg)
+    if zh:
+        return " ".join(zh)
+    skip = re.compile(r"abstract|keywords|introduction|关键词|关键字|摘要|引言|作者简介|基金|收稿|中图分类号|文献标识码", re.I)
+    for line in seg.splitlines():
+        s = line.strip()
+        if not s or len(s) > 300 or _is_garbled(s) or skip.search(s):
+            continue
+        # 中文姓名序列：『高丹盈 房栋 祝玉斌』（连续 2-4 字中文名，以空白分隔）
+        if re.fullmatch(r"[\u4e00-\u9fff]{2,4}(?:[\s\u3000]+[\u4e00-\u9fff]{2,4}){1,7}", s):
+            cand = re.sub(r"\s+", " ", s).split(" ")
+            if len(_valid_zh_names(cand)) == len(cand):
+                return re.sub(r"\s+", " ", s)
+            continue
+        # 英文：含逗号/分号，或含 "A. B." 缩写模式
+        if re.search(r"\b[A-Z]\.\s*[A-Z]?\.?\s*[A-Z][a-z]+", s) or ("," in s or ";" in s):
+            if re.search(r"[\u4e00-\u9fff]", s) and not re.search(r"[A-Za-z]{3,}", s):
+                # 纯中文行：必须能完整切成合法中文姓名，否则是正文/摘要噪声，跳过
+                cand = [x for x in re.split(r"[\s\u3000,;|，；、]+", s) if x]
+                if len(_valid_zh_names(cand)) != len(cand):
+                    continue
+            return s
+    return ""
+
+
+def _extract_abstract(text):
+    m = re.search(r"\babstract\b([\s\S]{0,1500}?)(?=\bkeywords?\b|\bintroduction\b|\b1\.\s*\n)", text, re.I)
+    if m:
+        seg = re.sub(r"\s+", " ", m.group(1)).strip()
+        if len(seg) > 40:
+            return seg[:1200]
+    return ""
+
+
+def extract_metadata(pdf_path):
+    """返回 dict：file/title/authors/year/doi/venue/abstract/text_head/parse_backend"""
+    meta = {
+        "file": os.path.basename(pdf_path),
+        "title": "", "authors": [], "year": "", "doi": "",
+        "venue": "", "abstract": "", "text_head": "", "parse_backend": "pypdf",
+        "affiliations": [], "affiliation": "", "affiliation_map": {},
+        "yearSource": "", "venueSource": "",
+    }
+    text = ""
+    raw = {}
+    # ---- 1) pypdf ----
+    try:
+        from pypdf import PdfReader
+        r = PdfReader(pdf_path)
+        md = r.metadata or {}
+        raw = {"title": md.get("/Title") or "", "author": md.get("/Author") or "",
+               "subject": md.get("/Subject") or "", "ctime": str(md.get("/CreationDate") or "")}
+        pages = []
+        for i in range(min(4, len(r.pages))):
+            try:
+                pages.append(r.pages[i].extract_text() or "")
+            except Exception:
+                pages.append("")
+        text = "\n".join(pages)
+    except Exception as e:
+        meta["parse_backend"] = "pdfplumber"
+        try:
+            import pdfplumber
+            with pdfplumber.open(pdf_path) as pdf:
+                text = "\n".join((p.extract_text() or "") for p in pdf.pages[:4])
+            md = {}
+            raw = {"title": "", "author": "", "subject": "", "ctime": ""}
+        except Exception as e2:
+            raise RuntimeError(f"PDF 文本解析失败（pypdf/pdfplumber 均不可读）: {e2} | 原异常: {e}")
+
+    meta["text_head"] = text[:6000]
+
+    # ---- 2) 标题 ----
+    title = str(raw.get("title") or "").strip()
+    if title and len(title) >= 8 and not DOI_RE.search(title):
+        meta["title"] = re.sub(r"\s+", " ", title)
+    else:
+        meta["title"] = _first_title_line(text)
+    # 全角字母/数字（如 CNKI 排版 FＲP、２０２１）规范化为半角，中文不受影响
+    if meta["title"]:
+        meta["title"] = unicodedata.normalize("NFKC", meta["title"]).strip()
+    # 文本层提取不到/乱码时，用文件名反推标题（CNKI 下载文件名通常即标题）
+    if not meta["title"] or _is_garbled(meta["title"], reps=0.45):
+        fname_title = _title_from_filename(pdf_path)
+        if fname_title and 4 <= len(fname_title) <= 120 and not DOI_RE.search(fname_title):
+            meta["title"] = fname_title
+
+    # ---- 3) 作者 ----
+    # 元数据作者也可能是发行平台/出版商名（CNKI / Elsevier 等），或导出工具的占位字段（作者/创建者），需甄别后再采信。
+    author_str = str(raw.get("author") or "").strip()
+    _placeholder_author = {"作者", "创建者", "生产者", "标题", "科目", "关键字", "关键词",
+                           "author", "creator", "producer", "title", "subject", "keywords"}
+    _plat_author = re.compile(r"\b(CNKI|Elsevier|Springe?r|Wiley|IOP|RSC|ACS|IEEE|ASCE|AIAA|arXiv|Elsevier B\.?V)\b", re.I)
+    meta["authors"] = []
+    if author_str and re.sub(r"[\s\u3000]+", "", author_str).strip().lower() in _placeholder_author:
+        pass
+    elif author_str and _plat_author.search(author_str):
+        # 平台/出版商名，不当作作者
+        pass
+    elif author_str and re.fullmatch(r"[^\u4e00-\u9fff]{2,80}", author_str):
+        # 全英文：需具备"至少两个首字母大写单词"才是真实姓名形态
+        if len(re.findall(r"\b[A-Z][a-z]{2,}\b", author_str)) >= 2:
+            meta["authors"] = [n.strip() for n in re.split(r"[;|,，；]", author_str) if n.strip()]
+    elif author_str:
+        # 含中文：按中文姓名处理，并校验姓名形态（拦截写进元数据的正文噪声）
+        meta["authors"] = _valid_zh_names(
+            [n.strip() for n in re.split(r"[;|,，；、\s]+", author_str) if n.strip()])
+    if not meta["authors"]:
+        a_line = _first_author_line(text, meta["title"])
+        if a_line:
+            if re.search(r"[\u4e00-\u9fff]", a_line):
+                # 中文姓名以空白相连（可含全角空格），按空白切分并校验姓名形态
+                names = _valid_zh_names(re.split(r"[\s\u3000,;|，；、]+", a_line))
+            else:
+                names = re.split(r"[;|,]", a_line)
+            meta["authors"] = [n.strip() for n in names
+                               if n.strip() and not re.match(r"^\W*$", n)]
+    if not meta["authors"]:
+        # 双语 PDF：英文作者以连续"首字母大写单词"序列出现（如 Gao Danying Fang Dong Zhu Yubin）
+        ma = re.search(r"(?:[A-Z][a-z]+\s+){1,}[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,}", text[:2600])
+        if ma:
+            pair = re.findall(r"\b[A-Z][a-z]{2,}\s+[A-Z][a-z]{2,}\b", ma.group(0))
+            if pair:
+                meta["authors"] = [p.strip() for p in dict.fromkeys(pair)]
+            else:
+                meta["authors"] = [ma.group(0).strip()]
+    if not meta["authors"]:
+        # 文件名『标题_作者』模式兜底（如 ...研究_朱超宇.pdf / ...研究_朱超宇_3.pdf → 朱超宇）
+        fm = re.search(r"^.*?[_＿]([\u4e00-\u9fff]{2,4})(?:[_＿]?\s*\d+)?\.pdf$",
+                       os.path.basename(pdf_path), re.I)
+        if fm:
+            meta["authors"] = [fm.group(1)]
+    # 文件名『标题_作者』交叉校验：文件名声明的作者未出现在解析结果中 → 判定解析失败，采信文件名
+    _fm = re.search(r"^.*?[_＿]([\u4e00-\u9fff]{2,4})(?:[_＿]?\s*\d+)?\.pdf$",
+                   os.path.basename(pdf_path), re.I)
+    if _fm:
+        _fn_author = _valid_zh_names([_fm.group(1)])
+        if _fn_author and _fn_author[0] not in meta["authors"]:
+            meta["authors"] = _fn_author
+
+    # ---- 4) DOI（P1：两路召回 + 规范化清洗）----
+    meta["doi"] = extract_doi(text)
+
+    # ---- 4.5) Crossref 反查（在线，失败静默降级，不阻断入库）----
+    cr = crossref_enrich(meta["doi"], cache_path=CROSSREF_CACHE)
+
+    # ---- 5) 年份（P0：多信号优先级；确实取不到则显式标记「未标注」，不编造）----
+    meta["year"], meta["yearSource"] = extract_year(text, raw, meta["doi"])
+    if cr.get("year") and meta["yearSource"] in ("none", "creationDate", "first-in-text"):
+        meta["year"], meta["yearSource"] = cr["year"], "crossref"
+    if not meta["year"]:
+        meta["year"], meta["yearSource"] = YEAR_UNKNOWN, "none"
+
+    # ---- 6) 摘要 ----
+    meta["abstract"] = _extract_abstract(text)
+
+    # ---- 7) 期刊/会议（P1：Crossref > DOI 前缀映射 > 页眉/中文刊名规则；取不到留空不编造）----
+    meta["venue"], meta["venueSource"] = extract_venue(text, meta["doi"], cr.get("venue", ""))
+
+    # ---- 8) 机构（P2：正文/脚注抽取 + 作者归属映射；取不到留空）----
+    meta["affiliations"] = extract_affiliations(text)
+    if len(meta["affiliations"]) == 1:
+        meta["affiliation"] = meta["affiliations"][0]
+        meta["affiliation_map"] = {}
+    else:
+        meta["affiliation"] = ""
+        meta["affiliation_map"] = map_author_affiliations(
+            meta.get("authors", []), meta["affiliations"], text)
+
+    return meta
+
+
+# ----------------------------------------------------------------------------
+# 2. 去重
+# ----------------------------------------------------------------------------
+def build_index(graph):
+    """基于已入库图谱建立索引，返回 dict。"""
+    idx = {"papers": {}, "authors_by_name": {}, "authors_by_name_aff": {},
+           "venues": {}, "keywords": {}, "orgs": {}, "localfiles": {}, "paper_ids": set()}
+    for n in graph["nodes"]:
+        t = n.get("type")
+        props = n.get("properties", {})
+        nid = n["id"]
+        if t == "Paper":
+            key = None
+            doi = norm_doi(props.get("doi", ""))
+            if doi:
+                key = ("doi", doi)
+            else:
+                key = ("title", norm_title(props.get("title", "")))
+            idx["papers"][key] = nid
+            f = os.path.basename(str(props.get("file") or ""))
+            if f:
+                idx["papers"].setdefault(("file", lf_slug(f)), nid)
+            idx["paper_ids"].add(nid)
+        elif t == "Author":
+            nm = norm_author(props.get("name", ""))
+            aff = norm_org(props.get("affiliation", ""))
+            idx["authors_by_name"].setdefault(nm, []).append(nid)
+            if aff:
+                idx["authors_by_name_aff"].setdefault((nm, aff), nid)
+            idx.setdefault("authors", {})[nid] = props.get("name", "")
+        elif t == "Venue":
+            idx["venues"][norm_venue(props.get("name", ""))] = nid
+        elif t == "Keyword":
+            idx["keywords"][norm_name(props.get("name", ""))] = nid
+        elif t == "Organization":
+            idx["orgs"][norm_org(props.get("name", ""))] = nid
+        elif t == "LocalFile":
+            idx["localfiles"][lf_slug(props.get("file", "") or os.path.basename(nid))] = nid
+    # 已有边（hasKeyword 边用于作者 researchArea 聚合时参考，此处仅建已知关键词名集合）
+    idx["known_kw_names"] = {n["properties"].get("name", "").lower()
+                             for n in graph["nodes"] if n.get("type") == "Keyword" and n["properties"].get("name")}
+    return idx
+
+
+def duplicate_key(meta):
+    doi = norm_doi(meta.get("doi", ""))
+    if doi:
+        return ("doi", doi)
+    if meta.get("title"):
+        return ("title", norm_title(meta["title"]))
+    return ("file", lf_slug(meta.get("file", "")))
+
+
+# ----------------------------------------------------------------------------
+# 3. LLM 增强（复用 v1.5，失败重试一次仍失败标 failed 不编造）
+# ----------------------------------------------------------------------------
+def llm_enhance(meta, model, known_kw, log):
+    """返回 (ai_summary, keywords, research_area, confidence, created_by, retry)"""
+    title = meta.get("title", "")
+    content = (meta.get("abstract") or "") or meta.get("text_head") or title
+    retry = 0
+    try:
+        try:
+            summ, kw, areas, conf = llm_extract_ollama_http(model, title, content)
+        except Exception as e1:
+            retry = 1
+            log.append(f"  [重试] {title[:40]}… 首次 LLM 调用失败({str(e1)[:90]})，重试一次。")
+            summ, kw, areas, conf = llm_extract_ollama_http(model, title, content)
+        return summ, kw[:8], areas[:4], conf, "ollama", retry
+    except Exception as e:
+        log.append(f"  [失败] {title[:40]}… LLM 调用重试后仍失败，如实标记 failed（aiSummary 留空）。原因: {str(e)[:140]}")
+        kw, _ = rule_extract(title, content, known_kw)
+        return "", kw[:8], [], None, "failed", retry
+
+
+# ----------------------------------------------------------------------------
+# 4. 本体实例化与增量合并
+# ----------------------------------------------------------------------------
+def refresh_authors(matched, meta, graph, idx, log):
+    """P2 关联修复：重跑解析时按本次作者列表重建本文 hasAuthor 边。
+
+    旧实现作者归并键 norm_name 会清空 CJK，作者 id 的 slug 同样被清空，
+    导致全部中文作者坍缩到同一个 `Author:` 节点（本库 4 篇中文文献的 8 位作者
+    被并成 1 个「朱超宇」），并连带串档机构归属。此处按修正后的规则重建。"""
+    if not (meta.get("authors") or []):
+        return []
+    new_ids = resolve_or_create_authors(meta, graph, idx, log)
+    if not new_ids:
+        return []
+    old_ids = [e["target_id"] for e in graph["edges"]
+               if e.get("source_id") == matched["id"] and e.get("type") == "hasAuthor"]
+    if sorted(old_ids) == sorted(new_ids):
+        return []
+    drop = {(e["source_id"], e["target_id"], e.get("type")) for e in graph["edges"]
+            if e.get("source_id") == matched["id"] and e.get("type") == "hasAuthor"}
+    graph["edges"] = [e for e in graph["edges"]
+                      if (e.get("source_id"), e.get("target_id"), e.get("type")) not in drop]
+    seen = {(e.get("source_id"), e.get("target_id"), e.get("type")) for e in graph["edges"]}
+    for aid in new_ids:
+        add_edge(graph, seen, matched["id"], aid, "hasAuthor")
+    log.append(f"  [刷新] hasAuthor: 作者边重建 {len(old_ids)} -> {len(new_ids)}")
+    return [("hasAuthor", len(old_ids), len(new_ids))]
+
+
+def resolve_or_create_authors(meta, graph, idx, log):
+    """作者按 姓名+机构 消歧合并；返回 [author_id]。"""
+    out = []
+    for name in meta.get("authors", []):
+        name = name.strip()
+        if not name:
+            continue
+        nm = norm_author(name)
+        # P2：作者机构优先取本人映射（多机构篇），否则用全文唯一机构
+        aff_raw = (meta.get("affiliation", "") or (meta.get("affiliation_map") or {}).get(name, "")).strip()
+        aff = norm_org(aff_raw)
+        node_id = None
+        # 1) 姓名+机构 精确消歧
+        if aff and (nm, aff) in idx["authors_by_name_aff"]:
+            node_id = idx["authors_by_name_aff"][(nm, aff)]
+        # 2) 单一同名作者直接合并
+        elif nm in idx["authors_by_name"] and len(idx["authors_by_name"][nm]) == 1:
+            node_id = idx["authors_by_name"][nm][0]
+        # 3) 同名多机构：优先无机构占位或机构一致的
+        else:
+            cands = idx["authors_by_name"].get(nm, [])
+            for cid in cands:
+                c = [n for n in graph["nodes"] if n["id"] == cid][0]
+                if not c.get("properties", {}).get("affiliation"):
+                    node_id = cid
+                    break
+            if not node_id and cands:
+                node_id = cands[0]
+        if node_id:
+            out.append(node_id)
+            continue
+        # 新增 Author 节点
+        node_id = ES_NS + "Author:" + author_slug(name)
+        # 防重名 id 冲突：追加序号
+        if any(n["id"] == node_id for n in graph["nodes"]):
+            node_id = ES_NS + "Author:" + author_slug(name) + "_" + str(len(idx["authors_by_name"].get(nm, [])) + 1)
+        props = {"name": name, "content": name,
+                 "affiliation": aff_raw or None,
+                 "prov:wasDerivedFrom": "PDF:" + meta["file"],
+                 "prov:dataSource": "PDF 上传解析(v1.7)"}
+        graph["nodes"].append({"id": node_id, "type": "Author", "properties": props})
+        idx["authors_by_name"].setdefault(nm, []).append(node_id)
+        if aff:
+            idx["authors_by_name_aff"][(nm, aff)] = node_id
+        idx.setdefault("authors", {})[node_id] = name
+        out.append(node_id)
+        log.append(f"  [新增作者] {name}")
+    return out
+
+
+def ensure_venue(meta, graph, idx, log):
+    name = (meta.get("venue") or "").strip()
+    if not name:
+        return None, ""
+    nm = norm_venue(name)
+    if nm in idx["venues"]:
+        return idx["venues"][nm], name
+    node_id = ES_NS + "Venue:" + venue_slug(name)
+    if any(n["id"] == node_id for n in graph["nodes"]):
+        return node_id, name
+    graph["nodes"].append({"id": node_id, "type": "Venue",
+                           "properties": {"name": name, "content": name,
+                                          "prov:dataSource": "PDF 上传解析(v1.6)"}})
+    idx["venues"][nm] = node_id
+    log.append(f"  [新增期刊/会议] {name}")
+    return node_id, name
+
+
+def ensure_keywords(kws, graph, idx):
+    """确保关键词节点存在，返回关键词节点 id 列表。"""
+    out = []
+    for k in kws:
+        k = (k or "").strip().lower()
+        if not k:
+            continue
+        nm = norm_name(k)
+        if nm in idx["keywords"]:
+            out.append(idx["keywords"][nm])
+            continue
+        node_id = ES_NS + "Keyword:" + venue_slug(k)
+        if any(n["id"] == node_id for n in graph["nodes"]):
+            out.append(node_id)
+            continue
+        graph["nodes"].append({"id": node_id, "type": "Keyword",
+                               "properties": {"name": k, "content": k}})
+        idx["keywords"][nm] = node_id
+        out.append(node_id)
+    return out
+
+
+def ensure_org(aff_name, graph, idx, log):
+    aff_name = (aff_name or "").strip()
+    if not aff_name:
+        return None
+    nm = norm_org(aff_name)
+    if nm in idx["orgs"]:
+        return idx["orgs"][nm]
+    node_id = ES_NS + "Organization:" + venue_slug(aff_name)
+    if any(n["id"] == node_id for n in graph["nodes"]):
+        return node_id
+    graph["nodes"].append({"id": node_id, "type": "Organization",
+                           "properties": {"name": aff_name, "content": aff_name}})
+    idx["orgs"][nm] = node_id
+    log.append(f"  [新增机构] {aff_name}")
+    return node_id
+
+
+def ensure_localfile(meta, graph, idx, abs_path, log):
+    fn = meta["file"]
+    lf_id = ES_NS + "LocalFile:" + lf_slug(fn)
+    if lf_id in idx.get("localfiles", {}).values() or any(n["id"] == lf_id for n in graph["nodes"]):
+        return lf_id, False
+    abs_path = abs_path or os.path.join(DATA_DIR, fn)
+    graph["nodes"].append({"id": lf_id, "type": "LocalFile",
+                           "properties": {"file": fn,
+                                          "filePath": fn,
+                                          "content": fn,
+                                          "prov:wasDerivedFrom": "PDF:" + fn,
+                                          "prov:dataSource": "PDF 上传解析(v1.6)",
+                                          "prov:used": "data:" + fn}})
+    idx["localfiles"][lf_slug(fn)] = lf_id
+    log.append(f"  [新增LocalFile] {fn}")
+    return lf_id, True
+
+
+def add_edge(graph, seen, s, t, typ):
+    key = (s, t, typ)
+    if key in seen:
+        return False
+    seen.add(key)
+    graph["edges"].append({"source_id": s, "target_id": t, "type": typ})
+    return True
+
+
+def instantiate(meta, lf_abs, graph, idx, llm_result, known_kw, log):
+    """把一篇提取+增强好的文献实例化为节点与边，追加到 graph。返回新增 Paper id。"""
+    seen = {(e["source_id"], e["target_id"], e["type"]) for e in graph["edges"]}
+    ai_summary, kw, areas, conf, created_by, retry = llm_result
+    fn = meta["file"]
+
+    # LocalFile
+    lf_id, lf_new = ensure_localfile(meta, graph, idx, lf_abs, log)
+    # Paper
+    paper_id = ES_NS + "Paper:" + slug(fn)
+    if any(n["id"] == paper_id for n in graph["nodes"]):
+        # 极端情况：文件名撞 id 但去重未命中（标题/DOI 不同）——加序号避免覆盖
+        paper_id = ES_NS + "Paper:" + slug(fn) + "_" + now_iso().replace("-", "").replace("T", "_").replace(":", "")[:6]
+    props = {
+        "title": meta.get("title", ""),
+        "year": meta.get("year", "") or YEAR_UNKNOWN,
+        "venue": meta.get("venue", ""),
+        "doi": meta.get("doi", ""),
+        "file": fn,
+        "paperType": "期刊论文",
+        "content": meta.get("title", ""),
+        "abstract": meta.get("abstract", ""),
+        "prov:wasDerivedFrom": "PDF:" + fn,
+        "prov:dataSource": "PDF 上传解析(v1.6)",
+        "prov:generatedAtTime": now_iso(),
+        "prov:used": "data:" + fn,
+        "createdBy": created_by,
+        "sourcedFrom": lf_id,
+        "affiliations": "; ".join(meta.get("affiliations") or []),
+        "yearSource": meta.get("yearSource", ""),
+        "venueSource": meta.get("venueSource", ""),
+    }
+    if kw:
+        props["autoKeywords"] = ", ".join(kw)
+    if ai_summary:
+        props["aiSummary"] = ai_summary
+    if conf is not None:
+        props["confidence"] = conf
+    props["autoResearchArea"] = ", ".join(areas) if areas else ", ".join(kw[:3])
+    graph["nodes"].append({"id": paper_id, "type": "Paper", "properties": props})
+
+    # 关系边
+    add_edge(graph, seen, paper_id, lf_id, "related_to")
+    authors = resolve_or_create_authors(meta, graph, idx, log=log)
+    for aid in authors:
+        add_edge(graph, seen, paper_id, aid, "hasAuthor")
+    venue_id, venue_name = ensure_venue(meta, graph, idx, log)
+    if venue_id:
+        add_edge(graph, seen, paper_id, venue_id, "publishedIn")
+    kw_ids = ensure_keywords(kw, graph, idx)
+    for kid in kw_ids:
+        add_edge(graph, seen, paper_id, kid, "hasKeyword")
+    # ---- P2 机构：建 Organization 节点 + 作者 hasAffiliation 边（取不到则留空，不编造）----
+    affs = [a for a in (meta.get("affiliations") or []) if a and str(a).strip()]
+    if not affs and meta.get("affiliation"):
+        affs = [meta["affiliation"]]
+    affs, _merged = merge_bilingual(affs)
+    for _zh, _en in _merged:
+        log.append(f"  [双语归并] 机构中英对照视为同一机构：{_zh[:26]} <=> {_en[:44]}")
+    if affs:
+        org_ids = {}
+        for a in affs:
+            oid = ensure_org(a, graph, idx, log)
+            if oid:
+                org_ids[a] = oid
+        if len(org_ids) == 1:
+            oid = list(org_ids.values())[0]
+            for aid in authors:
+                add_edge(graph, seen, aid, oid, "hasAffiliation")
+        elif org_ids:
+            name_of = {n["id"]: n.get("properties", {}).get("name", "") for n in graph["nodes"]}
+            amap = meta.get("affiliation_map") or {}
+            for aid in authors:
+                a = amap.get(name_of.get(aid, ""))
+                if a and a in org_ids:
+                    add_edge(graph, seen, aid, org_ids[a], "hasAffiliation")
+    return paper_id
+
+
+# ----------------------------------------------------------------------------
+# 5. 主流程
+# ----------------------------------------------------------------------------
+def ensure_inbox_dir():
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+
+def refresh_paper_meta(matched, meta, graph, idx, log):
+    """P0-P3 收尾：重跑解析命中已入库文献时，刷新元数据并修正期刊边。
+
+    仅当本次解析确实取到值、且与库中现值不同时才覆盖（绝不把空值写回去）。
+    返回变更列表 [(字段, 旧值, 新值)]，供调用方记入报告。"""
+    props = matched.setdefault("properties", {})
+    changes = []
+
+    def _set(field, new, src_field=None):
+        new = (new or "").strip()
+        if not new or str(props.get(field) or "") == new:
+            return
+        changes.append((field, props.get(field), new))
+        props[field] = new
+        if src_field:
+            props[src_field] = meta.get(src_field, "")
+
+    _set("year", meta.get("year"), "yearSource")
+    _set("venue", meta.get("venue"), "venueSource")
+    _set("doi", meta.get("doi"))
+    affs = meta.get("affiliations") or []
+    if affs:
+        _set("affiliations", "; ".join(affs))
+
+    # 期刊边重指向：旧 publishedIn 边若指向同名但 id 坍缩/变更的 Venue 节点，改为指向规范节点
+    new_venue = (meta.get("venue") or "").strip()
+    if new_venue:
+        venue_id, _ = ensure_venue(meta, graph, idx, log)
+        if venue_id:
+            old = [e for e in graph["edges"]
+                   if e.get("source_id") == matched["id"] and e.get("type") == "publishedIn"]
+            drop = {(e["source_id"], e["target_id"], e.get("type")) for e in old
+                    if e.get("target_id") != venue_id}
+            if drop:
+                graph["edges"] = [e for e in graph["edges"]
+                                  if (e.get("source_id"), e.get("target_id"), e.get("type")) not in drop]
+                changes.append(("publishedIn", sorted(t.split("#")[-1] for _, t, _ in drop),
+                                venue_id.split("#")[-1]))
+            if not any(e.get("target_id") == venue_id for e in old):
+                # 旧边为空或已被清理：按规范 Venue 节点重建 publishedIn 边
+                seen = {(e.get("source_id"), e.get("target_id"), e.get("type")) for e in graph["edges"]}
+                add_edge(graph, seen, matched["id"], venue_id, "publishedIn")
+                if not old:
+                    changes.append(("publishedIn", "", venue_id.split("#")[-1]))
+
+    # 先重建作者边（旧中文作者归并键坍缩会串档机构归属），再校正机构边
+    changes = refresh_authors(matched, meta, graph, idx, log) + changes
+    changes.extend(refresh_affiliation_edges(matched, meta, graph, idx, log))
+    for f, o, n in changes:
+        log.append(f"  [刷新] {f}: {str(o)[:70]!r} -> {str(n)[:70]!r}")
+    return changes
+
+
+_STAGE_T = {"t": time.time()}
+
+
+def stage_mark(key):
+    """打印 [STAGE] 标记 + 该阶段耗时（秒）。服务端按 [STAGE] 解析进度，格式须保持。"""
+    now = time.time()
+    dur = now - _STAGE_T["t"]
+    _STAGE_T["t"] = now
+    print("[STAGE] %s %.2fs" % (key, dur), flush=True)
+
+
+def handle_pdf(pdf_path, graph, ollama_ok, model, known_kw, log, no_llm=False,
+               pending_llm=False):
+    """处理单个 PDF：提取 -> 去重 -> LLM增强 -> 入库。返回 dict 结果。"""
+    fn = os.path.basename(pdf_path)
+    res = {"file": fn, "status": "ok"}
+    log.append(f"==> 处理 {fn}")
+
+    # 1) 存放入库目录（若不在 data_test/论文 内则复制过去，保证 LocalFile 指向统一位置）
+    stage_mark("copy")
+    src_path = pdf_path
+    dest = os.path.join(DATA_DIR, fn)
+    dest_preexisted = os.path.exists(dest)
+    copied = False
+    staged = (os.path.abspath(src_path) != os.path.abspath(dest)
+              and os.path.abspath(src_path).startswith(os.path.abspath(INBOX) + os.sep))
+    if os.path.abspath(src_path) != os.path.abspath(dest):
+        import shutil
+        shutil.copy2(src_path, dest)
+        pdf_path = dest
+        copied = True
+        log.append(f"  [入库] PDF 已复制到 {dest}")
+
+    def _cleanup_staged():
+        """清理本次上传产生的副本：inbox 暂存副本，以及本次新建的数据目录副本。
+        上传前已存在的文件（用户原始 PDF）永不删除。"""
+        if not staged:
+            return
+        victims = [src_path]
+        if not dest_preexisted and os.path.abspath(dest) != os.path.abspath(src_path):
+            victims.append(dest)
+        for v in victims:
+            if not os.path.exists(v) or os.path.abspath(v) == os.path.abspath(DATA_DIR):
+                continue
+            try:
+                os.remove(v)
+                log.append(f"  [清理] 已移除 {os.path.basename(v)}"
+                           + ("（暂存副本）" if v == src_path else "（本次新建副本）"))
+            except OSError:
+                pass
+
+    # 2) 元数据提取
+    stage_mark("meta")
+    try:
+        meta = extract_metadata(pdf_path)
+    except Exception as e:
+        res.update(status="failed", reason=str(e))
+        log.append(f"  [失败] 元数据解析异常: {e}")
+        return res
+    log.append(f"  [解析] backend={meta['parse_backend']} title={meta.get('title','')[:50]!r} "
+               f"authors={len(meta.get('authors',[]))} year={meta.get('year','')} doi={meta.get('doi','')}")
+
+    # 3) 去重（对已入库库：先 DOI，再标题归一化，再文件名）
+    idx = build_index(graph)
+    existing_papers = [n for n in graph["nodes"] if n.get("type") == "Paper"]
+    dup, matched = False, None
+    for n in existing_papers:
+        p = n.get("properties", {})
+        p_doi, p_title, p_file = p.get("doi", ""), p.get("title", ""), p.get("file", "")
+        if not dup and meta.get("doi") and norm_doi(p_doi) == norm_doi(meta["doi"]):
+            dup, matched = True, n
+            res.update(status="duplicate", existing_id=n["id"],
+                       reason=f"DOI 命中已入库：《{p_title[:40]}》")
+        elif not dup and meta.get("title") and p_title and \
+                norm_title(p_title) == norm_title(meta["title"]):
+            dup, matched = True, n
+            res.update(status="duplicate", existing_id=n["id"],
+                       reason=f"标题归一化命中已入库：《{p_title[:40]}》")
+        elif not dup and p_file and os.path.basename(str(p_file)) == fn:
+            dup, matched = True, n
+            res.update(status="duplicate", existing_id=n["id"],
+                       reason=f"文件名命中已入库：{fn}")
+        if dup:
+            break
+    if dup:
+        old_title = matched["properties"].get("title", "") if matched else ""
+        refreshed = []
+        if matched is not None:
+            # P0-P3 收尾：重跑解析命中已入库文献时，用本次解析结果刷新字段并修正期刊边，
+            # 使修复后的解析逻辑对历史数据同样生效（不重新调用 LLM，不改动摘要/关键词）。
+            refreshed = refresh_paper_meta(matched, meta, graph, idx, log)
+        if matched is not None and meta.get("title") and _is_noisy_title(old_title):
+            # 已入库旧记录标题系噪声（乱码/误取页眉），用本次解析的正确元数据修正
+            repair_paper(matched, meta, graph, idx, log)
+            res.update(status="updated", existing_id=matched["id"], title=meta["title"],
+                       reason=f"已入库旧记录标题为噪声，已修正为：《{meta['title']}》")
+        elif refreshed:
+            fields = "、".join(f for f, _, _ in refreshed)
+            res.update(status="updated", existing_id=matched["id"], title=meta.get("title", ""),
+                       year=meta.get("year", ""), doi=meta.get("doi", ""),
+                       refreshed=[list(c) for c in refreshed],
+                       reason=f"重跑解析命中已入库：已刷新 {fields}")
+            log.append(f"  [刷新] 命中已入库，已回补字段：{fields}")
+        else:
+            log.append(f"  [去重] 命中已入库，元数据无变化，跳过：{res['reason']}")
+        # 命中重复/刷新：只清理 inbox 暂存副本，不触碰 data_test/论文 中的原始文件
+        _cleanup_staged()
+        return res
+    log.append("  [去重] 未命中，将新增入库。")
+
+    # 4) LLM 增强
+    stage_mark("llm")
+    if ollama_ok and model and not no_llm:
+        llm_result = llm_enhance(meta, model, known_kw, log)
+    else:
+        kw, _ = rule_extract(meta.get("title", ""), (meta.get("abstract") or "") or meta.get("text_head"), known_kw)
+        # S3「先入库、LLM 后台异步补全」阶段一：先以规则关键词落库并标记 pending-llm，
+        # 由服务端后台任务再调 --llm-backfill 补齐 aiSummary/关键词（用户感知耗时 < 2s）。
+        llm_result = ("", kw[:8], [], 0.60, "pending-llm" if pending_llm else "rule", 0)
+    log.append(f"  [LLM] created_by={llm_result[4]} confidence={llm_result[3]} kw={llm_result[1][:4]}")
+
+    # 5) 实例化并入图（原地修改 graph）
+    stage_mark("ingest")
+    paper_id = instantiate(meta, pdf_path, graph, build_index(graph),
+                           llm_result, known_kw, log)
+    res.update(status="ingested", paper_id=paper_id,
+               title=meta.get("title", ""), year=meta.get("year", ""),
+               doi=meta.get("doi", ""), authors=len(meta.get("authors", [])),
+               summary_generated=bool(llm_result[0]), created_by=llm_result[4])
+    log.append(f"  [入库] 新增 Paper {paper_id.split('#')[-1]}")
+    return res
+
+
+def _find_paper_by_file(graph, fn):
+    """按 LocalFile 文件名在图中定位对应 Paper 节点。"""
+    for n in graph["nodes"]:
+        if n.get("type") != "Paper":
+            continue
+        if os.path.basename(str(n.get("properties", {}).get("file", ""))) == fn:
+            return n
+    return None
+
+
+def backfill_prepare(pdf_path, model, known_kw, log):
+    """S3 阶段二（锁外）：只做耗时的 LLM 增强，完全不接触图谱文件。"""
+    fn = os.path.basename(pdf_path)
+    try:
+        meta = extract_metadata(pdf_path)
+    except Exception as e:
+        return {"file": fn, "status": "failed", "reason": f"元数据解析异常: {str(e)[:120]}"}
+    summ, kw, areas, conf, created_by, retry = llm_enhance(meta, model, known_kw, log)
+    return {"file": fn, "prepared": True, "summ": summ, "kw": kw, "areas": areas,
+            "conf": conf, "created_by": created_by, "retry": retry}
+
+
+def backfill_apply(item, graph, log):
+    """S3 阶段二（锁内）：基于最新图谱快照落地增强字段；只补 aiSummary 等，不新增 Paper。"""
+    fn = item.get("file", "")
+    if not item.get("prepared"):
+        return item
+    target = _find_paper_by_file(graph, fn)
+    if target is None:
+        log.append(f"  [补全] {fn} 未在图中找到对应 Paper，跳过")
+        return {"file": fn, "status": "not_found", "reason": "图谱中未找到该文献 Paper 节点"}
+    props = target["properties"]
+    if (props.get("aiSummary") or "").strip() and props.get("createdBy") == "ollama":
+        return {"file": fn, "status": "skipped", "paper_id": target["id"],
+                "reason": "已有 LLM 摘要，跳过"}
+    summ, kw = item.get("summ") or "", item.get("kw") or []
+    areas, conf = item.get("areas") or [], item.get("conf")
+    created_by, retry = item.get("created_by"), item.get("retry", 0)
+    if not summ:
+        props["createdBy"] = created_by
+        return {"file": fn, "status": "failed", "paper_id": target["id"], "retry": retry,
+                "reason": "LLM 补全失败（aiSummary 仍为空）"}
+    props["aiSummary"] = summ
+    props["autoKeywords"] = ", ".join(kw)
+    props["autoResearchArea"] = ", ".join(areas) if areas else ", ".join(kw[:3])
+    props["confidence"] = conf
+    props["createdBy"] = created_by
+    seen = {(e["source_id"], e["target_id"], e["type"]) for e in graph["edges"]}
+    for kid in ensure_keywords(kw, graph, build_index(graph)):
+        add_edge(graph, seen, target["id"], kid, "hasKeyword")
+    log.append(f"  [补全] {fn} -> aiSummary {len(summ)} 字 / {len(kw)} 关键词（重试 {retry}）")
+    return {"file": fn, "status": "backfilled", "paper_id": target["id"],
+            "summary_len": len(summ), "keywords": kw[:8], "confidence": conf, "retry": retry}
+
+
+def run(args):
+    t0 = time.time()
+    log = []
+    report = {"ran_at": now_iso(), "mode": "file" if args.file else ("dir" if args.dir else "watch")}
+
+    ensure_inbox_dir()
+    # 加载已入库库：优先最新 v2_4（跨运行增量累积），否则以 v2_3 为基线（v2_3 始终保留不动）
+    if os.path.exists(OUT_JSON):
+        latest_src = OUT_JSON
+        base_note = f"追加到现有 v2_4（{os.path.basename(OUT_JSON)}）"
+    else:
+        latest_src = GRAPH_V2_3
+        base_note = f"以 v2_3 为基线首建 v2_4"
+    graph = read_json(latest_src)
+    base_backup = os.path.join(BASE_DIR, "scholar_literature_graph_v2_3.json")
+    log.append(f"[基线] {base_note}（去重比对库: {os.path.basename(latest_src)}，节点 {len(graph['nodes'])} / 边 {len(graph['edges'])}）")
+    new_graph = json.loads(json.dumps(graph))
+
+    known_kw = {n["properties"].get("name", "").lower()
+                for n in new_graph["nodes"] if n.get("type") == "Keyword" and n["properties"].get("name")}
+
+    # Ollama 探测
+    ollama_ok, model, note = detect_ollama()
+    if not ollama_ok:
+        model = None
+        log.append(f"[模式] Ollama 不可用，本批新增文献将使用规则降级（created_by=rule，不编造摘要）。探测详情：{note}")
+    else:
+        log.append(f"[模式] 本地 Ollama 可用，模型 {model}（{note}）")
+        # S8：预热并常驻模型，避免每次解析冷启动
+        _wok, _wnote = warmup_model(model)
+        log.append(f"[预热] {_wnote}")
+
+    # 收集 PDF
+    pdfs = collect_pdfs(args.file, args.dir)
+    if not pdfs and not args.watch:
+        print("未发现待处理 PDF（--file 或 --dir 为空）。")
+        return report
+
+    # ---- S3 阶段二：--llm-backfill 仅补全已入库文献的 LLM 摘要/关键词 ----
+    # 不新增 Paper、不改动元数据/作者/机构，仅补齐 aiSummary/autoKeywords/autoResearchArea。
+    if getattr(args, "llm_backfill", False):
+        stage_mark("llm")
+        bres = []
+        if not (ollama_ok and model):
+            bres = [{"file": os.path.basename(p), "status": "skipped",
+                     "reason": "Ollama 不可用，无法补全"} for p in pdfs]
+        else:
+            # 阶段 A（锁外）：只跑耗时的 LLM 增强，不接触图谱文件
+            prepared = [backfill_prepare(p, model, known_kw, log) for p in pdfs]
+            # 阶段 B（锁内）：重读最新图谱再落地，避免用旧快照回写覆盖并发 ingest 的写入
+            wrote = False
+            with graph_write_lock():
+                new_graph = latest_graph_snapshot(new_graph)
+                known_kw = {n["properties"].get("name", "").lower()
+                            for n in new_graph["nodes"]
+                            if n.get("type") == "Keyword" and n["properties"].get("name")}
+                for item in prepared:
+                    bres.append(backfill_apply(item, new_graph, log))
+                if any(r.get("status") == "backfilled" for r in bres):
+                    stage_mark("write")
+                    write_output(new_graph, report, log, bres, t0, 0, 0, 0)
+                    wrote = True
+            if wrote:
+                stage_mark("page")
+                rebuild_page()
+        report["results"] = bres
+        report["summary"] = {"total": len(bres),
+                             "backfilled": sum(1 for r in bres if r.get("status") == "backfilled"),
+                             "skipped": sum(1 for r in bres if r.get("status") == "skipped"),
+                             "failed": sum(1 for r in bres if r.get("status") == "failed")}
+        report["llm_stats"] = dict(LLM_STATS)
+        report["total_elapsed"] = round(time.time() - t0, 2)
+        print("[STAGE] done", flush=True)
+        print(llm_stats_line())
+        print("\n".join(log))
+        return report
+
+    results = []
+    processed = 0
+    added_total = 0
+    dedup_total = 0
+    updated_total = 0
+    if args.watch:
+        seen = set()
+        # 首次扫描 + 轮询
+        print(f"[监控] 进入监控模式（Ctrl+C 退出）：{args.dir}")
+        first = True
+        try:
+            while True:
+                cur = collect_pdfs(file_path=args.file, dir_path=args.dir)
+                todo = [p for p in cur if p not in seen]
+                if todo:
+                    # 锁内：重读最新图谱 → 逐篇入库 → 原子写回（跨进程互斥，避免旧快照覆盖）
+                    with graph_write_lock():
+                        new_graph = latest_graph_snapshot(new_graph)
+                        known_kw = {n["properties"].get("name", "").lower()
+                                    for n in new_graph["nodes"]
+                                    if n.get("type") == "Keyword" and n["properties"].get("name")}
+                        for p in todo:
+                            seen.add(p)
+                            _tp = time.time()
+                            r = handle_pdf(p, new_graph, ollama_ok, model, known_kw, log,
+                                           no_llm=args.no_llm,
+                                           pending_llm=getattr(args, "pending_llm", False))
+                            r["elapsed"] = round(time.time() - _tp, 2)
+                            log.append(f"  [耗时] {os.path.basename(p)} 单篇 {r['elapsed']:.2f}s（{r.get('status')}）")
+                            results.append(r); processed += 1
+                            if r["status"] == "ingested":
+                                added_total += 1
+                            elif r["status"] == "duplicate":
+                                dedup_total += 1
+                            elif r["status"] == "updated":
+                                updated_total += 1
+                            # 每篇后写盘
+                            write_output(new_graph, report, log, results, t0, dedup_total, added_total, updated_total)
+                    rebuild_page()
+                    print(f"[监控] 已处理 {processed} 个，等待新 PDF…（Ctrl+C 退出）")
+                time.sleep(3)
+        except KeyboardInterrupt:
+            print("\n[监控] 收到中断，退出监控。")
+    else:
+        # 锁内「重读最新图谱 → 逐篇入库 → 原子写回」：与后台 backfill 进程跨进程互斥，
+        # 且必须重读最新快照，避免用旧库回写覆盖并发写入的文献
+        with graph_write_lock():
+            new_graph = latest_graph_snapshot(new_graph)
+            known_kw = {n["properties"].get("name", "").lower()
+                        for n in new_graph["nodes"]
+                        if n.get("type") == "Keyword" and n["properties"].get("name")}
+            for p in pdfs:
+                _tp = time.time()
+                r = handle_pdf(p, new_graph, ollama_ok, model, known_kw, log,
+                               no_llm=args.no_llm, pending_llm=getattr(args, "pending_llm", False))
+                r["elapsed"] = round(time.time() - _tp, 2)
+                log.append(f"  [耗时] {os.path.basename(p)} 单篇 {r['elapsed']:.2f}s（{r.get('status')}）")
+                results.append(r); processed += 1
+                if r["status"] == "ingested":
+                    added_total += 1
+                elif r["status"] == "duplicate":
+                    dedup_total += 1
+                elif r["status"] == "updated":
+                    updated_total += 1
+            stage_mark("write")
+            write_output(new_graph, report, log, results, t0, dedup_total, added_total, updated_total)
+        stage_mark("page")
+        rebuild_page()
+
+    report["processed"] = processed
+    _last = results[-1] if results else {}
+    report["summary"] = {"total": processed,
+                         "ingested": sum(1 for r in results if r["status"] == "ingested"),
+                         "duplicate": sum(1 for r in results if r["status"] == "duplicate"),
+                         "updated": sum(1 for r in results if r["status"] == "updated"),
+                         "failed": sum(1 for r in results if r["status"] == "failed"),
+                         "title": _last.get("title", "") if isinstance(_last, dict) else ""}
+    report["results"] = results
+    report["llm_stats"] = dict(LLM_STATS)
+    report["total_elapsed"] = round(time.time() - t0, 2)
+    print("[STAGE] done", flush=True)
+    print(llm_stats_line())
+    print("\n".join(log))
+    return report
+
+
+def write_output(new_graph, report, log, results, t0, dedup_total=0, added_total=0, updated_total=0):
+    """写 v2_4 JSON + TTL + SHACL 复检 + 打印统计。"""
+    from collections import Counter
+    # meta 更新
+    node_types = Counter(n["type"] for n in new_graph["nodes"])
+    new_graph["meta"] = {
+        "title": "科研文献知识图谱 v2.4（v1.6 阶段：上传 PDF 自动入库闭环）",
+        "version": "2.4",
+        "created": now_iso(),
+        "namespace": ES_NS,
+        "source": "基于 v2_3 运行 tools/ingest_pdf.py：上传 PDF 自动解析元数据 → 去重 → 本地 LLM 增强 → 本体实例化 → 增量入库",
+        "v16": {"added_new": added_total, "dedup_hit": dedup_total, "corrected": updated_total},
+    }
+    # 原子写：先写临时文件再替换，避免并发读取方读到半截 JSON（前端图谱空白）
+    tmp_json = OUT_JSON + ".tmp"
+    with open(tmp_json, "w", encoding="utf-8") as f:
+        json.dump(new_graph, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_json, OUT_JSON)
+    # TTL
+    ttl_triples = graph_to_ttl(new_graph, OUT_TTL)
+    # SHACL
+    try:
+        shacl = run_shacl(OUT_TTL)
+        conforms = shacl["conforms"]
+        shacl_note = f"conforms={conforms}"
+    except Exception as e:
+        shacl = None
+        shacl_note = f"SHACL 异常: {e}"
+    print(f"[输出] 图谱 JSON: {OUT_JSON}")
+    print(f"[输出] 图谱 TTL : {OUT_TTL}（三元组 {ttl_triples}）")
+    print(f"[统计] 节点={len(new_graph['nodes'])} ({dict(node_types)}) / 边={len(new_graph['edges'])}")
+    print(f"[SHACL] {shacl_note}（P0-P3 修复后：年份/期刊/机构已全量回补）")
+
+
+def rebuild_page():
+    """调用 rebuild_page.py 重建页面，使新入库文献即时可见。"""
+    try:
+        subprocess.run([sys.executable, REBUILD], capture_output=True, text=True, timeout=300)
+    except Exception as e:
+        print(f"[页面重建] 失败: {e}")
+
+
+def main():
+    ap = argparse.ArgumentParser(description="v1.7 上传 PDF 自动入库闭环管线（P0-P3 年份/期刊/机构修复版）")
+    g = ap.add_mutually_exclusive_group(required=True)
+    g.add_argument("--file", help="单个 PDF 文件绝对路径")
+    g.add_argument("--dir", help="目录（扫描其中所有 .pdf）")
+    ap.add_argument("--watch", action="store_true", help="配合 --dir 进入监控模式，轮询新 PDF 自动入库")
+    ap.add_argument("--no-llm", action="store_true", help="跳过本地 LLM 增强（强制规则降级）")
+    ap.add_argument("--no-rebuild", action="store_true", help="入库后不重建页面")
+    ap.add_argument("--pending-llm", action="store_true",
+                    help="S3 阶段一：先入库并把 createdBy 标记为 pending-llm，等待 --llm-backfill 补齐")
+    ap.add_argument("--llm-backfill", action="store_true",
+                    help="S3 阶段二：为已入库但缺 AI 摘要的文献补齐 LLM 增强（不新增、不改元数据）")
+    args = ap.parse_args()
+    if args.watch and not args.dir:
+        ap.error("--watch 必须配合 --dir 使用")
+    report = run(args)
+    print("\nDONE. 处理统计:", json.dumps(report.get("summary", {}), ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    main()
